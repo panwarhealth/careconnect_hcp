@@ -1,0 +1,38 @@
+/*
+Theme Name:     WP Spinnr Child
+Theme URI:      
+Template:       wp-spinnr
+Version:        1.0
+*/
+
+.border-medium-silver{
+    border-color: rgba(186,186,186,1);
+}
+
+.less-than::before {
+  content: "\003C";
+}
+
+.greater-than::before {
+  content: "\003E";
+}
+
+.ld-quiz-actions:has(.quiz_continue_link[style*="display: none"]) .wpProQuiz_button_restartQuiz {
+  display: block !important;
+}
+
+/* Default state */
+.wpProQuiz_button_restartQuiz {
+    display: none !important;
+}
+
+/* 1. Target the wrapper only IF it contains a tab with your specific message */
+.learndash-wrapper:has(.ld-tab-content:contains("This survey has already been completed")) .ld-content-actions {
+    display: none !important;
+}
+
+/* 2. Fallback: If your version of WordPress/Browser doesn't support :contains, 
+   we target the structure of the tab content directly */
+.learndash-wrapper:has(.ld-tab-content .mt-10) .ld-content-actions {
+    display: none !important;
+}

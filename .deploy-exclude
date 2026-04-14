@@ -1,0 +1,98 @@
+# =======================================================================
+# .deploy-exclude — paths that MUST NEVER be uploaded to production.
+#
+# This file is the machine-readable counterpart to docs/DEPLOY.md. It is
+# NOT consumed by any tool today — we deploy manually via FTP — but it
+# codifies the deny-list so future CI (GitHub Actions, rsync, lftp) can
+# pick it up directly with --exclude-from=.deploy-exclude.
+#
+# Format: one rsync/gitignore-style pattern per line. # starts a comment.
+#
+# The RULE (repeated here so you see it before any upload):
+#   Only push files YOU edited in this repo. WordPress core, third-party
+#   plugins, and prod's wp-config.php / .htaccess have been live for
+#   years — leave them alone.
+#
+# See docs/DEPLOY.md for the full allow-list and the manual FTP process.
+# =======================================================================
+
+# --- Config files that differ between environments ---------------------
+site/wp-config.php
+site/.htaccess
+
+# --- WordPress core -----------------------------------------------------
+# Prod auto-updates these. Never overwrite from this repo.
+site/wp-admin/**
+site/wp-includes/**
+site/index.php
+site/wp-activate.php
+site/wp-blog-header.php
+site/wp-comments-post.php
+site/wp-config-sample.php
+site/wp-cron.php
+site/wp-links-opml.php
+site/wp-load.php
+site/wp-login.php
+site/wp-mail.php
+site/wp-settings.php
+site/wp-signup.php
+site/wp-trackback.php
+site/xmlrpc.php
+site/readme.html
+site/license.txt
+site/robots.txt
+
+# --- Third-party plugins (frozen on prod) -------------------------------
+# Everything under plugins/ EXCEPT the custom in-house ones.
+site/wp-content/plugins/**
+!site/wp-content/plugins/tbst-custom-report/**
+
+# --- Parent theme (only push if explicitly edited) ----------------------
+# Child theme (wp-spinnr-child) IS deployable — it's what we actually edit.
+# The parent is rarely touched; if you do edit it, delete this line for
+# that specific deploy and add it back after.
+site/wp-content/themes/wp-spinnr/**
+!site/wp-content/themes/wp-spinnr-child/**
+
+# --- Default WP themes (not used, don't sync) ---------------------------
+site/wp-content/themes/twentytwenty*/**
+site/wp-content/themes/twentytwentyone/**
+site/wp-content/themes/twentytwentytwo/**
+site/wp-content/themes/twentytwentythree/**
+
+# --- Runtime data (regenerated on prod, DO NOT upload) ------------------
+site/wp-content/uploads/**
+site/wp-content/cache/**
+site/wp-content/upgrade/**
+site/wp-content/debug.log
+site/wp-content/advanced-cache.php
+site/wp-content/object-cache.php
+site/wp-content/wflogs/**
+site/.tmb/**
+
+# --- Tooling / local-only artefacts -------------------------------------
+.git/**
+.gitignore
+.gitattributes
+.dockerignore
+.env
+.env.*
+.deploy-exclude
+docker-compose.yml
+docker-compose.*.yml
+README.md
+CLAUDE.md
+docs/**
+db/**
+_extract_tmp/**
+node_modules/**
+vendor/**
+
+# --- OS / editor junk ---------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/**
+.vscode/**

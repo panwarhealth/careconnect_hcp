@@ -1,0 +1,100 @@
+# Local dev stack for hcp.carepharma.com.au.
+#
+# Three services, one responsibility each (SRP for infra):
+#   - wordpress : Apache + PHP 8.3 (matches prod exactly)
+#   - db        : MySQL 8.0       (matches prod exactly)
+#   - wpcli     : run-on-demand WP-CLI for search-replace, plugin toggles
+#
+# The WordPress service bind-mounts ./site so any PHP/CSS/JS edit is
+# reflected on the next request — that's the "hot reload" for this stack.
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Any .sql / .sh / .sql.gz in this directory runs once, on first boot
+      # (i.e. when db_data is empty). To re-seed: `docker compose down -v`.
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    # Not publishing port 3306 to the host — the wordpress service reaches
+    # it over the internal compose network. If you want a GUI client
+    # (DBeaver, TablePlus), uncomment:
+    # ports:
+    #   - "3306:3306"
+    healthcheck:
+      # -h 127.0.0.1 forces TCP, so this only passes after MySQL has finished
+      # running /docker-entrypoint-initdb.d and made networking available.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  wordpress:
+    # Pinned to prod's exact WP + PHP + Apache. Bump this when prod upgrades.
+    # The image ships WP core — on first boot, if ./site has no wp-includes/,
+    # the entrypoint populates core into the bind-mount, so we don't track
+    # core in git. Our wp-config.php / .htaccess / themes / plugins survive.
+    image: wordpress:6.9.4-php8.3-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WORDPRESS_PORT}:80"
+    environment:
+      # wp-config.php reads these via getenv() (see site/wp-config.php).
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG}
+      WORDPRESS_DEBUG_DISPLAY: ${WORDPRESS_DEBUG_DISPLAY}
+      WORDPRESS_SCRIPT_DEBUG: ${WORDPRESS_SCRIPT_DEBUG}
+      WORDPRESS_AUTH_KEY: ${WORDPRESS_AUTH_KEY}
+      WORDPRESS_SECURE_AUTH_KEY: ${WORDPRESS_SECURE_AUTH_KEY}
+      WORDPRESS_LOGGED_IN_KEY: ${WORDPRESS_LOGGED_IN_KEY}
+      WORDPRESS_NONCE_KEY: ${WORDPRESS_NONCE_KEY}
+      WORDPRESS_AUTH_SALT: ${WORDPRESS_AUTH_SALT}
+      WORDPRESS_SECURE_AUTH_SALT: ${WORDPRESS_SECURE_AUTH_SALT}
+      WORDPRESS_LOGGED_IN_SALT: ${WORDPRESS_LOGGED_IN_SALT}
+      WORDPRESS_NONCE_SALT: ${WORDPRESS_NONCE_SALT}
+      # Non-WP credentials consumed by theme/plugin code via getenv().
+      # Prod/staging set equivalents via putenv() in wp-config.php.
+      AHPRA_PIEWS_USER: ${AHPRA_PIEWS_USER}
+      AHPRA_PIEWS_PASSWORD: ${AHPRA_PIEWS_PASSWORD}
+    volumes:
+      # Bind-mount the entire webroot — edits on the host are picked up
+      # by PHP on the next request. This is the "hot reload" for WP.
+      - ./site:/var/www/html
+
+  # WP-CLI as a run-on-demand tool, not a running service.
+  # Invoke with:  docker compose run --rm wpcli wp <command>
+  # The `tools` profile keeps it out of `docker compose up`.
+  wpcli:
+    # Pin WP-CLI to a version that matches WP 6.9.x.
+    image: wordpress:cli-php8.3
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    # WP-CLI needs to run as the same UID as the webserver to avoid
+    # writing files the wordpress container can't read.
+    user: "33:33"
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+    volumes:
+      - ./site:/var/www/html
+
+volumes:
+  db_data:

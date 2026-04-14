@@ -1,0 +1,166 @@
+# =======================================================================
+# Secrets & local environment
+# =======================================================================
+.env
+.env.*
+!.env.example
+
+# =======================================================================
+# Database dumps (seeded locally, mirrored via Azure Blob in future)
+# =======================================================================
+db/init/*.sql
+db/init/*.sql.gz
+db/dumps/
+*.sql
+*.sql.gz
+
+# =======================================================================
+# WordPress runtime artefacts (regenerated, never committed)
+# =======================================================================
+site/wp-content/uploads/
+site/wp-content/cache/
+site/wp-content/upgrade/
+site/wp-content/debug.log
+site/wp-content/debug-log.txt
+site/wp-content/error_log
+site/wp-content/*.log
+site/wp-content/advanced-cache.php
+site/wp-content/object-cache.php
+site/wp-content/wp-rocket-config/
+site/wp-content/blogs.dir/
+site/wp-content/backup-db/
+site/wp-content/backups/
+
+# Plugin-generated transients / caches
+site/wp-content/plugins/*/cache/
+site/wp-content/plugins/wp-rocket/cache/
+site/wp-content/plugins/imagify/cache/
+site/wp-content/wflogs/
+
+# FileOrganizer (elFinder) thumbnail cache — regenerated on demand when an
+# admin browses files via the plugin's UI. Base64-encoded filenames, useless
+# in git.
+site/.tmb/
+
+# =======================================================================
+# Third-party plugins — frozen in prod, not deployed from this repo.
+# The repo only tracks custom code (theme + tbst-* plugins).
+# =======================================================================
+site/wp-content/plugins/*
+!site/wp-content/plugins/tbst-custom-report/
+!site/wp-content/plugins/index.php
+!site/wp-content/plugins/.gitkeep
+
+# =======================================================================
+# WordPress core — NOT tracked in git. The wordpress:X.Y.Z-php8.3-apache
+# image's entrypoint populates these into ./site on first boot when the
+# bind-mount is missing them. Version pinned in docker-compose.yml.
+# =======================================================================
+site/wp-admin/
+site/wp-includes/
+site/index.php
+site/wp-activate.php
+site/wp-blog-header.php
+site/wp-comments-post.php
+site/wp-config-sample.php
+site/wp-cron.php
+site/wp-links-opml.php
+site/wp-load.php
+site/wp-login.php
+site/wp-mail.php
+site/wp-settings.php
+site/wp-signup.php
+site/wp-trackback.php
+site/xmlrpc.php
+site/readme.html
+site/license.txt
+site/robots.txt
+
+# Default WP themes — we use wp-spinnr / wp-spinnr-child only. The image
+# re-populates these on fresh-boot; leaving them on disk is harmless.
+site/wp-content/themes/twentytwenty/
+site/wp-content/themes/twentytwentyone/
+site/wp-content/themes/twentytwentytwo/
+site/wp-content/themes/twentytwentythree/
+site/wp-content/themes/twentytwentyfour/
+site/wp-content/themes/twentytwentyfive/
+site/wp-content/themes/twentytwentysix/
+
+# Default WP plugins bundled with the core image (akismet, hello-dolly).
+# These ship in the image; we don't track or deploy them.
+site/wp-content/plugins/akismet/
+site/wp-content/plugins/hello.php
+
+# WP translations — pulled by wp core language update on-demand, not hand-edited.
+site/wp-content/languages/
+
+# =======================================================================
+# Non-theme stuff that was dropped into the theme directory by prior devs.
+# tbst-pma is a phpMyAdmin install sitting inside wp-spinnr-child — it
+# is NOT our theme code and represents a security risk on prod. See
+# CLAUDE.md "Known gotchas" for context. Not tracked here.
+# =======================================================================
+site/wp-content/themes/wp-spinnr-child/tbst-pma/
+
+# Theme backup zips left by prior devs (e.g. wp-spinnr-child-old.zip)
+site/wp-content/themes/*.zip
+
+# Plugin-generated backup / export / cache artefacts
+site/wp-content/ai1wm-backups/
+site/wp-content/webtoffee_export/
+site/wp-content/wpo-cache/
+
+# =======================================================================
+# Host / provider cruft
+# =======================================================================
+site/wp-cli.phar
+site/error_log
+site/wp-admin/error_log
+site/.htaccess.bak
+_extract_tmp/
+hcp.carepharma.com.au/
+
+# =======================================================================
+# Build / dependency dirs (theme or plugin tooling may create these)
+# =======================================================================
+node_modules/
+vendor/
+.sass-cache/
+dist/
+build/
+.parcel-cache/
+
+# =======================================================================
+# Prior-dev backup files — NEVER track these. They leak the file they
+# "back up" via direct URL on Apache (no PHP handler for .bak/.bk).
+# We already removed functions.php-bk, footer.bak, header.bak — this
+# stops them (or any future ones) being committed by accident.
+# =======================================================================
+*.bak
+*.bk
+*-bk
+*-old
+*.orig
+*.backup
+*.save
+*~
+
+# =======================================================================
+# Editor / OS
+# =======================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =======================================================================
+# Docker / dev tooling
+# =======================================================================
+.docker/
+docker-compose.override.yml
