@@ -115,6 +115,20 @@ docker compose run --rm wpcli wp plugin list --status=active
 docker compose run --rm wpcli wp cache flush
 ```
 
+### Exploring the LMS locally (bypassing the AHPRA gate)
+
+On prod, access to gated content requires registering through a Formidable form that validates against AHPRA's PIEWS API. Locally, two shortcuts:
+
+1. **Log in as any admin** (yours, or Panwar-education). LearnDash and Restrict Content Pro both grant admins access to all courses without membership checks. Admin view ≠ real HCP view though (you see edit buttons, skip quiz gates, see drafts).
+2. **Log in as a real pre-verified HCP** by resetting their local password. Their `user_login` IS their AHPRA number. 1,316 such users exist in the seeded DB. Example:
+   ```bash
+   docker compose run --rm wpcli wp user update 25011 --user_pass='lms-explore'
+   # then log in as MED0001552054 / lms-explore
+   ```
+   Users with `MED`/`NMW`/`PHA` logins + `tbstwp_rcp_memberships.status='active'` (level 22) have full LMS access.
+
+Both are local-only — the seeded DB has real user PII, but nothing leaves your machine. Don't screenshot/share course enrollments or user details without redacting.
+
 ### Fresh DB from prod
 
 1. Export via phpMyAdmin (or `mysqldump` if you get SSH access) → save as `db/init/01-seed.sql`, overwriting the old one.
@@ -140,6 +154,8 @@ docker compose exec -T db \
 - **Paid plugins.** LearnDash, Formidable Pro (+ 10 addons), WP Rocket, WP Mail SMTP Pro, Imagify, ACF Pro, Restrict Content Pro. Licences live with the client. If a plugin activates an "update available" nag, **do not click update** — updates need to go through licence validation on the client's account.
 - **Plugin deactivation is local-only.** `wp plugin deactivate` writes to the DB, which is local. The list of plugins to deactivate after re-seeding is above.
 - **Salesforce, SMTP, and Wordfence are all deactivated locally** — they're intentional. Don't reactivate without a reason.
+- **AHPRA validation handler has dead code on line ~798 of `functions.php`.** The AJAX handler calls `wp_send_json($ahpra_data, 422)` unconditionally BEFORE checking the result, so everything below (including `set_ahpra_cookie()`) is unreachable. Also: `set_ahpra_cookie()` is called but never defined anywhere in the codebase — it would be a fatal error if reached. The frontend JS appears to work around this by parsing `success` out of the 422 response body. **This matters for staging validation** — don't assume the code works just because the prod site works; it's held together by JS shim, not by the PHP flow reading cleanly. When validating the AHPRA refactor on staging, watch the **browser network tab** for the 422 + success combo, not just the rendered page.
+- **Many existing users have a corrupted `tbstwp_capabilities` entry** — a bogus 2-char key `)}` alongside their real role, plus often **two rows** of `tbstwp_capabilities` for the same user where WP expects one. Unknown cause (plugin bug, migration artifact, partial injection). Impact on WP: zero (unknown cap names are silently ignored). But it's a data-cleanup opportunity during any user-audit conversation, and a possible "tell" if you're ever investigating weird permission behaviour.
 - **`wp-spinnr-child/tbst-pma/` — removed from prod 2026-04-14.** Was phpMyAdmin 5.2.3 dropped into the child theme by TBST Digital (prior agency — same prefix as `tbstwp_` tables and `tbst-custom-report` plugin). Public at `https://hcp.carepharma.com.au/wp-content/themes/wp-spinnr-child/tbst-pma/` until manually deleted via FTP. **Don't re-introduce.** The directory is gitignored so it can't sneak back via a theme sync. For DB admin going forward: Plesk's built-in phpMyAdmin, or SSH tunnel + DBeaver.
 
 ## Site notables
