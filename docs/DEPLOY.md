@@ -72,7 +72,7 @@ Every entry here represents a change that lives in `main` but **must not be FTP'
 
 **Deploy prerequisites (in order):**
 
-1. **Staging first.** Spin up Azure staging (`docs/AZURE_STAGING.md`), set `AHPRA_PIEWS_*` env vars in App Service configuration, deploy the refactored `functions.php`, run the AHPRA lookup end-to-end with a real AHPRA number against AHPRA's **test** endpoint (`ws2test.ahpra.gov.au` — uncomment line 839 of functions.php for staging only; prod keeps `ws2.ahpra.gov.au`).
+1. **Staging first.** Spin up Azure staging (`docs/AZURE_STAGING.md`), set `AHPRA_PIEWS_*` env vars in App Service configuration, deploy the refactored `functions.php`, run the AHPRA lookup end-to-end with a real AHPRA number against AHPRA's **test** endpoint (`ws2test.ahpra.gov.au` — uncomment line 839 of functions.php for staging only; prod keeps `ws2.ahpra.gov.au`). **Critical verification:** watch the browser network tab, not just the rendered form. The handler returns HTTP 422 even on success (known dead-code bug — see `CLAUDE.md` → known gotchas). Success = response body contains `"success":true` inside the 422. If the body shows `Invalid Professional Number!` or similar, it's a real auth/validation failure. Don't trust the page render alone.
 2. **Rotate AHPRA creds with AHPRA** before prod deploy — the pre-refactor password (redacted; see the original provider zip or ask the PM for context) was publicly leaked via `functions.php-bk` for months, so it must be treated as burned. PM has been notified.
 3. **Prod `wp-config.php` edit via FTP first** (before uploading functions.php):
    ```php
