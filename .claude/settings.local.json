@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l \"hcp.carepharma.com.au.zip\")",
+      "Bash(mkdir -p /tmp/hcp_peek)",
+      "Read(//tmp/**)",
+      "Bash(unzip -o -j \"/c/Users/User/Downloads/hcp.carepharma.com.au.zip\" \"hcp.carepharma.com.au/httpdocs/wp-config.php\" \"hcp.carepharma.com.au/httpdocs/.htaccess\")",
+      "Bash(unzip -p \"hcp.carepharma.com.au.zip\" \"hcp.carepharma.com.au/database_2026-04-14.sql\")",
+      "Bash(grep -E \"wp-content/\\(themes|plugins|mu-plugins\\)/[^/]+/$\")",
+      "Bash(cp /tmp/hcp_peek/wp-config.php /f/Github/careconnect_hcp/.wp-config.peek)",
+      "Bash(cp /tmp/hcp_peek/.htaccess /f/Github/careconnect_hcp/.htaccess.peek)",
+      "Bash(rm /f/Github/careconnect_hcp/.wp-config.peek /f/Github/careconnect_hcp/.htaccess.peek)",
+      "Bash(rm -rf /tmp/hcp_peek)",
+      "Bash(ls -la /f/Github/careconnect_hcp/_extract_tmp/hcp.carepharma.com.au/*.sql)",
+      "Bash(curl -s https://api.wordpress.org/secret-key/1.1/salt/)",
+      "Bash(docker --version)",
+      "Bash(docker compose:*)",
+      "Bash(curl -sI -o /dev/null -w \"HTTP %{http_code}  size=%{size_download}B  time=%{time_total}s  redirect=%{redirect_url}\\\\n\" http://localhost:8080/)",
+      "Bash(curl -s http://localhost:8080/ -o /tmp/hcp_home.html)",
+      "Bash(curl -sI -o /dev/null -w \"HTTP %{http_code}  time=%{time_total}s\\\\n\" http://localhost:8080/)",
+      "Bash(wait)",
+      "Bash(awk -F/ '{:*)",
+      "Bash(grep:*)",
+      "Bash(cat site/wp-content/themes/wp-spinnr-child/tbst-pma/RELEASE-DATE-*)",
+      "Bash(az account show:*)",
+      "Bash(az group:*)",
+      "Bash(az account:*)",
+      "Bash(az storage:*)",
+      "Bash(set -e)",
+      "Bash(curl -sI \"https://hcp.carepharma.com.au/wp-content/themes/wp-spinnr-child/tbst-pma/\")",
+      "Bash(curl -sI \"https://hcp.carepharma.com.au/wp-content/themes/wp-spinnr-child/tbst-pma/index.php\")",
+      "Bash(awk '{printf \"%-60s %.1f MB\\\\n\", $1, $2/1048576}')"
+    ]
+  }
+}

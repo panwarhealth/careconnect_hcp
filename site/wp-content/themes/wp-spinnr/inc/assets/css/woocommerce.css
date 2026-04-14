@@ -1,0 +1,65 @@
+.woocommerce-notices-wrapper {
+    width: 100%;
+}
+.woocommerce-loop-product__link { 
+    text-decoration: none;
+    margin-bottom: 0
+}
+.woocommerce-loop-product__link .woocommerce-loop-product__title { 
+    font-size: 1.25rem;
+}
+.woocommerce-loop-product__link .woocommerce-loop-product__title:hover { 
+    text-decoration: underline;
+}
+.woocommerce-loop-product__link img {
+    margin-bottom: 0;
+}
+.woocommerce-loop-product__link .price {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+.woocommerce-loop-product__link .price del {
+    display: block;
+    opacity: 0.6;
+    font-size: 1rem;
+    font-weight: normal;
+}
+.price-single ins,
+.woocommerce-loop-product__link .price ins {
+    text-decoration: none;
+}
+.price-single del {
+    opacity: 0.6;
+}
+.woocommerce-tabs ul li.active {
+    background-color: #FFF;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+}
+.product_meta, .product_meta a {
+    font-size: 0.75rem;
+}
+.woocommerce-product-gallery__thumbnails img {
+    margin-bottom: 0;
+}
+.comment-form-rating .stars a {
+    font-size: 0;
+    text-decoration: none;
+}
+.comment-form-rating .stars a:before {
+    font-weight: 900;
+    content: "\f005";
+    font-family: "Font Awesome 5 Free";
+    font-size: 20px;
+}
+.comment-form-rating .stars a.active ~ a:before {
+    font-weight: 400;
+}
+.shop_table {
+    width: 100%;
+}
+.shop_table td {
+    text-align: center;
+}

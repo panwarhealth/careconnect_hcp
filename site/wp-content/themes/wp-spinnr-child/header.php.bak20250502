@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * The header for our theme
+ *
+ * This is the template that displays all of the <head> section and everything up until <div id="content">
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ *
+ * @package WP_SPINNR
+ */
+
+?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="profile" href="http://gmpg.org/xfn/11">
+    <?php wp_head(); ?>
+    <?php
+	    if(is_page("rectogesic-3d-model")){
+	?>
+	<script type="text/javascript">
+        var stylesheet_directory_uri = "<?php echo get_stylesheet_directory_uri(); ?>";
+    </script>
+
+	<link rel="modulepreload" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/entry.22957f2a.js">
+	<link rel="modulepreload" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/index.d946cda7.js">
+	<link rel="modulepreload" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/_plugin-vue_export-helper.c27b6911.js">
+	<link rel="modulepreload" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/Modal.60fe48ac.js">
+	<link rel="preload" as="style" href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/Modal.24eba80f.css">
+	<link rel="prefetch" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/error-404.4f90e9e7.js"><link rel="prefetch" as="script" crossorigin href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/error-500.8494c0a1.js">
+	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/_nuxt/Modal.24eba80f.css">
+	<?php 
+        }
+	?>
+</head>
+
+<body <?php body_class(); ?>>
+    <div id="app" class="site"><!-- #page -->
+        <a class="skip-link sr-only" href="#content"><?php esc_html_e('Skip to content', 'wp-spinnr'); ?></a>
+        <?php wp_spinnr_load_header() ?>
+        <div id="mobile-menu" class="fixed z-40 left-0 -top-full duration-300 w-full h-full">
+            <?php wp_spinnr_load_mobile_menu(); ?>
+        </div>
+        <script type="text/javascript">
+            function toggleMobileMenu() {
+                var mobileMenu = document.getElementById('mobile-menu');
+                if(mobileMenu.classList.contains('top-0')){
+                    mobileMenu.classList.remove('top-0');
+                    mobileMenu.classList.add('-top-full');
+                } else {
+                    mobileMenu.classList.remove('-top-full');
+                    mobileMenu.classList.add('top-0');
+                }
+            }
+        </script>
+        <div id="content" class="site-content"><!-- #content -->
