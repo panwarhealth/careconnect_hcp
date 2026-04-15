@@ -63,6 +63,7 @@ site/wp-activate.php
 site/wp-blog-header.php
 site/wp-comments-post.php
 site/wp-config-sample.php
+site/wp-config-docker.php
 site/wp-cron.php
 site/wp-links-opml.php
 site/wp-load.php
