@@ -15,6 +15,8 @@ define( 'HCP_MCA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 require_once HCP_MCA_PLUGIN_DIR . 'includes/constants.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/state.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/shortcodes.php';
+require_once HCP_MCA_PLUGIN_DIR . 'includes/completion-guard.php';
+require_once HCP_MCA_PLUGIN_DIR . 'includes/notifications.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-migrations-page.php';
