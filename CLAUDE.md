@@ -36,6 +36,7 @@ docker compose exec db mysql --version
 4. **Staging-first for non-trivial changes.** Claude (me) owns the Azure staging lifecycle — spin up, deploy, smoke-test, tear down. See `docs/AZURE_STAGING.md`.
 5. **Inherited plugins are frozen.** Don't "modernise" LearnDash / Formidable / RCP / WP Rocket unless explicitly asked. Deprecation notices from old plugins are noise, not tasks.
 6. **🚩 Env-var refactors of external API credentials MUST go through staging before prod.** Secret refactors look innocuous but the failure mode is silent on prod: a missing `putenv()` in `wp-config.php` means `getenv()` returns `false`, the API call fails, and a user-facing flow breaks quietly. See `docs/DEPLOY.md` → "High-risk pending deploys" for the queue of refactors awaiting staging validation.
+7. **🚩 Plugin DB migrations MUST be run after every prod deploy.** Any change that touches DB state (page content, postmeta, options) lives as a file in `site/wp-content/plugins/<plugin>/migrations/`. After syncing files to prod, open **wp-admin → Tools → HCP Migrations** and click "Run pending migrations". Idempotent (safe to re-run). Forgetting this step means prod files reference shortcodes/options the DB doesn't have yet, and the frontend breaks silently.
 
 ## Directory layout
 
@@ -85,6 +86,17 @@ Single-Responsibility for infra:
 - Nginx reverse proxy — Apache matches prod, no drift.
 
 ## Common operations
+
+### DB migrations (plugin-scoped)
+
+`hcp-mca-review-workflow` (and any future plugin that ships DB changes) owns a `migrations/` folder. Each file is `YYYY-MM-DD-slug.php` returning an array with `description` and an idempotent `up` callable. The runner tracks applied migrations in the `hcp_mca_migrations_run` WP option.
+
+Three ways to trigger pending migrations:
+- **wp-admin → Tools → HCP Migrations** — single-click runner, shows pending + applied. Primary path for prod.
+- **Plugin activation** — runs automatically on (re)activation. Useful for fresh installs.
+- **Explicit function call** — `hcp_mca_migrations_run_pending()` via `wp eval` for scripted flows.
+
+After any `git pull` / FTP sync to prod, the first step is to run pending migrations. Safe to re-run at any time.
 
 ### Start / stop
 
@@ -173,6 +185,39 @@ docker compose exec -T db \
 - **Forms:** Formidable Pro + Views + PDFs + Chat + Mailchimp + Salesforce + Registration. Heavy form surface area.
 - **Reporting:** `tbst-custom-report` — custom plugin we own. This is where your PHP work will typically live.
 - **Email templates:** `site/EDM/*.html` — campaign HTML referenced by transactional emails.
+
+## Mini Clinical Audit — completion flow (source of truth)
+
+The MCA is the CPD course that Maria (Panwar Health CPD rep) reviews and reports to RACGP. Because the completion/cert/email pipeline is NOT obvious from the code alone and has several half-wired pieces, this is the definitive reference.
+
+**Course structure**
+- Course `111793` "Mini Clinical Audit" (post_type `sfwd-courses`) — has `_ld_certificate=96129` attached, so cert auto-issues on course-complete.
+- Lesson `112353` "Complete Mini Clinical Audit" (post_type `sfwd-lessons`) — content is literally just the shortcode `[formidable id=161]`.
+  - **Form 161 "Retrospective analysis Form"** is the actual 5-step audit (397 fields, page breaks at field_order 79/387/537/605 = 5 pages: Step 1A/1B/2A/2B/3). Name is misleading — it's the whole audit, not just the retro portion.
+  - Form 177 "Repeater" is the sub-form for Step 2A's per-patient records (Patient 1/2/3).
+- Quiz `116865` "Activity evaluation" (post_type `sfwd-quiz`) — a Formidable form dressed as a LearnDash quiz. Embeds **Form 209 "Activity evaluation"**.
+
+**How a user actually gets a cert (Maria's manual flow — what works today)**
+1. User completes **form 161** (audit) — submits all 5 pages, answers stored in `tbstwp_frm_items` + `tbstwp_frm_item_metas`.
+2. User completes **form 209** (activity evaluation) — stored the same way.
+3. **Submitting both forms does NOT auto-complete the course.** Of 13 users who completed both forms historically, 8 still have no cert. Completion requires manual admin action.
+4. **Maria reviews** the audit submission via **wp-admin → Formidable → Entries → form 161**. (She used to navigate via a `/approve-user/?uid=X` link in an admin email to the user profile + "login as user" to see the frontend render — that still works but is slower than Formidable Entries.)
+5. **Maria manually ticks the completion checkbox in the LearnDash section of the user's wp-admin profile** (Users → Edit user → LearnDash Profile → mark lesson 112353 complete). This fires `learndash_process_mark_complete` internally.
+6. **LearnDash auto-completes the course** (all steps now done), writes `course_completed_111793` usermeta, issues cert 96129.
+7. **LearnDash Notifications add-on fires** notification 112561 "Congratulations! Anal Fissure Management Mini Clinical Audit complete" to the user (not admin — recipient=`user`).
+
+**Historical completion stats (from 2026-04-14 seed, for context)**
+- 23 form-161 submissions. 5 course completions — all internal TBST/Panwar accounts (Alice, Cat, Kenneth #11/#14, TBST Digital) from UAT.
+- **Zero real HCPs have been issued a cert yet.** 18 real HCPs submitted the audit; none have been approved.
+
+**Broken/half-wired pieces (don't rely on these working — they don't)**
+- **`functions.php:2722-2731` — `submitted_form_mark_completed_quiz()` has a typo.** Third branch checks `$form_id==209` again (duplicate of branch 2) instead of `==161`. Dead code. If fixed to `==161`, it would auto-mark lesson 112353 complete on audit submission — but that bypasses Maria's review and isn't what we want anyway.
+- **Formidable email action 116321 "alert admin"** supposed to email `education@panwarhealth.com.au` on audit submission with subject "completed audit" and an `/approve-user/?uid=X` link. Only 2 of 23 submissions have actually triggered this email. **Every Formidable action in the DB has `frm_form_id` meta = NULL**, which strongly suggests the action↔form binding is broken/stored somewhere else. Worth an hour of digging when we have staging.
+- **`/approve-user/?uid=X` URL handler** is in `functions.php:3141` but doesn't actually approve — it just redirects admin to the user's wp-admin profile page. Convenience shortcut only.
+- **Copy fixes** Maria marked up in her 2026-04-15 PDF review (strings like "Your audit has been submitted for review..." and renaming "Update" → "Resubmit") — some already exist in `functions.php:3236-3285` as filter hooks for forms 161/209 but the surrounding state logic isn't quite right. Separate work item.
+
+**What we're building next (unconfirmed, pending Maria sign-off)**
+Wrap Maria's 5-click manual approval into a single "Approve & Issue Cert" button on the Formidable entry view for form 161. Button calls `learndash_process_mark_complete($entry->user_id, 112353, false, 111793)` — same effect as her checkbox, one click instead of ~5. Writes approval audit-trail meta on the frm_item. Lives in `tbst-custom-report` plugin, not the theme.
 
 ## Memory
 
