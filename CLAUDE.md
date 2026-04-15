@@ -39,8 +39,10 @@ docker compose exec db mysql --version
 
 ## Directory layout
 
+**Canonical path: `~/projects/careconnect_hcp` inside WSL2 Ubuntu** (migrated 2026-04-15 from `F:\Github\careconnect_hcp` — WSL ext4 bind-mount gives ~280ms warm page loads vs 15–25s on NTFS/9P). Edit here, run Docker here, commit here. The F:\ path is a short-lived fallback and should be deleted once WSL is validated. VS Code connects via the WSL extension (`code .` from WSL terminal).
+
 ```
-F:\Github\careconnect_hcp\
+~/projects/careconnect_hcp/
 ├── .env                   # gitignored, real local values
 ├── .env.example           # committed, placeholders + docs
 ├── .gitignore             # WP-specific, ruthless about what enters git
@@ -149,7 +151,13 @@ docker compose exec -T db \
 
 ## Known gotchas
 
-- **Windows bind-mount is slow.** First-request page loads can take 15–25s because PHP reads dozens of files through 9P. Subsequent requests are faster once OPcache warms. Moving the repo into the WSL2 filesystem fixes this but is a big migration — defer until it actually blocks work.
+- **Windows bind-mount was slow (resolved 2026-04-15 by WSL migration).** On NTFS via 9P, page loads were 15–25s. After migrating to `~/projects/careconnect_hcp` inside WSL ext4, warm page loads are ~280ms. If you're ever on a new dev machine and see the slow behavior, it's because the repo is on Windows NTFS — move it to WSL.
+- **Fresh `git clone` is NOT a runnable site.** Licensed third-party plugins (LearnDash, Formidable Pro, RCP, WP Rocket, ACF Pro, etc.), bundled `vendor/` dirs inside plugins/themes (e.g. `wp-spinnr/inc/plugins/jwt/includes/vendor/autoload.php`), and `wp-content/uploads/` (~416 MB) are all gitignored. Without them, WP fatal-errors before rendering. The restore flow is documented in `README.md` → pull `site-essentials-YYYY-MM-DD.tar.gz` from `stcareconnect/backups` container and extract into `./site/`. WP core and default themes/plugins are NOT in the tarball — the Docker image populates those on first boot.
+- **Refresh `site-essentials` when prod plugins update** (or uploads grow meaningfully). See README for the `tar czf` + `az storage blob upload` recipe. Cadence is probably monthly; confirm with prod reality rather than the calendar.
+- **On WSL, `which az` → Windows `az.exe` (via interop).** API-only commands work, but `az storage blob upload/download --file /tmp/foo` fails with `[WinError 2] file not found` because Windows can't see `/tmp/`. Stage the artifact at `/mnt/f/Github/…` first (Windows sees it as `F:\Github\…`) and upload from there. Or install native az in WSL: `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash`. For storage ops prefer `--auth-mode key` (auto-pulls account key via ARM token) over `--auth-mode login` (needs separate storage-scope token).
+- **A fresh WSL clone needs two git-config tweaks** (per-clone, not global) or you'll see 300 phantom "modified" files after any file-system operation:
+  - `git config core.fileMode false` — Docker containers and chmod alter exec bits; git should ignore that on this repo.
+  - `git config core.autocrlf input` — file copies from `/mnt/f/` carry CRLF; this converts to LF on write-to-index so diffs stay clean.
 - **RCP deprecation notices in WP-CLI output.** `Restrict Content Pro` uses dynamic properties and triggers PHP 8.x deprecation warnings on every WP-CLI call. Harmless noise — filter with `2>/dev/null` when it gets annoying.
 - **Paid plugins.** LearnDash, Formidable Pro (+ 10 addons), WP Rocket, WP Mail SMTP Pro, Imagify, ACF Pro, Restrict Content Pro. Licences live with the client. If a plugin activates an "update available" nag, **do not click update** — updates need to go through licence validation on the client's account.
 - **Plugin deactivation is local-only.** `wp plugin deactivate` writes to the DB, which is local. The list of plugins to deactivate after re-seeding is above.
