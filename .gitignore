@@ -48,6 +48,7 @@ site/.tmb/
 # =======================================================================
 site/wp-content/plugins/*
 !site/wp-content/plugins/tbst-custom-report/
+!site/wp-content/plugins/hcp-mca-review-workflow/
 !site/wp-content/plugins/index.php
 !site/wp-content/plugins/.gitkeep
 
