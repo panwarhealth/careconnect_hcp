@@ -118,12 +118,13 @@ function hcp_mca_get_state( int $user_id ): array {
 	) );
 	$snapshot['learning_complete'] = ( $learning_status === 1 );
 
-	// frm_item metadata keys written by the approve handler.
+	// Approval is keyed by the audit entry id so resubmits invalidate prior approvals.
 	if ( $snapshot['audit_entry_id'] ) {
-		$approved_by = get_metadata( 'frm_item', $snapshot['audit_entry_id'], 'hcp_approved_by', true );
-		$approved_at = get_metadata( 'frm_item', $snapshot['audit_entry_id'], 'hcp_approved_at', true );
-		$snapshot['approved_by'] = $approved_by ? (int) $approved_by : null;
-		$snapshot['approved_at'] = $approved_at ?: null;
+		$approved_entry = (int) get_user_meta( $user_id, 'hcp_mca_approved_audit_entry_id', true );
+		if ( $approved_entry === $snapshot['audit_entry_id'] ) {
+			$snapshot['approved_by'] = (int) get_user_meta( $user_id, 'hcp_mca_approved_by', true ) ?: null;
+			$snapshot['approved_at'] = get_user_meta( $user_id, 'hcp_mca_approved_at', true ) ?: null;
+		}
 	}
 
 	if ( $snapshot['course_complete'] ) {

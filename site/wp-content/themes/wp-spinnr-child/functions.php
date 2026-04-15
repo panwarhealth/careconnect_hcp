@@ -2723,9 +2723,9 @@ function submitted_form_mark_completed_quiz($entry_id, $form_id) {
 		$quiz_id = 100865;
 		
 	}else if($form_id==209){ // Activity evaluation form
-		$quiz_id = 116865;	
-		
-	}else if($form_id==209){ // Restospective analysis form
+		$quiz_id = 116865;
+
+	}else if($form_id==161){ // Retrospective analysis form
 		$lesson_id = 112353;
 		$quiz_id = $lesson_id;
 	}
