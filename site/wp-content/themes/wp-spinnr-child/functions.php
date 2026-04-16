@@ -2741,10 +2741,9 @@ function submitted_form_mark_completed_quiz($entry_id, $form_id) {
         $course_id = learndash_get_course_id($quiz_id);
     }
 
-    // 5. Mark the quiz as complete
+    // $force=true bypasses learndash_can_complete_step; form submission is the trust signal.
     if (function_exists('learndash_process_mark_complete')) {
-        // We pass the user_id, the quiz_id (as $post_id), and the $course_id
-        learndash_process_mark_complete($user_id, $quiz_id, false, $course_id);
+        learndash_process_mark_complete($user_id, $quiz_id, false, $course_id, true);
     }
 }
 add_action('frm_after_create_entry', 'submitted_form_mark_completed_quiz', 20, 2);
