@@ -57,7 +57,15 @@ docker compose exec db mysql --version
 │   └── README.md          # re-seed + fresh-dump instructions
 ├── docs/
 │   ├── DEPLOY.md          # manual FTP allow-list + deny-list for prod
-│   └── AZURE_STAGING.md   # staging architecture sketch (not built yet)
+│   └── AZURE_STAGING.md   # staging architecture reference (built 2026-04-16)
+├── infra/                 # Azure staging spin-up / tear-down scripts
+│   ├── staging-up.sh      # create everything from scratch (~15 min)
+│   ├── staging-down.sh    # delete everything, $0 cost
+│   ├── staging-stop.sh    # pause compute (~$1/day idle)
+│   ├── staging-start.sh   # resume
+│   ├── staging-seed.sh    # re-seed DB from local dump + sanitize
+│   ├── .staging-secrets   # gitignored, holds generated MySQL admin password
+│   └── README.md          # quickstart + cost strategy
 └── site/                  # the webroot, bind-mounted into /var/www/html
     ├── wp-config.php      # env-driven, no secrets inline
     ├── .htaccess          # prod-compatible, localhost bypasses HTTPS redirect
@@ -86,6 +94,24 @@ Single-Responsibility for infra:
 - Nginx reverse proxy — Apache matches prod, no drift.
 
 ## Common operations
+
+### Azure staging environment
+
+Full spin-up / tear-down is scripted. Primary flow:
+
+```bash
+az login --scope https://management.core.windows.net//.default
+./infra/staging-up.sh      # ~15 min cold start, ~$28/mo if left running
+./infra/staging-stop.sh    # pause compute between sessions (~$1/day idle)
+./infra/staging-start.sh   # resume (~2 min)
+./infra/staging-down.sh    # full teardown to $0
+```
+
+Staging URL: `https://hcp-staging-app.azurewebsites.net`. Admin login after seed: `Rob-Panwar / staging123` or `Panwar-education / staging123`.
+
+AHPRA env vars come from local `.env` at spin-up (not hardcoded in scripts). MySQL admin password is generated randomly per spin-up and stored in `infra/.staging-secrets` (gitignored).
+
+See `infra/README.md` for full details + gotchas (the nginx-on-Azure-PHP quirk and the rewrite-rules-cache thing are the two that bit us on first build).
 
 ### DB migrations (plugin-scoped)
 

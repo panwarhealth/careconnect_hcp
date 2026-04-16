@@ -9,7 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 const HCP_MCA_APPROVAL_NONCE = 'hcp_mca_approval_nonce';
 
+add_action( 'show_user_profile', 'hcp_mca_render_approval_checkbox', 20 );
 add_action( 'edit_user_profile', 'hcp_mca_render_approval_checkbox', 20 );
+add_action( 'personal_options_update', 'hcp_mca_save_approval_checkbox', 20 );
 add_action( 'edit_user_profile_update', 'hcp_mca_save_approval_checkbox', 20 );
 
 function hcp_mca_render_approval_checkbox( WP_User $user ): void {

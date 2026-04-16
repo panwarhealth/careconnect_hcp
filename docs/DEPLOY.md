@@ -59,6 +59,18 @@ Mental checklist:
 - [ ] Staging has run this change and nothing regressed?
 - [ ] The prod site is currently healthy (check homepage before deploy so you know your change is the cause if something breaks)?
 - [ ] I have a rollback plan? (For FTP: the overwritten files. Take a copy before uploading, or push the previous version from git if it's clean.)
+- [ ] **Do I have any pending DB migrations?** Check `site/wp-content/plugins/hcp-mca-review-workflow/migrations/` (and any other plugin's `migrations/` dir) for files added since the last deploy. If yes → step below is required.
+
+## After you upload — run migrations
+
+If the deploy included changes to any `migrations/` folder, log into wp-admin on prod and:
+
+1. **Tools → HCP Migrations**
+2. Review the "Pending" list — every file shipped should appear here.
+3. Click **Run pending migrations**.
+4. Confirm all entries moved to "Applied" with green `OK` status.
+
+The runner is idempotent — re-running is safe. But skipping it means prod files reference shortcodes / options the DB doesn't have, which breaks the frontend silently.
 
 ## 🚩 High-risk pending deploys (DO NOT ship without staging validation)
 
@@ -66,7 +78,7 @@ Every entry here represents a change that lives in `main` but **must not be FTP'
 
 ### 1. AHPRA PIEWS credential refactor — `site/wp-content/themes/wp-spinnr-child/functions.php`
 
-**Status:** refactored in repo (env-var based), NOT yet deployed to prod.
+**Status: DEPLOYED 2026-04-16.** `wp-config.php` on prod has the `putenv()` lines, refactored `functions.php` live, homepage + `getenv()` verified green post-deploy. `functions.php-bk` / `footer.bak` / `header.bak` deleted from prod (cred leak plugged). Credential rotation still pending — old password must be rotated with AHPRA because it was publicly served via `functions.php-bk` for months.
 
 **What changed:** `check_if_aphra_exists_soap()` and `check_if_aphra_exists_curl()` now read creds via `getenv('AHPRA_PIEWS_USER')` / `getenv('AHPRA_PIEWS_PASSWORD')` instead of hardcoded literals. This is the gatekeeping path for **LMS access** — if it breaks on prod, new user registration stops working and existing users can't log in via AHPRA.
 

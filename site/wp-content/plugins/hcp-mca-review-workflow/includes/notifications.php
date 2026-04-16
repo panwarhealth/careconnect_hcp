@@ -66,10 +66,10 @@ function hcp_mca_send_review_ready_email( int $user_id, array $state ): bool {
 	);
 
 	$lines = [
-		'Hi Maria,',
+		'Hello,',
 		'',
 		sprintf(
-			'%s (login: %s) has submitted both the Mini Clinical Audit and Activity Evaluation. Their submission is ready for your review.',
+			'%s (login: %s) has submitted both the Mini Clinical Audit and Activity Evaluation. Their submission is ready for review.',
 			$user->display_name,
 			$user->user_login
 		),
