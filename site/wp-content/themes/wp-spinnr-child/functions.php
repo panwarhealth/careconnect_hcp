@@ -3255,18 +3255,20 @@ function change_already_submitted_message($errors, $values){
 
 
 add_filter('frm_main_feedback', 'custom_message_specific_form_main_feedback', 10, 3);
-function custom_message_specific_form_main_feedback($message, $form, $entry) { 
-    
-    // Form ID 161 Logic
-    if ($form->id == 161) {
-        // 1. Your Success Message
-        $new_message = '
-			<div class="frm_message" role="status">Your audit responses have been updated. Please expect to hear from the education providers soon.</div>
-			<div class="mt-10"><a href="/courses/mini-clinical-audit/">Return to the audit homepage</a></div>
-		';
-        
-        // 2. The JavaScript to hide the buttons
-        $js_hide_script = "
+function custom_message_specific_form_main_feedback($message, $form, $entry) {
+    if ($form->id != 161) {
+        return $message;
+    }
+
+    $user_id = is_object($entry) && !empty($entry->user_id) ? (int) $entry->user_id : get_current_user_id();
+
+    global $wpdb;
+    $has_eval = (bool) $wpdb->get_var($wpdb->prepare(
+        "SELECT 1 FROM {$wpdb->prefix}frm_items WHERE user_id=%d AND form_id=209 AND is_draft=0 LIMIT 1",
+        $user_id
+    ));
+
+    $js_hide_script = "
         <script type='text/javascript'>
             (function() {
                 var target = document.querySelector('.ld-content-actions');
@@ -3277,8 +3279,16 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
             })();
         </script>";
 
-        return $new_message . $js_hide_script;
+    if (!$has_eval) {
+        return '
+            <div class="frm_message" role="status">Thanks for submitting your audit. Redirecting you to the activity evaluation...</div>
+            <div class="mt-10"><a class="btn cta mt-0" href="/courses/mini-clinical-audit/quizzes/activity-evaluation/">Continue to Activity Evaluation</a></div>
+            <script>setTimeout(function(){window.location.href="/courses/mini-clinical-audit/quizzes/activity-evaluation/";},3000);</script>
+        ' . $js_hide_script;
     }
-    
-    return $message;
+
+    return '
+        <div class="frm_message" role="status">Your audit responses have been updated. Please expect to hear from the education providers soon.</div>
+        <div class="mt-10"><a href="/courses/mini-clinical-audit/">Return to the audit homepage</a></div>
+    ' . $js_hide_script;
 }
