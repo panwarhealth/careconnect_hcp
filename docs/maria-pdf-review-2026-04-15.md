@@ -20,7 +20,7 @@ Status legend: `TODO` · `IN PROGRESS` · `DONE` · `SKIPPED` (with reason)
 
 > "Thank you for completing the Mini Clinical Audit and the Activity Evaluation survey. Your audit responses will now be evaluated by the education providers. Provided there are no issues with your responses, you will receive an email within the next four weeks with your Statement of Completion."
 
-**Status: TODO (maybe already ACTIONED in code — needs verification)**
+**Status: DONE — verified on local 2026-04-20**
 
 Copy already exists at `site/wp-content/themes/wp-spinnr-child/functions.php:3239` in a `frm_success_message` filter scoped to form 209. Need to verify it renders end-to-end on local.
 
@@ -37,7 +37,7 @@ Copy already exists at `site/wp-content/themes/wp-spinnr-child/functions.php:323
 > Button text: **"Back to course homepage"**
 > Button links to: `https://hcp.carepharma.com.au/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/`
 
-**Status: TODO**
+**Status: DONE — verified on local 2026-04-20**
 
 ---
 
@@ -45,7 +45,7 @@ Copy already exists at `site/wp-content/themes/wp-spinnr-child/functions.php:323
 
 **Page 1, Line annotation.** "Delete this based on updating the button to the left" — remove the existing "Back to Course" link because item #2's new button replaces it.
 
-**Status: TODO**
+**Status: DONE — verified on local 2026-04-20**
 
 ---
 
@@ -56,7 +56,7 @@ Copy already exists at `site/wp-content/themes/wp-spinnr-child/functions.php:323
 > Link text: **"Back to course homepage"**
 > Links to: `https://hcp.carepharma.com.au/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/`
 
-**Status: TODO**
+**Status: DONE — verified on local 2026-04-20**
 
 Uses the new state machine (`hcp_mca_get_state`) to detect state=B before injecting.
 
@@ -68,7 +68,7 @@ Uses the new state machine (`hcp_mca_get_state`) to detect state=B before inject
 
 The Start Survey button is a LearnDash next-step navigation element rendered at the bottom of the audit lesson. Shouldn't appear inside the audit form steps.
 
-**Status: TODO**
+**Status: DONE — hidden via CSS in plugin frontend.php, verified on local 2026-04-20**
 
 ---
 
@@ -76,9 +76,7 @@ The Start Survey button is a LearnDash next-step navigation element rendered at 
 
 **Page 3, Text annotation.** Users need to be able to save partial progress without walking the whole 5-step form to the end.
 
-**Status: TODO (likely requires Formidable Save Drafts add-on — check license)**
-
-This is a Formidable admin config change (no code), contingent on whether the Save Drafts add-on is licensed and installed.
+**Status: DONE — already enabled via Formidable Pro built-in `save_draft=1` on form 161. Verified on local 2026-04-20.**
 
 ---
 
@@ -188,22 +186,22 @@ State-aware: fires when `has_eval_entry=true` on the user's state snapshot.
 
 | Item | Type | Status |
 |---|---|---|
-| 1 | Copy (existing filter — verify) | TODO |
-| 2 | Copy (new button) | TODO |
-| 3 | UI (delete link) | TODO |
-| 4 | State-aware banner | TODO |
-| 5 | UI (hide button) | TODO |
-| 6 | Formidable admin config + Save Drafts add-on | TODO |
-| 7 | Formidable admin config (button rename) | TODO |
-| 8 | State-aware copy | TODO |
-| 9 | Copy (existing — verify) | TODO |
-| 10 | UI (existing JS — verify) | TODO |
-| 11 | Link (existing — verify) | TODO |
-| 12 | UI (delete link) | TODO |
+| 1 | Copy (existing filter — verify) | DONE |
+| 2 | Copy (new button) | DONE |
+| 3 | UI (delete link) | DONE |
+| 4 | State-aware banner | DONE |
+| 5 | UI (hide button) | DONE |
+| 6 | Formidable admin config + Save Drafts add-on | DONE |
+| 7 | Formidable admin config (button rename) | DONE |
+| 8 | State-aware copy | DONE |
+| 9 | Copy (existing — verify) | DONE |
+| 10 | UI (existing JS — verify) | DONE |
+| 11 | Link (existing — verify) | DONE |
+| 12 | UI (delete link) | DONE |
 | 13–16 | Maria's notes | N/A |
-| 17 | State-aware copy | TODO |
-| 18 | Link (new button) | TODO |
-| 19 | UI (delete link) | TODO |
+| 17 | State-aware copy | DONE |
+| 18 | Link (new button) | DONE |
+| 19 | UI (delete link) | DONE |
 
 15 actionable items. 4 of those are Formidable admin clicks or existing-code verifications; the remaining 11 are new code (messaging + ui-cleanup in the `hcp-mca-review-workflow` plugin).
 

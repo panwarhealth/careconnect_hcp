@@ -53,7 +53,7 @@ Last updated: 2026-04-16
 |---|---|---|---|
 | 16 | Fix quiz 116865 not marking complete on form 209 submit | **DONE 2026-04-16** | Fixed via `$force=true` on `learndash_process_mark_complete` in `functions.php`. |
 | 17 | "Submission Approved" checkbox on user profile | **DONE 2026-04-16** | Shipped to prod. Triggers cert via guard-release path. |
-| 18 | Decide on 5 already-auto-certed users (Alice + 4 internal) | pending Maria | Need her call: leave alone vs revoke for review. |
+| 18 | ~~Decide on 5 already-auto-certed users (Alice + 4 internal)~~ | **CLOSED** | All 5 are internal testers — no action needed. |
 | 19 | Work through Maria's 19 PDF items 1-by-1 | in progress | Item 1 implicit-verified via test. Items 2-19 pending Maria's final copy for each. Use `maria-pdf-review-2026-04-15.md` as the working list. |
 | 20 | Build Azure staging environment | **DONE 2026-04-16** | Live at `hcp-staging-app.azurewebsites.net`. Teardown/restart via `az mysql flexible-server stop/start` + `az webapp stop/start` to save cost between sessions. |
 | 21 | Deploy to prod + run pending migrations | **DONE 2026-04-16** | All 4 migrations applied, plugin active, functions.php + wp-config.php updated. |

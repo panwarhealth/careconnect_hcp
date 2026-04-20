@@ -3260,9 +3260,21 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
         return $message;
     }
 
-    $user_id = is_object($entry) && !empty($entry->user_id) ? (int) $entry->user_id : get_current_user_id();
+    $entry_id = is_object($entry) ? $entry->id : (int) $entry;
+    $user_id  = get_current_user_id();
 
+    // Draft saves (Save and Continue Later) get the default Formidable draft message.
     global $wpdb;
+    if ( $entry_id ) {
+        $is_draft = (bool) $wpdb->get_var( $wpdb->prepare(
+            "SELECT is_draft FROM {$wpdb->prefix}frm_items WHERE id = %d",
+            $entry_id
+        ) );
+        if ( $is_draft ) {
+            return $message;
+        }
+    }
+
     $has_eval = (bool) $wpdb->get_var($wpdb->prepare(
         "SELECT 1 FROM {$wpdb->prefix}frm_items WHERE user_id=%d AND form_id=209 AND is_draft=0 LIMIT 1",
         $user_id
