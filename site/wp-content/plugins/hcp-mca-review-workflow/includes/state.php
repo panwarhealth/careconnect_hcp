@@ -63,7 +63,7 @@ function hcp_mca_get_state( int $user_id ): array {
 	// updated_at DESC — Formidable bumps this field on edits as well as first submit.
 	$audit_row = $wpdb->get_row( $wpdb->prepare(
 		"SELECT id, updated_at FROM {$wpdb->prefix}frm_items
-		 WHERE user_id = %d AND form_id = %d
+		 WHERE user_id = %d AND form_id = %d AND is_draft = 0
 		 ORDER BY updated_at DESC LIMIT 1",
 		$user_id, HCP_MCA_AUDIT_FORM_ID
 	) );
@@ -75,7 +75,7 @@ function hcp_mca_get_state( int $user_id ): array {
 
 	$eval_row = $wpdb->get_row( $wpdb->prepare(
 		"SELECT id, updated_at FROM {$wpdb->prefix}frm_items
-		 WHERE user_id = %d AND form_id = %d
+		 WHERE user_id = %d AND form_id = %d AND is_draft = 0
 		 ORDER BY updated_at DESC LIMIT 1",
 		$user_id, HCP_MCA_EVAL_FORM_ID
 	) );

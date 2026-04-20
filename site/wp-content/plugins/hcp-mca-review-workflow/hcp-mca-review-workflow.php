@@ -19,6 +19,7 @@ require_once HCP_MCA_PLUGIN_DIR . 'includes/completion-guard.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/notifications.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/approval.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/form-lock.php';
+require_once HCP_MCA_PLUGIN_DIR . 'includes/frontend.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-migrations-page.php';
