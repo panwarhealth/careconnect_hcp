@@ -17,6 +17,7 @@ The deny-list is codified in [`.deploy-exclude`](../.deploy-exclude) at the repo
 | `site/wp-content/themes/wp-spinnr-child/` | `httpdocs/wp-content/themes/wp-spinnr-child/` | Every theme change |
 | `site/wp-content/themes/wp-spinnr/` | `httpdocs/wp-content/themes/wp-spinnr/` | Only if the parent theme was edited (rare — prefer child) |
 | `site/wp-content/plugins/tbst-custom-report/` | `httpdocs/wp-content/plugins/tbst-custom-report/` | Every custom plugin change |
+| `site/wp-content/plugins/hcp-mca-review-workflow/` | `httpdocs/wp-content/plugins/hcp-mca-review-workflow/` | Every custom plugin change |
 
 ## Deny-list: these NEVER get pushed
 

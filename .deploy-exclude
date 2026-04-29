@@ -46,6 +46,7 @@ site/robots.txt
 # Everything under plugins/ EXCEPT the custom in-house ones.
 site/wp-content/plugins/**
 !site/wp-content/plugins/tbst-custom-report/**
+!site/wp-content/plugins/hcp-mca-review-workflow/**
 
 # --- Parent theme (only push if explicitly edited) ----------------------
 # Child theme (wp-spinnr-child) IS deployable — it's what we actually edit.
