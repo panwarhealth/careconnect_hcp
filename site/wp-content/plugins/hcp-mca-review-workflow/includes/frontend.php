@@ -74,8 +74,10 @@ function hcp_mca_audit_banner_copy( $field_array, $field ) {
 	} else {
 		$field_array['description'] = '<blockquote class="p-base bg-recto-green text-white rounded-lg">'
 			. '<p class="text-center text-lg font-semibold mb-0">'
-			. 'Once you have completed all sections of your clinical audit, please do a final check of your responses '
-			. 'and submit for review by the Education Providers. You will then be directed to the course Evaluation Survey to complete.'
+			. 'Once you have completed all sections of your clinical audit, please do a final check of your responses and click \'Submit\'.'
+			. '</p>'
+			. '<p class="text-center text-lg mt-base mb-0">'
+			. 'You will then be directed to the audit Evaluation Survey to complete your submission.'
 			. '</p>'
 			. '</blockquote>';
 	}
