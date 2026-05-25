@@ -171,3 +171,8 @@ docker-compose.override.yml
 # Infra — staging secrets generated at spin-up
 # =======================================================================
 infra/.staging-secrets
+.secrets/
+
+# Local-only debug instrumentation (do not ship)
+site/wp-content/mu-plugins/zzz-signup-debug.php
+site/wp-content/signup-debug.log

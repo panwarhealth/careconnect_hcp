@@ -2468,6 +2468,21 @@ function enqueue_login_popup_assets() {
             'nonce'    => wp_create_nonce('racgp_secure_nonce'),
         ));
     }
+
+}
+
+// Priority 20 so parent theme has already registered wp-spinnr-custom-js-body (priority 10, loads after child)
+add_action( 'wp_enqueue_scripts', 'hcp_output_ungate_data', 20 );
+function hcp_output_ungate_data() {
+    if ( ! is_singular() ) {
+        return;
+    }
+    $ungated_until = (int) get_post_meta( get_the_ID(), '_ungated_until', true );
+    if ( $ungated_until > 0 ) {
+        wp_localize_script( 'wp-spinnr-custom-js-body', 'hcpUngate', array(
+            'until' => $ungated_until,
+        ) );
+    }
 }
 
 function ajax_login_handler() {
