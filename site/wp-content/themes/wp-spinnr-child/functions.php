@@ -2570,31 +2570,37 @@ function courses_gate( $content ) {
             $saved_racgp = get_user_meta($current_user->ID, 'racgp_number', true);
 
             if (empty($saved_racgp)) {
-				ob_start();	
-			?>
+                // Redirect to the activity homepage where the unified RACGP modal
+                // (hcp-mca-review-workflow/assets/js/enrol-modal.js) will auto-open
+                // and capture the RACGP, then enrol and return them to the course.
+                wp_safe_redirect( add_query_arg( 'capture', 'racgp', home_url( '/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/' ) ) );
+                exit;
+
+                ob_start();
+            ?>
 				<div class="section py-7xl">
 					<div class="container text-center">
 						<p>Please provide your RACGP Number in your profile to access this course.<br /><a class="btn cta editBtn" href="javascript:void(0)">Update Profile</a></p>
 					</div>
 				</div>
-				
+
 				<div id="popup_modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center cursor-pointer">
 					<div class="relative bg-white p-8 shadow-2xl w-11/12 max-w-md cursor-default border border-accent rounded-lg">
 						<span class="close absolute top-2 right-4 text-gray-400 hover:text-gray-800 text-3xl font-bold cursor-pointer transition-colors">&times;</span>
-						
+
 						<h3 class="text-xl font-semibold mb-4 text-center">Required: RACGP Number</h3>
 						<p class="text-sm text-gray-600 mb-6 text-center">Please enter your RACGP number to access this activity.</p>
-						
+
 						<form method="post" action="">
 							<?php wp_nonce_field('update_racgp_direct', 'racgp_nonce_field'); ?>
-							
+
 							<div class="mb-6">
 								<label for="modal_racgp" class="block text-sm font-medium text-gray-700 mb-1 text-left">RACGP Number*</label>
-								<input type="text" name="my_direct_racgp" id="modal_racgp" required 
+								<input type="text" name="my_direct_racgp" id="modal_racgp" required
 									class="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none">
 							</div>
-							
-							<button type="submit" name="submit_direct_racgp" 
+
+							<button type="submit" name="submit_direct_racgp"
 									class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-blue-700 transition-colors btn cta">
 								Save & Access Course
 							</button>
@@ -2982,9 +2988,18 @@ function process_direct_racgp_update() {
 
         if ($user_id && !empty($racgp_value)) {
             update_user_meta($user_id, 'racgp_number', $racgp_value);
-            
+
+            // Auto-enrol in the prereq course. The old enroll_only_on_first_racgp hook
+            // used to handle this side-effect; that hook was removed in favour of
+            // explicit click-based opt-in via the hcp-mca-review-workflow modal, but
+            // this server-side gate still captures direct-URL visitors and they need
+            // to be enrolled here.
+            if ( function_exists( 'ld_update_course_access' ) ) {
+                ld_update_course_access( $user_id, 95553, false );
+            }
+
             $current_url = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            
+
             wp_redirect($current_url);
             exit;
         }
@@ -3117,36 +3132,9 @@ function certificate_redirect($content) {
 
 
 
-add_action( 'update_user_metadata', 'enroll_only_on_first_racgp', 10, 5 );
-
-function enroll_only_on_first_racgp( $null, $object_id, $meta_key, $meta_value, $prev_value ) {
-    // 1. Only target our specific key
-    if ( 'racgp_number' !== $meta_key || empty( $meta_value ) ) {
-        return $null;
-    }
-
-    // 2. Fetch what is CURRENTLY in the database for this user
-    $current_db_value = get_user_meta( $object_id, 'racgp_number', true );
-
-    // 3. Logic: Only proceed if the database currently has NO value
-    if ( empty( $current_db_value ) ) {
-        
-        $trigger_course_id = 95553;
-
-        if ( function_exists( 'ld_update_course_access' ) ) {
-            // Standard LearnDash enrollment toggle
-            ld_update_course_access( $object_id, $trigger_course_id, true );
-            ld_update_course_access( $object_id, $trigger_course_id, false );
-
-            error_log( "FIRST TIME ENROLL: User $object_id added RACGP for the first time. Email triggered." );
-        }
-    } else {
-        // This is just an update, so we do nothing (no enrollment triggered)
-        error_log( "UPDATE DETECTED: User $object_id already had an RACGP number. No email sent." );
-    }
-
-    return $null; // Continue with the normal save process
-}
+// Removed: programmatic auto-enrol on first racgp_number write.
+// Replaced by explicit click-based opt-in handled in hcp-mca-review-workflow plugin
+// (includes/course-access.php) which captures the RACGP number via modal when missing.
 
 add_action( 'template_redirect', 'process_user_approval_from_url' );
 

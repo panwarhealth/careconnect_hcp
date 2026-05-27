@@ -176,3 +176,6 @@ infra/.staging-secrets
 # Local-only debug instrumentation (do not ship)
 site/wp-content/mu-plugins/zzz-signup-debug.php
 site/wp-content/signup-debug.log
+
+# Prod deploy backups — contain real user PII, never commit
+.deploy-backups/

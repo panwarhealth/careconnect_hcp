@@ -1,0 +1,137 @@
+.hcp-racgp-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+}
+
+.hcp-racgp-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(14, 40, 65, 0.6);
+}
+
+.hcp-racgp-modal__dialog {
+	position: relative;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+	max-width: 460px;
+	width: 100%;
+	padding: 2rem 1.75rem 1.75rem;
+}
+
+.hcp-racgp-modal__close {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	background: none;
+	border: 0;
+	font-size: 1.75rem;
+	line-height: 1;
+	color: #7030A0;
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+}
+
+.hcp-racgp-modal__close:hover { color: #4a1f6f; }
+
+.hcp-racgp-modal__dialog h2 {
+	margin: 0 0 0.5rem;
+	color: #7030A0;
+	font-size: 1.4rem;
+	font-weight: 700;
+}
+
+.hcp-racgp-modal__dialog p {
+	margin: 0 0 1.25rem;
+	color: #444;
+	font-size: 0.95rem;
+	line-height: 1.45;
+}
+
+.hcp-racgp-modal__form label {
+	display: block;
+	font-weight: 600;
+	font-size: 0.85rem;
+	margin-bottom: 0.4rem;
+	color: #0E2841;
+}
+
+.hcp-racgp-modal__form input[type="text"] {
+	width: 100%;
+	padding: 0.65rem 0.85rem;
+	border: 1px solid #c8c8d2;
+	border-radius: 6px;
+	font-size: 1rem;
+	box-sizing: border-box;
+}
+
+.hcp-racgp-modal__form input[type="text"]:focus {
+	outline: none;
+	border-color: #7030A0;
+	box-shadow: 0 0 0 3px rgba(112, 48, 160, 0.15);
+}
+
+.hcp-racgp-modal__hint {
+	color: #666;
+	font-size: 0.8rem;
+	margin-top: 0.35rem;
+}
+
+.hcp-racgp-modal__error {
+	color: #b03030;
+	font-size: 0.85rem;
+	margin-top: 0.5rem;
+}
+
+.hcp-racgp-modal__actions {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	margin-top: 1.25rem;
+}
+
+.hcp-racgp-modal__actions .btn {
+	margin: 0;
+}
+
+.hcp-racgp-modal__cancel {
+	background: none;
+	border: 0;
+	color: #555;
+	font-size: 0.9rem;
+	cursor: pointer;
+	padding: 0.5rem 0.25rem;
+	text-decoration: underline;
+}
+
+.hcp-racgp-modal__cancel:hover { color: #000; }
+
+body.hcp-racgp-modal-open {
+	overflow: hidden;
+}
+
+.hcp-racgp-modal__spinner {
+	display: inline-block;
+	width: 0.9em;
+	height: 0.9em;
+	margin-right: 0.5em;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: hcp-racgp-spin 0.7s linear infinite;
+	vertical-align: -0.15em;
+}
+
+@keyframes hcp-racgp-spin {
+	to { transform: rotate(360deg); }
+}
+
+.hcp-racgp-modal__form button[type="submit"]:disabled {
+	cursor: progress;
+	opacity: 0.85;
+}
