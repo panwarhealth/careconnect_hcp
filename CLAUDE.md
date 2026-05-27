@@ -169,6 +169,53 @@ On prod, access to gated content requires registering through a Formidable form 
 
 Both are local-only — the seeded DB has real user PII, but nothing leaves your machine. Don't screenshot/share course enrollments or user details without redacting.
 
+### Resetting a test user's LearnDash progress (course 95553)
+
+LearnDash scatters progress across **6 separate locations** — you must clear all of them or you get contradictory state (DB says not started, browser shows completed, etc.):
+
+```bash
+docker compose run --rm wpcli wp eval '
+global $wpdb;
+$user_id = YOUR_USER_ID;
+$course_id = 95553;
+
+// 1. Activity table
+$wpdb->delete($wpdb->prefix . "learndash_user_activity", ["user_id" => $user_id], ["%d"]);
+
+// 2. Course progress meta
+delete_user_meta($user_id, "_sfwd-course_progress");
+
+// 3. Quiz history meta
+delete_user_meta($user_id, "_sfwd-quizzes");
+
+// 4. Course completion meta
+delete_user_meta($user_id, "course_completed_{$course_id}");
+$wpdb->query("DELETE FROM {$wpdb->usermeta} WHERE user_id = $user_id AND meta_key LIKE \"completed_{$course_id}_%\"");
+
+// 5. ProQuiz statistic tables
+$ref_ids = $wpdb->get_col("SELECT statistic_ref_id FROM {$wpdb->prefix}learndash_pro_quiz_statistic_ref WHERE user_id = $user_id");
+foreach ($ref_ids as $rid) {
+    $wpdb->delete($wpdb->prefix . "learndash_pro_quiz_statistic", ["statistic_ref_id" => $rid], ["%d"]);
+}
+$wpdb->delete($wpdb->prefix . "learndash_pro_quiz_statistic_ref", ["user_id" => $user_id], ["%d"]);
+
+// 6. Formidable form entries (Form 97 = post-learning survey, Form 81 = pre-learning survey)
+foreach ([97] as $form_id) {
+    $entries = $wpdb->get_col($wpdb->prepare(
+        "SELECT id FROM {$wpdb->prefix}frm_items WHERE user_id = %d AND form_id = %d",
+        $user_id, $form_id
+    ));
+    foreach ($entries as $eid) FrmEntry::destroy($eid);
+}
+
+// Re-enrol
+ld_update_course_access($user_id, $course_id, false);
+echo "Done.\n";
+'
+```
+
+After running, also **clear browser cookies for localhost** (or use incognito) — LearnDash caches "Great Job" alert state in cookies that survive a DB wipe and cause contradictory UI.
+
 ### Fresh DB from prod
 
 1. Export via phpMyAdmin (or `mysqldump` if you get SSH access) → save as `db/init/01-seed.sql`, overwriting the old one.
