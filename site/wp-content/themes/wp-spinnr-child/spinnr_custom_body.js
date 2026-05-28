@@ -115,7 +115,7 @@
         
     }
     
-        if($('body.logged-in').length || (typeof hcpUngate !== 'undefined' && Math.floor(Date.now() / 1000) < hcpUngate.until)) {
+        if($('body.logged-in').length || (typeof hcpUngate !== 'undefined' && Math.floor(Date.now() / 1000) >= (hcpUngate.from || 0) && Math.floor(Date.now() / 1000) < hcpUngate.until)) {
             $('*').removeClass('logged_in_users_only');
             //console.log("cleared");
         }
@@ -278,7 +278,7 @@
 }(jQuery));
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    if(jQuery('body.logged-in').length || (typeof hcpUngate !== 'undefined' && Math.floor(Date.now() / 1000) < hcpUngate.until)) {
+    if(jQuery('body.logged-in').length || (typeof hcpUngate !== 'undefined' && Math.floor(Date.now() / 1000) >= (hcpUngate.from || 0) && Math.floor(Date.now() / 1000) < hcpUngate.until)) {
         jQuery('*').removeClass('logged_in_users_only');
         console.log("cleared");
     }
