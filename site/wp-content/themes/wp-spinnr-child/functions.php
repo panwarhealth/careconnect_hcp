@@ -2461,12 +2461,6 @@ function enqueue_login_popup_assets() {
                 'nonce'    => wp_create_nonce('ajax-login-nonce'),
             ));
         }
-        // 3. ALWAYS localize racgp_ajax_vars
-        // This makes it available even immediately after a guest becomes a user
-        wp_localize_script('login-popup-script', 'racgp_ajax_vars', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('racgp_secure_nonce'),
-        ));
     }
 
 }
@@ -2505,13 +2499,7 @@ function ajax_login_handler() {
 		wp_set_current_user($user_signon->ID);
     	wp_set_auth_cookie($user_signon->ID);
 
-		$saved_racgp = get_user_meta($user_signon->ID, 'racgp_number', true);
-		
-		if(empty($saved_racgp) && ($info['page_id'] == 111793 || $info['page_id'] == 95553 || $info['page_id'] == 108753)){
-			wp_send_json_success(array('message' => 'RACGP'));
-		} else {
-			wp_send_json_success(array('message' => 'Login successful! Reloading...'));
-		}
+		wp_send_json_success(array('message' => 'Login successful! Reloading...'));
         
     }
 }
@@ -2960,21 +2948,6 @@ add_filter( 'learndash_get_label_course_step_next', function( $label, $post_type
 
     return $label;
 }, 20, 2 );
-
-add_action('wp_ajax_save_racgp_data', 'save_racgp_data_callback');
-function save_racgp_data_callback() {
-    // check_ajax_referer('racgp_secure_nonce', 'security');
-
-    $user_id = get_current_user_id();
-    $racgp_num = isset($_POST['racgp_number']) ? sanitize_text_field($_POST['racgp_number']) : '';
-
-    if ($user_id && !empty($racgp_num)) {
-        update_user_meta($user_id, 'racgp_number', $racgp_num);
-        wp_send_json_success(array('message' => 'Data saved!'));
-    }
-    
-    wp_send_json_error('Invalid request');
-}
 
 add_action('init', 'process_direct_racgp_update');
 function process_direct_racgp_update() {
