@@ -2472,8 +2472,10 @@ function hcp_output_ungate_data() {
         return;
     }
     $ungated_until = (int) get_post_meta( get_the_ID(), '_ungated_until', true );
+    $ungated_from  = (int) get_post_meta( get_the_ID(), '_ungated_from', true );
     if ( $ungated_until > 0 ) {
         wp_localize_script( 'wp-spinnr-custom-js-body', 'hcpUngate', array(
+            'from'  => $ungated_from,
             'until' => $ungated_until,
         ) );
     }
