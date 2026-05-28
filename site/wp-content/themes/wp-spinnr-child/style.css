@@ -36,3 +36,89 @@ Version:        1.0
 .learndash-wrapper:has(.ld-tab-content .mt-10) .ld-content-actions {
     display: none !important;
 }
+/* Formidable checkbox label line height on registration forms */
+.frm_checkbox label {
+    line-height: 1.7 !important;
+}
+
+/* Indent wrapped checkbox label text to align with first line */
+.frm_checkbox {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+}
+
+.frm_checkbox input[type="checkbox"] {
+    flex-shrink: 0 !important;
+    margin-top: 0.2rem !important;
+}
+
+.frm_checkbox label {
+    margin-left: 0 !important;
+}
+
+/* Fix wrapped checkbox text indent — input is inside label */
+.frm_checkbox label {
+    display: flex !important;
+    align-items: flex-start !important;
+}
+
+.frm_checkbox label input[type="checkbox"] {
+    flex-shrink: 0 !important;
+    margin-top: 0.25rem !important;
+    margin-right: 0.6rem !important;
+}
+
+/* Pull required asterisk back inline with the checkbox label */
+.frm_checkbox .frm_required {
+    display: none !important;
+}
+
+/* Fix asterisk — remove flex from wrapper, keep on label only */
+.frm_checkbox {
+    display: block !important;
+}
+
+.frm_checkbox .frm_required {
+    display: inline !important;
+    margin-left: 2px;
+}
+
+/* Inline the asterisk at the end of checkbox label text */
+.frm_checkbox label {
+    display: inline-flex !important;
+    width: calc(100% - 1.5rem) !important;
+}
+
+.frm_checkbox .frm_required {
+    display: inline !important;
+    vertical-align: top !important;
+    margin-left: 2px !important;
+    line-height: 1.7 !important;
+}
+
+/* Checkbox indent fix — don't use flex (breaks asterisk), use padding + negative margin */
+.frm_checkbox label {
+    display: block !important;
+    padding-left: 1.6rem !important;
+    line-height: 1.7 !important;
+}
+
+.frm_checkbox label input[type="checkbox"] {
+    display: inline-block !important;
+    margin-left: -1.6rem !important;
+    margin-right: 0.4rem !important;
+    vertical-align: top !important;
+    margin-top: 0.25rem !important;
+    flex-shrink: unset !important;
+}
+
+.frm_checkbox .frm_required {
+    display: inline !important;
+    margin-left: 0 !important;
+}
+
+/* Space between checkbox label text and required asterisk */
+.frm_checkbox .frm_required {
+    margin-left: 3px !important;
+}

@@ -67,13 +67,13 @@ function hcp_mca_enqueue_course_access_assets(): void {
 		'hcp-mca-enrol-modal',
 		$base_url . '/assets/css/enrol-modal.css',
 		[],
-		'1.0.0'
+		'1.3.0'
 	);
 	wp_enqueue_script(
 		'hcp-mca-enrol-modal',
 		$base_url . '/assets/js/enrol-modal.js',
 		[],
-		'1.0.0',
+		'1.3.0',
 		true
 	);
 
@@ -107,17 +107,24 @@ function hcp_mca_enqueue_course_access_assets(): void {
  */
 add_action( 'wp_footer', 'hcp_mca_register_form_racgp_constraints' );
 function hcp_mca_register_form_racgp_constraints(): void {
-	if ( ! is_page( 'register' ) ) {
+	$on_register  = is_page( 'register' );
+	$on_mca_landing = is_page( 'anal-fissures-breaking-the-cycle-and-the-stigma-landing' );
+	if ( ! $on_register && ! $on_mca_landing ) {
 		return;
 	}
+	// field_gajy7 = RACGP field on Form 2 (main register page)
+	// field_qwg9m = RACGP field on Form 129 (MCA landing page)
+	$field_ids = $on_register ? [ 'field_gajy7' ] : [ 'field_qwg9m' ];
+	$field_ids_js = json_encode( $field_ids );
 	?>
 	<script>
 	(function () {
-		function initRacgpField() {
-			var field = document.getElementById('field_gajy7');
+		var fieldIds = <?php echo $field_ids_js; ?>;
+
+		function initRacgpField(id) {
+			var field = document.getElementById(id);
 			if (!field) return;
 
-			// Convert to text so maxlength and pattern work properly.
 			field.setAttribute('type', 'text');
 			field.setAttribute('inputmode', 'numeric');
 			field.setAttribute('maxlength', '7');
@@ -127,7 +134,6 @@ function hcp_mca_register_form_racgp_constraints(): void {
 				this.value = this.value.replace(/\D/g, '').slice(0, 7);
 			});
 
-			// Block form submit with the same message as the modal.
 			var form = field.closest('form');
 			if (form) {
 				form.addEventListener('submit', function (e) {
@@ -135,7 +141,6 @@ function hcp_mca_register_form_racgp_constraints(): void {
 					if (val.length < 6 || val.length > 7) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						var err = form.querySelector('.frm_error_style, .frm_form_field.frm_top_container .frm_error');
 						var msg = 'RACGP numbers are usually 6 to 7 digits. Please check and try again.';
 						var existing = field.parentNode.querySelector('.hcp-racgp-field-error');
 						if (!existing) {
@@ -153,10 +158,14 @@ function hcp_mca_register_form_racgp_constraints(): void {
 			}
 		}
 
+		function init() {
+			fieldIds.forEach(function(id) { initRacgpField(id); });
+		}
+
 		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', initRacgpField);
+			document.addEventListener('DOMContentLoaded', init);
 		} else {
-			initRacgpField();
+			init();
 		}
 	})();
 	</script>
