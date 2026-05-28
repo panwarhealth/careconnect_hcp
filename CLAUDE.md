@@ -224,6 +224,20 @@ After running, also **clear browser cookies for localhost** (or use incognito) �
 4. `docker compose run --rm wpcli wp plugin deactivate wp-rocket wordfence wp-mail-smtp-pro imagify object-sync-for-salesforce`
 5. `docker compose run --rm wpcli wp cache flush`
 
+### Prod backup to Azure Blob (run after every deploy)
+
+```bash
+az login --scope https://management.core.windows.net//.default  # if not already authed
+bash infra/prod-backup.sh
+```
+
+Uploads to `stcareconnect/backups`:
+- `db/prod-YYYY-MM-DD-HHMM.sql.gz` — full mysqldump (keeps last 7)
+- `site-essentials/site-essentials-YYYY-MM-DD.tar.gz` — wp-content excl. cache/upgrade/wflogs (keeps last 4)
+
+**Restore DB:** download blob → `gunzip | mysql -h 127.0.0.1 -P 9306 -u hcp_care -p hcp_care`
+**Restore files:** download blob → `tar -xzf site-essentials.tar.gz -C /var/www/hcp.carepharma.com.au/httpdocs/`
+
 ### Taking a fresh local dump (e.g. for staging seed)
 
 ```bash
