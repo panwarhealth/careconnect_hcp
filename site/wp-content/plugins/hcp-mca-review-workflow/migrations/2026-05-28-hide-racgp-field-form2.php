@@ -20,7 +20,7 @@ return [
 		$field_id = 4401;
 
 		$field = $wpdb->get_row( $wpdb->prepare(
-			"SELECT id, form_id, field_options FROM {$wpdb->prefix}frm_fields WHERE id = %d",
+			"SELECT id, type, form_id FROM {$wpdb->prefix}frm_fields WHERE id = %d",
 			$field_id
 		) );
 
@@ -32,24 +32,15 @@ return [
 			throw new \RuntimeException( "Field {$field_id} belongs to form {$field->form_id}, not Form 2. Aborting." );
 		}
 
-		$options = maybe_unserialize( $field->field_options );
-		if ( ! is_array( $options ) ) {
-			throw new \RuntimeException( "field_options for field {$field_id} could not be unserialized." );
+		if ( $field->type === 'hidden' ) {
+			return "RACGP field {$field_id} on Form 2 is already type=hidden. No change.";
 		}
-
-		if ( isset( $options['hide_field'] ) && $options['hide_field'] == 1 ) {
-			return "RACGP field {$field_id} on Form 2 is already hidden. No change.";
-		}
-
-		$options['hide_field']       = 1;
-		$options['hide_field_cond']  = [];
-		$options['required']         = 0;
 
 		$result = $wpdb->update(
 			$wpdb->prefix . 'frm_fields',
-			[ 'field_options' => serialize( $options ) ],
+			[ 'type' => 'hidden', 'required' => 0 ],
 			[ 'id' => $field_id ],
-			[ '%s' ],
+			[ '%s', '%d' ],
 			[ '%d' ]
 		);
 
@@ -57,6 +48,6 @@ return [
 			throw new \RuntimeException( "wpdb->update failed for field {$field_id}." );
 		}
 
-		return "Hid RACGP field {$field_id} on Form 2 and set required=0.";
+		return "Changed RACGP field {$field_id} on Form 2 to type=hidden and required=0.";
 	},
 ];
