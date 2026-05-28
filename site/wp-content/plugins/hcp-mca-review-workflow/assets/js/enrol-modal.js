@@ -30,15 +30,19 @@
 			'<div class="hcp-racgp-modal__backdrop" data-close="1"></div>',
 			'<div class="hcp-racgp-modal__dialog">',
 			'  <button type="button" class="hcp-racgp-modal__close" aria-label="Close" data-close="1">&times;</button>',
-			'  <h2 id="hcp-racgp-modal-title">One quick step</h2>',
-			'  <p>To enrol you in this CPD activity we need your RACGP number. This is used to report your completion to RACGP.</p>',
+			'  <h2 id="hcp-racgp-modal-title">Enter your RACGP number to continue</h2>',
+			'  <p>Your RACGP number is required to enable recording of CPD hours following completion of the activity.</p>',
 			'  <form class="hcp-racgp-modal__form" novalidate>',
-			'    <label for="hcp-racgp-input">RACGP Number</label>',
+			'    <label for="hcp-racgp-input">RACGP number*</label>',
 			'    <input type="text" id="hcp-racgp-input" name="racgp_number" required inputmode="numeric" autocomplete="off" maxlength="7" pattern="\\d{6,7}" />',
 			'    <div class="hcp-racgp-modal__hint">6 to 7 digits</div>',
 			'    <div class="hcp-racgp-modal__error" hidden></div>',
+			'    <div class="hcp-racgp-modal__consent">',
+			'      <input type="checkbox" id="hcp-racgp-consent" name="racgp_consent" required />',
+			'      <label for="hcp-racgp-consent">I consent to my information being used to complete CPD reporting requirements with the RACGP*</label>',
+			'    </div>',
 			'    <div class="hcp-racgp-modal__actions">',
-			'      <button type="submit" class="btn cta">Start Course</button>',
+			'      <button type="submit" class="btn cta">Submit</button>',
 			'      <button type="button" class="hcp-racgp-modal__cancel" data-close="1">Cancel</button>',
 			'    </div>',
 			'  </form>',
@@ -135,6 +139,11 @@
 		}
 		if (!/^\d{6,7}$/.test(value)) {
 			showError('RACGP numbers are usually 6 to 7 digits. Please check and try again.');
+			return;
+		}
+		const consent = modalEl.querySelector('#hcp-racgp-consent');
+		if (consent && !consent.checked) {
+			showError('Please tick the consent box to continue.');
 			return;
 		}
 

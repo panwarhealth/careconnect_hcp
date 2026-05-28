@@ -43,26 +43,6 @@
 				?>
 			</div>
             
-            <div id="racgp-popup-content" class="relative bg-white p-8 shadow-2xl w-11/12 max-w-md text-center cursor-default hidden">
-                <span class="login-popup-close absolute top-2 right-4 text-gray-400 hover:text-gray-800 text-3xl font-bold cursor-pointer transition-colors">×</span>
-                <h3 class="mb-4 text-2xl font-semibold text-gray-800">Enter your RACGP number to continue</h3>
-                <p class="mb-6 text-sm text-gray-600 text-left">Your RACGP number is required to enable recording of CPD hours following completion of the activity.</p>
-                <div id="racgp-popup-message" class="mb-4 text-sm text-accent"></div>
-
-                <form id="racgp-details-form">
-                    <div class="mb-4 text-left">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">RACGP number*</label>
-                        <input type="text" id="racgp_number" name="racgp_number" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    
-                    <div class="mb-6 flex items-start text-left">
-                        <input type="checkbox" id="racgp_consent" name="racgp_consent" required class="">
-                        <label for="racgp_consent" class="text-sm text-gray-600" style="margin-left: 1rem;">I consent to my information being used to complete CPD reporting requirements with the RACGP*</label>
-                    </div>
-
-                    <button type="submit" class="button button-primary w-full bg-blue-600 text-white py-3 px-4 my-2 border-0 rounded-lg cursor-pointer text-base font-bold transition-colors hover:bg-blue-700 btn cta">Submit</button>
-                </form>
-            </div>
 		</div>
 		
 	<script type="text/javascript">
@@ -74,9 +54,6 @@
                 const messageDiv = $('#login-popup-message');
                 const loginContent = $('#login-popup-content');
                 const registerContent = $('#register-popup-content');
-                const racgpContent = $('#racgp-popup-content');
-                const racgpForm = $('#racgp-details-form');
-                const racgpMessageDiv = $('#racgp-popup-message');
 
                 if (form.length) {
                     form.find('p > label').addClass('block text-left text-sm font-medium text-gray-700 mb-1');
@@ -90,12 +67,7 @@
                 }
 
                 const handleModalClose = function() {
-                    // If the user is on the RACGP screen and closes the modal, reload the page
-                    if (!racgpContent.hasClass('hidden')) {
-                        window.location.reload();
-                    } else {
-                        modal.fadeOut(300);
-                    }
+                    modal.fadeOut(300);
                 };
 
                 closeBtn.on('click', function() {
@@ -134,21 +106,13 @@
                         success: function(response) {
                             if (response.success) {
                                 messageDiv.text(response.data.message).removeClass('text-error').addClass('text-green');
-                                // Redirect after a short delay
-                                if(response.data.message == "RACGP"){
-                                    loginContent.addClass('hidden');
-                                    racgpContent.removeClass('hidden');
-                                } else { 
-                                    if (window.location.pathname === "/fess-demonstration/" || window.location.pathname === "/fess-demonstration") {
-                                        window.location.href = "/tools-and-videos#fess-children-nasal-spray";
-                                        return; 
-                                    }
-                                    else {
-                                        setTimeout(function() {
-                                            window.location.reload();
-                                        }, 1000);
-                                    }
-                                 }
+                                if (window.location.pathname === "/fess-demonstration/" || window.location.pathname === "/fess-demonstration") {
+                                    window.location.href = "/tools-and-videos#fess-children-nasal-spray";
+                                    return;
+                                }
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1000);
                             } else {
                                 messageDiv.text(response.data.message).removeClass('text-green').addClass('text-error');
                             }
@@ -159,31 +123,8 @@
                     });
                 });
 
-                // RACGP Form Submission handler:
-                racgpForm.on('submit', function(e) {
-                    e.preventDefault();
-                    racgpMessageDiv.text('Processing...').removeClass('text-error text-green').addClass('text-accent');
-                    $.ajax({
-                        type: 'POST',
-                        url: racgp_ajax_vars.ajax_url,
-                        data: {
-                            action: 'save_racgp_data',
-                            racgp_number: $('#racgp_number').val(),
-                            security: racgp_ajax_vars.nonce
-                        },
-                        success: function(res) {
-                            messageDiv.text('RACGP Updated Successfully.').removeClass('text-error').addClass('text-green');
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 1000);
-                        },
-                         error: function() {
-                            racgpMessageDiv.text('An error occurred. Please try again.').addClass('text-error');
-                        }
-                    });
-                });
 
-				$('.logged_in_users_only').each(function () {
+$('.logged_in_users_only').each(function () {
 					const $section = $(this);
 					//$section.addClass('logged_in_users_only');
 
