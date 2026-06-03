@@ -24,11 +24,8 @@ instead.
   `build_caph0062_comparison_docx.py`, `build_caph0062_topline_docx.py` — CAPH0062.
 - `db_mca_all_data.py`, `db_mca_outcomes.py` — MCA audit/outcomes pulls.
 
-**pre-refactor-originals/**
-The original top-level versions of scripts that were rewritten onto `lib/`
-during the 2026-06 refactor (`ga4_pull.py` → `ga4/headline.py`,
-`ga4_funnel_fy26.py` → `ga4/funnel.py`, `db_deep_dive.py` → `db/deep_dive.py`,
-`mailchimp_pull.py` → `mailchimp/campaigns.py`,
-`weekly_signups_users.py` → `ga4/weekly_signups.py`,
-`ga4_landing_page_v3_fy26.py` → `ga4/landing_pages.py`). Kept until the `lib`
-versions have been validated against a live run; delete them once confirmed.
+The pre-refactor originals of the six rewritten scripts (`ga4_pull.py`,
+`ga4_funnel_fy26.py`, `db_deep_dive.py`, `mailchimp_pull.py`,
+`weekly_signups_users.py`, `ga4_landing_page_v3_fy26.py`) lived here briefly and
+were removed in commit 38e0204 after their `lib`-based replacements were diffed
+against them and confirmed byte-identical. They remain in git history if needed.
