@@ -1,0 +1,5 @@
+google-analytics-data>=0.18
+google-auth-oauthlib>=1.2
+pandas>=2.2
+mailchimp-marketing>=3.0.80
+python-dotenv>=1.0
