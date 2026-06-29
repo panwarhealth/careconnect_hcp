@@ -3429,9 +3429,11 @@ add_action('rcp_login_form_errors', function(array $post_data): void {
     $valid_prefixes = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
     $login_type = str_contains($username, '@') ? 'email'
         : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
+    $masked = substr($username, 0, 3) . str_repeat('*', max(0, strlen($username) - 3));
     hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
-        'wp_error_code' => 'invalid_username',
-        'login_type'    => $login_type,
+        'wp_error_code'   => 'invalid_username',
+        'login_type'      => $login_type,
+        'username_masked' => $masked,
     ]);
 });
 
