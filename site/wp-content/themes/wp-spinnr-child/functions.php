@@ -1423,7 +1423,7 @@ function rcp_register_membership($entry_id, $form_id){
 
 		if ( is_wp_error( $user ) ) {
 			hcp_sentry_capture('Formidable auto-login failed', \Sentry\Severity::error(), [
-				'wp_error_code' => $user->get_error_code(),
+				'auth_error' => hcp_sentry_auth_error($user->get_error_code()),
 				'form_id'       => $form_id,
 			]);
 			return;
@@ -2571,7 +2571,7 @@ function ajax_login_handler() {
         $_u = $info['user_login'];
         $_valid = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
         hcp_sentry_capture('Popup login failed', \Sentry\Severity::info(), [
-            'wp_error_code' => $user_signon->get_error_code(),
+            'auth_error' => hcp_sentry_auth_error($user_signon->get_error_code()),
             'login_type'    => str_contains($_u, '@') ? 'email' : (in_array(strtoupper(substr($_u, 0, 3)), $_valid) ? 'ahpra' : 'username'),
         ]);
         wp_send_json_error(array('message' => 'Login failed: Invalid username or password.'));
@@ -2930,7 +2930,7 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
         if (!$user) {
             $errors['field'. $field->id] = 'Invalid login details.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
-                'wp_error_code' => 'invalid_username',
+                'auth_error' => 'user_not_found',
                 'login_type'    => $_login_type,
             ]);
             return $errors;
@@ -2940,7 +2940,7 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
         if (!wp_check_password($password, $user->data->user_pass, $user->ID)) {
             $errors['field'. $password_field] = 'Incorrect password.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
-                'wp_error_code' => 'incorrect_password',
+                'auth_error' => 'wrong_credentials',
                 'login_type'    => $_login_type,
             ]);
             return $errors;
@@ -3376,6 +3376,18 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
 // Sentry — anonymous context, noise filtering, and login failure capture
 // =============================================================================
 
+function hcp_sentry_auth_error(string $wp_error_code): string {
+    $map = [
+        'incorrect_password' => 'wrong_credentials',
+        'invalid_password'   => 'wrong_credentials',
+        'empty_password'     => 'empty_credentials',
+        'empty_username'     => 'empty_credentials',
+        'invalid_username'   => 'user_not_found',
+        'invalid_email'      => 'user_not_found',
+    ];
+    return $map[$wp_error_code] ?? $wp_error_code;
+}
+
 function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $extra = []): void {
     if ( ! function_exists('\Sentry\withScope') ) return;
     \Sentry\withScope(function(\Sentry\State\Scope $scope) use ($message, $level, $extra): void {
@@ -3414,7 +3426,7 @@ add_filter('authenticate', function($user, string $username, string $password) {
     $login_type = str_contains($username, '@') ? 'email'
         : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
     hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
-        'wp_error_code' => $user->get_error_code(),
+        'auth_error' => hcp_sentry_auth_error($user->get_error_code()),
         'login_type'    => $login_type,
     ]);
     return $user;
@@ -3431,7 +3443,7 @@ add_action('rcp_login_form_errors', function(array $post_data): void {
         : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
     $masked = substr($username, 0, 3) . str_repeat('*', max(0, strlen($username) - 3));
     hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
-        'wp_error_code'   => 'invalid_username',
+        'auth_error'      => 'user_not_found',
         'login_type'      => $login_type,
         'username_masked' => $masked,
     ]);
