@@ -2572,7 +2572,7 @@ function ajax_login_handler() {
         $_valid = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
         hcp_sentry_capture('Popup login failed', \Sentry\Severity::info(), [
             'wp_error_code' => $user_signon->get_error_code(),
-            'login_type'    => str_contains($_u, '@') ? 'email' : (in_array(strtoupper(substr($_u, 0, 3)), $_valid) ? 'ahpra' : 'unknown'),
+            'login_type'    => str_contains($_u, '@') ? 'email' : (in_array(strtoupper(substr($_u, 0, 3)), $_valid) ? 'ahpra' : 'username'),
         ]);
         wp_send_json_error(array('message' => 'Login failed: Invalid username or password.'));
     } else {
@@ -3404,15 +3404,22 @@ add_action('wp_loaded', function() {
     });
 });
 
-add_action('wp_login_failed', function(string $username, \WP_Error $error): void {
+// Hook authenticate filter (runs synchronously, before any redirect) to catch
+// all login failures including non-existent usernames which wp_login_failed
+// can miss when the event is lost during the wp-login.php redirect.
+add_filter('authenticate', function($user, string $username, string $password) {
+    if ( ! is_wp_error($user) || empty($username) || empty($password) ) {
+        return $user;
+    }
     $valid_prefixes = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
     $login_type = str_contains($username, '@') ? 'email'
-        : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'unknown');
-    hcp_sentry_capture('Login form failed', \Sentry\Severity::info(), [
-        'wp_error_code' => $error->get_error_code(),
+        : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
+    hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
+        'wp_error_code' => $user->get_error_code(),
         'login_type'    => $login_type,
     ]);
-}, 10, 2);
+    return $user;
+}, 99999, 3);
 
 add_filter('wp_sentry_before_send', function(\Sentry\Event $event): ?\Sentry\Event {
     // Drop RCP deprecation noise
