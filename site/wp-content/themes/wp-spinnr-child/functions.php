@@ -771,9 +771,7 @@ function ajax_aphra_call() {
 	];
     if ( !wp_verify_nonce( $_REQUEST['ajax_aphra_nonce'], "ajax_aphra_call")) {
 		$return['message'] = "An error occurred. Please refresh the page.";
-		if ( function_exists('\Sentry\captureMessage') ) {
-			\Sentry\captureMessage('AHPRA AJAX nonce verification failed', \Sentry\Severity::warning());
-		}
+		hcp_sentry_capture('AHPRA AJAX nonce verification failed', \Sentry\Severity::warning());
 		wp_send_json($return, 500);
     } 
 	// add_user_meta(2, 'ahpra_id', 'test', true);
@@ -794,9 +792,10 @@ function ajax_aphra_call() {
 		
 			$_ahpra_prefix  = strtoupper(substr($_REQUEST['ahpra_id'], 0, 3));
 			$_valid_prefixes = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
-			if ( function_exists('\Sentry\captureMessage') && ! in_array($_ahpra_prefix, $_valid_prefixes) ) {
-				\Sentry\captureMessage('AHPRA format invalid — unrecognised prefix', \Sentry\Severity::warning(), [
-					'extra' => ['prefix_supplied' => $_ahpra_prefix, 'length' => strlen($_REQUEST['ahpra_id'])],
+			if ( ! in_array($_ahpra_prefix, $_valid_prefixes) ) {
+				hcp_sentry_capture('AHPRA format invalid — unrecognised prefix', \Sentry\Severity::warning(), [
+					'prefix_supplied' => $_ahpra_prefix,
+					'length'          => strlen($_REQUEST['ahpra_id']),
 				]);
 			}
 
@@ -1017,11 +1016,10 @@ function check_if_aphra_exists_curl($ahpra_id){
 		}
 		else{
 			$return['message'] = curl_error($curl);
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('AHPRA cURL request failed', \Sentry\Severity::error(), [
-					'extra' => ['curl_error' => curl_error($curl), 'curl_errno' => curl_errno($curl)],
-				]);
-			}
+			hcp_sentry_capture('AHPRA cURL request failed', \Sentry\Severity::error(), [
+				'curl_error' => curl_error($curl),
+				'curl_errno' => curl_errno($curl),
+			]);
 		}
 	return $return;
 }
@@ -1092,11 +1090,10 @@ function valdidate_aphra_register($errors, $values) {
 		}
 		else {
 			$errors['_error'] = (isset($ahpra_data['message']) && $ahpra_data['message'] != '') ? $ahpra_data['message'] : "Invalid Professional Number!";
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
-					'extra' => ['form_id' => $values['form_id'], 'error' => $errors['_error']],
-				]);
-			}
+			hcp_sentry_capture('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
+				'form_id' => $values['form_id'],
+				'error'   => $errors['_error'],
+			]);
 		}
 	}
 	if($values['form_id'] == 129) { // Register with Form RACGP
@@ -1114,11 +1111,10 @@ function valdidate_aphra_register($errors, $values) {
 		}
 		else {
 			$errors['_error'] = (isset($ahpra_data['message']) && $ahpra_data['message'] != '') ? $ahpra_data['message'] : "Invalid Professional Number!";
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
-					'extra' => ['form_id' => $values['form_id'], 'error' => $errors['_error']],
-				]);
-			}
+			hcp_sentry_capture('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
+				'form_id' => $values['form_id'],
+				'error'   => $errors['_error'],
+			]);
 		}
 
 		//$racgp_value = sanitize_text_field($_POST["item_meta"][4273] ?? '');
@@ -1146,11 +1142,10 @@ function valdidate_aphra_register($errors, $values) {
 		}
 		else {
 			$errors['_error'] = (isset($ahpra_data['message']) && $ahpra_data['message'] != '') ? $ahpra_data['message'] : "Invalid Professional Number!";
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
-					'extra' => ['form_id' => $values['form_id'], 'error' => $errors['_error']],
-				]);
-			}
+			hcp_sentry_capture('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
+				'form_id' => $values['form_id'],
+				'error'   => $errors['_error'],
+			]);
 		}
 	}
 	else if($values['form_id'] == 54) { // Registration - Therapy Area Form
@@ -1175,11 +1170,10 @@ function valdidate_aphra_register($errors, $values) {
 		}
 		else {
 			$errors['_error'] = (isset($ahpra_data['message']) && $ahpra_data['message'] != '') ? $ahpra_data['message'] : "Invalid Professional Number!";
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
-					'extra' => ['form_id' => $values['form_id'], 'error' => $errors['_error']],
-				]);
-			}
+			hcp_sentry_capture('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
+				'form_id' => $values['form_id'],
+				'error'   => $errors['_error'],
+			]);
 		}
 	}
 	return $errors;
@@ -1275,9 +1269,9 @@ function rcp_register_membership($entry_id, $form_id){
 			$customer_id = rcp_add_customer( array(
 				'user_id' => $_POST['item_meta'][53] // User ID Field (53)
 			));
-			if ( ! $customer_id && function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('RCP customer creation failed after registration', \Sentry\Severity::error(), [
-					'extra' => ['form_id' => $form_id],
+			if ( ! $customer_id ) {
+				hcp_sentry_capture('RCP customer creation failed after registration', \Sentry\Severity::error(), [
+					'form_id' => $form_id,
 				]);
 			}
 		}
@@ -1292,9 +1286,11 @@ function rcp_register_membership($entry_id, $form_id){
 			'object_id'   => $subscription_id,
 			'status'      => 'active'
 		));
-		if ( ! $membership_id && function_exists('\Sentry\captureMessage') ) {
-			\Sentry\captureMessage('RCP membership creation failed after registration', \Sentry\Severity::error(), [
-				'extra' => ['form_id' => $form_id, 'customer_id' => $customer_id, 'object_id' => $subscription_id],
+		if ( ! $membership_id ) {
+			hcp_sentry_capture('RCP membership creation failed after registration', \Sentry\Severity::error(), [
+				'form_id'     => $form_id,
+				'customer_id' => $customer_id,
+				'object_id'   => $subscription_id,
 			]);
 		}
 	} else if($form_id == 22){ // Registration - Hydralyte comp Form
@@ -1310,9 +1306,9 @@ function rcp_register_membership($entry_id, $form_id){
 				$customer_id = rcp_add_customer( array(
 					'user_id' => $_POST['item_meta'][630] // User ID Field (53)
 				));
-				if ( ! $customer_id && function_exists('\Sentry\captureMessage') ) {
-					\Sentry\captureMessage('RCP customer creation failed after registration', \Sentry\Severity::error(), [
-						'extra' => ['form_id' => $form_id],
+				if ( ! $customer_id ) {
+					hcp_sentry_capture('RCP customer creation failed after registration', \Sentry\Severity::error(), [
+						'form_id' => $form_id,
 					]);
 				}
 			}
@@ -1326,9 +1322,11 @@ function rcp_register_membership($entry_id, $form_id){
 				'object_id'   => $subscription_id,
 				'status'      => 'active'
 			));
-			if ( ! $membership_id && function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('RCP membership creation failed after registration', \Sentry\Severity::error(), [
-					'extra' => ['form_id' => $form_id, 'customer_id' => $customer_id, 'object_id' => $subscription_id],
+			if ( ! $membership_id ) {
+				hcp_sentry_capture('RCP membership creation failed after registration', \Sentry\Severity::error(), [
+					'form_id'     => $form_id,
+					'customer_id' => $customer_id,
+					'object_id'   => $subscription_id,
 				]);
 			}
 		}
@@ -1341,9 +1339,9 @@ function rcp_register_membership($entry_id, $form_id){
 				$customer_id = rcp_add_customer( array(
 					'user_id' => $_POST['item_meta'][1510] // User ID Field (1510)
 				));
-				if ( ! $customer_id && function_exists('\Sentry\captureMessage') ) {
-					\Sentry\captureMessage('RCP customer creation failed after registration', \Sentry\Severity::error(), [
-						'extra' => ['form_id' => $form_id],
+				if ( ! $customer_id ) {
+					hcp_sentry_capture('RCP customer creation failed after registration', \Sentry\Severity::error(), [
+						'form_id' => $form_id,
 					]);
 				}
 			}
@@ -1357,9 +1355,11 @@ function rcp_register_membership($entry_id, $form_id){
 				'object_id'   => $subscription_id,
 				'status'      => 'active'
 			));
-			if ( ! $membership_id && function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('RCP membership creation failed after registration', \Sentry\Severity::error(), [
-					'extra' => ['form_id' => $form_id, 'customer_id' => $customer_id, 'object_id' => $subscription_id],
+			if ( ! $membership_id ) {
+				hcp_sentry_capture('RCP membership creation failed after registration', \Sentry\Severity::error(), [
+					'form_id'     => $form_id,
+					'customer_id' => $customer_id,
+					'object_id'   => $subscription_id,
 				]);
 			}
 		}
@@ -1371,9 +1371,9 @@ function rcp_register_membership($entry_id, $form_id){
 			$customer_id = rcp_add_customer( array(
 				'user_id' => $_POST['item_meta'][4065] // User ID Field (53)
 			));
-			if ( ! $customer_id && function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('RCP customer creation failed after registration', \Sentry\Severity::error(), [
-					'extra' => ['form_id' => $form_id],
+			if ( ! $customer_id ) {
+				hcp_sentry_capture('RCP customer creation failed after registration', \Sentry\Severity::error(), [
+					'form_id' => $form_id,
 				]);
 			}
 		}
@@ -1389,9 +1389,11 @@ function rcp_register_membership($entry_id, $form_id){
 			'object_id'   => $subscription_id,
 			'status'      => 'active'
 		));
-		if ( ! $membership_id && function_exists('\Sentry\captureMessage') ) {
-			\Sentry\captureMessage('RCP membership creation failed after registration', \Sentry\Severity::error(), [
-				'extra' => ['form_id' => $form_id, 'customer_id' => $customer_id, 'object_id' => $subscription_id],
+		if ( ! $membership_id ) {
+			hcp_sentry_capture('RCP membership creation failed after registration', \Sentry\Severity::error(), [
+				'form_id'     => $form_id,
+				'customer_id' => $customer_id,
+				'object_id'   => $subscription_id,
 			]);
 		}
 	} else if($form_id == 145){ 
@@ -1420,11 +1422,10 @@ function rcp_register_membership($entry_id, $form_id){
 		$user = wp_signon( $creds, is_ssl() );
 
 		if ( is_wp_error( $user ) ) {
-			if ( function_exists('\Sentry\captureMessage') ) {
-				\Sentry\captureMessage('Formidable auto-login failed', \Sentry\Severity::error(), [
-					'extra' => ['wp_error_code' => $user->get_error_code(), 'form_id' => $form_id],
-				]);
-			}
+			hcp_sentry_capture('Formidable auto-login failed', \Sentry\Severity::error(), [
+				'wp_error_code' => $user->get_error_code(),
+				'form_id'       => $form_id,
+			]);
 			return;
 		}
 		
@@ -2567,11 +2568,9 @@ function ajax_login_handler() {
 
     // Check for errors
     if (is_wp_error($user_signon)) {
-        if ( function_exists('\Sentry\captureMessage') ) {
-            \Sentry\captureMessage('Popup login failed', \Sentry\Severity::info(), [
-                'extra' => ['wp_error_code' => $user_signon->get_error_code()],
-            ]);
-        }
+        hcp_sentry_capture('Popup login failed', \Sentry\Severity::info(), [
+            'wp_error_code' => $user_signon->get_error_code(),
+        ]);
         wp_send_json_error(array('message' => 'Login failed: Invalid username or password.'));
     } else {
 		wp_set_current_user($user_signon->ID);
@@ -2924,22 +2923,18 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
 
         if (!$user) {
             $errors['field'. $field->id] = 'Invalid login details.';
-            if ( function_exists('\Sentry\captureMessage') ) {
-                \Sentry\captureMessage('Formidable embedded login failed', \Sentry\Severity::info(), [
-                    'extra' => ['wp_error_code' => 'invalid_username'],
-                ]);
-            }
+            hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
+                'wp_error_code' => 'invalid_username',
+            ]);
             return $errors;
         }
 
         // Check password
         if (!wp_check_password($password, $user->data->user_pass, $user->ID)) {
             $errors['field'. $password_field] = 'Incorrect password.';
-            if ( function_exists('\Sentry\captureMessage') ) {
-                \Sentry\captureMessage('Formidable embedded login failed', \Sentry\Severity::info(), [
-                    'extra' => ['wp_error_code' => 'incorrect_password'],
-                ]);
-            }
+            hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
+                'wp_error_code' => 'incorrect_password',
+            ]);
             return $errors;
         }
 
@@ -3373,6 +3368,16 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
 // Sentry — anonymous context, noise filtering, and login failure capture
 // =============================================================================
 
+function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $extra = []): void {
+    if ( ! function_exists('\Sentry\withScope') ) return;
+    \Sentry\withScope(function(\Sentry\State\Scope $scope) use ($message, $level, $extra): void {
+        foreach ($extra as $key => $value) {
+            $scope->setExtra($key, $value);
+        }
+        \Sentry\captureMessage($message, $level);
+    });
+}
+
 add_action('wp_loaded', function() {
     if ( ! function_exists('\Sentry\configureScope') ) return;
     \Sentry\configureScope(function(\Sentry\State\Scope $scope): void {
@@ -3392,9 +3397,8 @@ add_action('wp_loaded', function() {
 });
 
 add_action('wp_login_failed', function(string $username, \WP_Error $error): void {
-    if ( ! function_exists('\Sentry\captureMessage') ) return;
-    \Sentry\captureMessage('Login form failed', \Sentry\Severity::info(), [
-        'extra' => ['wp_error_code' => $error->get_error_code()],
+    hcp_sentry_capture('Login form failed', \Sentry\Severity::info(), [
+        'wp_error_code' => $error->get_error_code(),
     ]);
 }, 10, 2);
 

@@ -86,6 +86,8 @@ az webapp config appsettings set -g "$STAGING_RG" -n "$STAGING_APP_NAME" --setti
   WORDPRESS_SCRIPT_DEBUG=0 \
   "AHPRA_PIEWS_USER=$AHPRA_USER" \
   "AHPRA_PIEWS_PASSWORD=$AHPRA_PASS" \
+  "SENTRY_DSN=$(grep -E '^SENTRY_DSN=' "$ENV_FILE" | cut -d= -f2-)" \
+  SENTRY_ENVIRONMENT=staging \
   WORDPRESS_AUTH_KEY=$(openssl rand -hex 32) \
   WORDPRESS_SECURE_AUTH_KEY=$(openssl rand -hex 32) \
   WORDPRESS_LOGGED_IN_KEY=$(openssl rand -hex 32) \
@@ -98,6 +100,9 @@ az webapp config appsettings set -g "$STAGING_RG" -n "$STAGING_APP_NAME" --setti
 
 az webapp config set -g "$STAGING_RG" -n "$STAGING_APP_NAME" --startup-file "/home/site/wwwroot/startup.sh" -o none
 
+echo "  ... waiting 45s for App Service to stabilise after env var changes..."
+sleep 45
+
 echo "[7/9] Build + deploy site zip (nginx-config-aware)..."
 ZIP_TMP="$(mktemp -u /tmp/staging-deploy-XXXX).zip"
 SITE_DIR="$(cd "${SCRIPT_DIR}/../site" && pwd)"
@@ -108,14 +113,24 @@ chmod +x "${SITE_DIR}/startup.sh"
   -x "wp-content/uploads/*" \
   -x "wp-content/cache/*" \
   -x "wp-content/upgrade/*" \
+  -x "wp-content/wflogs/*" \
   -x "wp-content/plugins/wp-rocket/*" \
   -x "wp-content/plugins/wordfence/*" \
   -x "wp-content/plugins/object-sync-for-salesforce/*" \
   -x "wp-content/plugins/wp-mail-smtp-pro/*" \
   -x "wp-content/plugins/imagify/*" \
+  -x "wp-content/plugins/advanced-custom-fields/*" \
+  -x "wp-content/plugins/wp-optimize/*" \
   -x "*.git*" -x "*.DS_Store")
 rm -f "${SITE_DIR}/default" "${SITE_DIR}/startup.sh"
-az webapp deploy -g "$STAGING_RG" -n "$STAGING_APP_NAME" --src-path "$ZIP_TMP" --type zip --async false -o none
+az webapp deploy -g "$STAGING_RG" -n "$STAGING_APP_NAME" --src-path "$ZIP_TMP" --type zip --async true -o none
+echo "  ... waiting for app to respond (async deploy)..."
+for i in $(seq 1 24); do
+  sleep 10
+  HTTP=$(curl -s -o /dev/null -w "%{http_code}" "${STAGING_URL}/" 2>/dev/null || echo 000)
+  [ "$HTTP" != "000" ] && [ "$HTTP" != "502" ] && [ "$HTTP" != "503" ] && echo "  ... app responding (HTTP $HTTP)" && break
+  echo "  ... still starting ($i/24, HTTP $HTTP)"
+done
 rm -f "$ZIP_TMP"
 
 echo "[8/9] Seed database from local dump + sanitize..."
