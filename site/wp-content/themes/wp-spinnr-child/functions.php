@@ -3411,19 +3411,12 @@ add_filter('wp_sentry_before_send', function(\Sentry\Event $event): ?\Sentry\Eve
             }
         }
     }
-
-    // Scrub sensitive keys from request body before event leaves the server
-    $sensitive = ['rcp_user_pass','rcp_user_login','user_pass','user_password','password','pwd','item_meta'];
-    $request = $event->getRequest();
-    if ( $request ) {
-        $data = $request->getData();
-        if ( is_array($data) ) {
-            foreach ( $sensitive as $key ) {
-                if ( isset($data[$key]) ) $data[$key] = '[Filtered]';
-            }
-            $request->setData($data);
-        }
-    }
-
     return $event;
 }, 10, 1);
+
+add_filter('wp_sentry_options', function(\Sentry\Options $options): \Sentry\Options {
+    // Never capture POST body — prevents passwords and AHPRA numbers reaching Sentry.
+    $options->setMaxRequestBodySize('never');
+    $options->setSendDefaultPii(false);
+    return $options;
+});
