@@ -69,6 +69,8 @@ services:
       # Prod/staging set equivalents via putenv() in wp-config.php.
       AHPRA_PIEWS_USER: ${AHPRA_PIEWS_USER}
       AHPRA_PIEWS_PASSWORD: ${AHPRA_PIEWS_PASSWORD}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
     volumes:
       # Bind-mount the entire webroot — edits on the host are picked up
       # by PHP on the next request. This is the "hot reload" for WP.
@@ -93,6 +95,8 @@ services:
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
     volumes:
       - ./site:/var/www/html
 
