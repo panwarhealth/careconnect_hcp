@@ -2930,7 +2930,7 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
         if (!$user) {
             $errors['field'. $field->id] = 'Invalid login details.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
-                'failure_reason' => 'user_not_found',
+                'failure_reason' => 'not_found',
                 'login_type'    => $_login_type,
             ]);
             return $errors;
@@ -2940,7 +2940,7 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
         if (!wp_check_password($password, $user->data->user_pass, $user->ID)) {
             $errors['field'. $password_field] = 'Incorrect password.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
-                'failure_reason' => 'wrong_credentials',
+                'failure_reason' => 'mismatch',
                 'login_type'    => $_login_type,
             ]);
             return $errors;
@@ -3376,16 +3376,19 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
 // Sentry — anonymous context, noise filtering, and login failure capture
 // =============================================================================
 
+// Map WP error codes to neutral labels. Sentry's default scrubber filters any
+// value containing a security keyword (password, credentials, auth, token,
+// secret, key, passwd) — so these labels deliberately avoid all of them.
 function hcp_sentry_auth_error(string $wp_error_code): string {
     $map = [
-        'incorrect_password' => 'wrong_credentials',
-        'invalid_password'   => 'wrong_credentials',
-        'empty_password'     => 'empty_credentials',
-        'empty_username'     => 'empty_credentials',
-        'invalid_username'   => 'user_not_found',
-        'invalid_email'      => 'user_not_found',
+        'incorrect_password' => 'mismatch',
+        'invalid_password'   => 'mismatch',
+        'empty_password'     => 'blank_field',
+        'empty_username'     => 'blank_field',
+        'invalid_username'   => 'not_found',
+        'invalid_email'      => 'not_found',
     ];
-    return $map[$wp_error_code] ?? $wp_error_code;
+    return $map[$wp_error_code] ?? 'other';
 }
 
 function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $extra = []): void {
@@ -3443,7 +3446,7 @@ add_action('rcp_login_form_errors', function(array $post_data): void {
         : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
     $masked = substr($username, 0, 3) . str_repeat('*', max(0, strlen($username) - 3));
     hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
-        'auth_error'      => 'user_not_found',
+        'failure_reason'  => 'not_found',
         'login_type'      => $login_type,
         'username_masked' => $masked,
     ]);
