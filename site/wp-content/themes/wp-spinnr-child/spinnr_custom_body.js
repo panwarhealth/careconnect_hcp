@@ -277,6 +277,19 @@
     });
 }(jQuery));
 
+jQuery(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+    if (typeof Sentry === 'undefined') return;
+    Sentry.captureMessage('jQuery AJAX request failed', {
+        level: 'error',
+        extra: {
+            url: ajaxSettings.url,
+            action: ajaxSettings.data && ajaxSettings.data.action,
+            status: jqXHR.status,
+            error: thrownError
+        }
+    });
+});
+
 document.addEventListener('DOMContentLoaded', (event) => {
     if(jQuery('body.logged-in').length || (typeof hcpUngate !== 'undefined' && Math.floor(Date.now() / 1000) >= (hcpUngate.from || 0) && Math.floor(Date.now() / 1000) < hcpUngate.until)) {
         jQuery('*').removeClass('logged_in_users_only');

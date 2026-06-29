@@ -45,6 +45,11 @@ define( 'SCRIPT_DEBUG',     filter_var( getenv('WORDPRESS_SCRIPT_DEBUG')  ?: '1'
 define( 'WP_DEBUG_LOG',     true ); // writes to /wp-content/debug.log
 define( 'DISALLOW_FILE_EDIT', false );
 
+// Sentry error logging — DSN and environment from env vars, blank DSN disables SDK.
+define( 'WP_SENTRY_DSN',         getenv('SENTRY_DSN')         ?: '' );
+define( 'WP_SENTRY_ENV',         getenv('SENTRY_ENVIRONMENT') ?: 'development' );
+define( 'WP_SENTRY_ERROR_TYPES', E_ALL & ~E_NOTICE & ~E_DEPRECATED );
+
 /* That's all, stop editing! Happy publishing. */
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
