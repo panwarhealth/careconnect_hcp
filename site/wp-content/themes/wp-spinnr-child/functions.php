@@ -2568,8 +2568,11 @@ function ajax_login_handler() {
 
     // Check for errors
     if (is_wp_error($user_signon)) {
+        $_u = $info['user_login'];
+        $_valid = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
         hcp_sentry_capture('Popup login failed', \Sentry\Severity::info(), [
             'wp_error_code' => $user_signon->get_error_code(),
+            'login_type'    => str_contains($_u, '@') ? 'email' : (in_array(strtoupper(substr($_u, 0, 3)), $_valid) ? 'ahpra' : 'unknown'),
         ]);
         wp_send_json_error(array('message' => 'Login failed: Invalid username or password.'));
     } else {
@@ -2921,10 +2924,14 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
             ? get_user_by('email', $username)
             : get_user_by('login', $username);
 
+        $_valid = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
+        $_login_type = is_email($username) ? 'email' : (in_array(strtoupper(substr($username, 0, 3)), $_valid) ? 'ahpra' : 'unknown');
+
         if (!$user) {
             $errors['field'. $field->id] = 'Invalid login details.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
                 'wp_error_code' => 'invalid_username',
+                'login_type'    => $_login_type,
             ]);
             return $errors;
         }
@@ -2934,6 +2941,7 @@ add_filter('frm_validate_field_entry', function($errors, $field, $value){
             $errors['field'. $password_field] = 'Incorrect password.';
             hcp_sentry_capture('Formidable embedded login failed', \Sentry\Severity::info(), [
                 'wp_error_code' => 'incorrect_password',
+                'login_type'    => $_login_type,
             ]);
             return $errors;
         }
@@ -3397,8 +3405,12 @@ add_action('wp_loaded', function() {
 });
 
 add_action('wp_login_failed', function(string $username, \WP_Error $error): void {
+    $valid_prefixes = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
+    $login_type = str_contains($username, '@') ? 'email'
+        : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'unknown');
     hcp_sentry_capture('Login form failed', \Sentry\Severity::info(), [
         'wp_error_code' => $error->get_error_code(),
+        'login_type'    => $login_type,
     ]);
 }, 10, 2);
 
