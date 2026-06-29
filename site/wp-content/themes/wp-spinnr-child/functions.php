@@ -1071,6 +1071,7 @@ function aphra_login_form(){
 add_filter('frm_validate_entry', 'valdidate_aphra_register', 20, 2);
 function valdidate_aphra_register($errors, $values) {
 	if($values['form_id'] == 2) { // Register Form
+		hcp_check_ahpra_format($_POST['item_meta'][8] ?? '', 2);
 		if($_POST['item_meta'][710] == '') {
 			$errors['field710'] = 'This field cannot be blank.';
 		}
@@ -1121,6 +1122,7 @@ function valdidate_aphra_register($errors, $values) {
 
 	}
 	else if($values['form_id'] == 22) { // Registration - Hydralyte comp Form
+		hcp_check_ahpra_format($_POST['item_meta'][358] ?? '', 22);
 		if($_POST['item_meta'][918] == 'Yes') {
 			if($_POST['item_meta'][422] == '') {
 				$errors['field422'] = 'This field cannot be blank.';
@@ -1149,6 +1151,7 @@ function valdidate_aphra_register($errors, $values) {
 		}
 	}
 	else if($values['form_id'] == 54) { // Registration - Therapy Area Form
+		hcp_check_ahpra_format($_POST['item_meta'][1222] ?? '', 54);
 		if($_POST['item_meta'][1286] == 'Yes') {
 			if($_POST['item_meta'][1302] == '') {
 				$errors['field1302'] = 'This field cannot be blank.';
@@ -3375,6 +3378,22 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
 // =============================================================================
 // Sentry — anonymous context, noise filtering, and login failure capture
 // =============================================================================
+
+// Fire a Sentry warning when an AHPRA number has an unrecognised prefix.
+// Captures only the 3-char prefix and length — never the full number.
+function hcp_check_ahpra_format($ahpra_id, $form_id): void {
+    $ahpra_id = (string) $ahpra_id;
+    if ( $ahpra_id === '' ) return;
+    $prefix = strtoupper(substr($ahpra_id, 0, 3));
+    $valid  = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
+    if ( ! in_array($prefix, $valid) ) {
+        hcp_sentry_capture('AHPRA format invalid — unrecognised prefix', \Sentry\Severity::warning(), [
+            'prefix_supplied' => $prefix,
+            'length'          => strlen($ahpra_id),
+            'form_id'         => $form_id,
+        ]);
+    }
+}
 
 // Map WP error codes to neutral labels. Sentry's default scrubber filters any
 // value containing a security keyword (password, credentials, auth, token,
