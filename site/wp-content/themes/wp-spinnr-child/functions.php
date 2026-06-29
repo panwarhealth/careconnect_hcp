@@ -3404,9 +3404,8 @@ add_action('wp_loaded', function() {
     });
 });
 
-// Hook authenticate filter (runs synchronously, before any redirect) to catch
-// all login failures including non-existent usernames which wp_login_failed
-// can miss when the event is lost during the wp-login.php redirect.
+// RCP login: user exists but wrong password — wp_signon() is called internally,
+// which fires the authenticate filter where we can capture the failure.
 add_filter('authenticate', function($user, string $username, string $password) {
     if ( ! is_wp_error($user) || empty($username) || empty($password) ) {
         return $user;
@@ -3420,6 +3419,21 @@ add_filter('authenticate', function($user, string $username, string $password) {
     ]);
     return $user;
 }, 99999, 3);
+
+// RCP login: user doesn't exist — RCP exits before calling wp_signon() so the
+// authenticate filter never fires. Catch it here instead.
+add_action('rcp_login_form_errors', function(array $post_data): void {
+    $username = sanitize_text_field($post_data['rcp_user_login'] ?? '');
+    if ( empty($username) ) return;
+    if ( ! in_array('empty_username', rcp_errors()->get_error_codes()) ) return;
+    $valid_prefixes = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
+    $login_type = str_contains($username, '@') ? 'email'
+        : (in_array(strtoupper(substr($username, 0, 3)), $valid_prefixes) ? 'ahpra' : 'username');
+    hcp_sentry_capture('Login failed', \Sentry\Severity::info(), [
+        'wp_error_code' => 'invalid_username',
+        'login_type'    => $login_type,
+    ]);
+});
 
 add_filter('wp_sentry_before_send', function(\Sentry\Event $event): ?\Sentry\Event {
     // Drop RCP deprecation noise
