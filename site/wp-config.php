@@ -46,7 +46,11 @@ define( 'WP_DEBUG_LOG',     true ); // writes to /wp-content/debug.log
 define( 'DISALLOW_FILE_EDIT', false );
 
 // Sentry error logging — DSN and environment from env vars, blank DSN disables SDK.
+// WP_SENTRY_DSN drives the PHP tracker; WP_SENTRY_BROWSER_DSN drives the JS
+// tracker (uncaught browser exceptions, unhandled promise rejections). The DSN
+// is public-safe by design — it is meant to be exposed in client-side code.
 define( 'WP_SENTRY_DSN',         getenv('SENTRY_DSN')         ?: '' );
+define( 'WP_SENTRY_BROWSER_DSN', getenv('SENTRY_DSN')         ?: '' );
 define( 'WP_SENTRY_ENV',         getenv('SENTRY_ENVIRONMENT') ?: 'development' );
 define( 'WP_SENTRY_ERROR_TYPES', E_ALL & ~E_NOTICE & ~E_DEPRECATED );
 
