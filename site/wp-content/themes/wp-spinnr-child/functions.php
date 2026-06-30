@@ -3605,16 +3605,44 @@ add_action('rcp_login_form_errors', function(array $post_data): void {
 });
 
 add_filter('wp_sentry_before_send', function(\Sentry\Event $event): ?\Sentry\Event {
-    // Drop RCP deprecation noise
     foreach ($event->getExceptions() ?? [] as $ex) {
-        foreach ($ex->getStacktrace()?->getFrames() ?? [] as $frame) {
+        $value  = $ex->getValue() ?? '';
+        $frames = $ex->getStacktrace()?->getFrames() ?? [];
+
+        foreach ($frames as $frame) {
+            // Drop RCP deprecation noise.
             if (str_contains($frame->getFile() ?? '', 'restrict-content-pro')) {
                 return null;
+            }
+        }
+
+        // Drop the benign WP-admin menu warning (a frozen third-party plugin
+        // registers an admin menu in a way PHP 8.3 warns on during menu render;
+        // the admin pages work fine). Scoped to the WP-core menu functions so
+        // real foreach-on-null bugs elsewhere still surface.
+        if (str_contains($value, 'foreach() argument must be of type array')) {
+            foreach ($frames as $frame) {
+                $fn = $frame->getFunction() ?? '';
+                if (str_contains($frame->getFile() ?? '', 'wp-admin/includes/plugin.php')
+                    || in_array($fn, array('get_admin_page_parent', 'get_plugin_page_hookname', 'get_plugin_page_hook'), true)) {
+                    return null;
+                }
             }
         }
     }
     return $event;
 }, 10, 1);
+
+// Browser SDK: ignore benign navigation/network errors (SPA route changes the
+// user aborts mid-load). Matched against the error message by the JS loader.
+add_filter('wp_sentry_public_options', function($options) {
+    $options['ignoreErrors'] = array_merge($options['ignoreErrors'] ?? array(), array(
+        'AbortError',
+        'Transition was skipped',
+        'NetworkError when attempting to fetch resource',
+    ));
+    return $options;
+});
 
 add_filter('wp_sentry_options', function(\Sentry\Options $options): \Sentry\Options {
     // Never capture POST body — prevents passwords and AHPRA numbers reaching Sentry.
