@@ -26,6 +26,14 @@ add_action( 'acf/init', function () {
 				'required'     => 1,
 			),
 			array(
+				'key'          => 'field_hcpvid_duration',
+				'label'        => 'Duration (optional)',
+				'name'         => 'duration',
+				'type'         => 'text',
+				'instructions' => 'e.g. 2:24. Leave blank to auto-pull from Vimeo on save.',
+				'placeholder'  => 'auto from Vimeo',
+			),
+			array(
 				'key'           => 'field_hcpvid_listed',
 				'label'         => 'Show in Tools & Videos listing',
 				'name'          => 'video_listed',

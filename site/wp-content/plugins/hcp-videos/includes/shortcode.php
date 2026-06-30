@@ -66,6 +66,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 					<?php if ( $thumb ) : ?>
 						<img src="<?php echo esc_url( $thumb ); ?>" class="h-full object-contain mx-auto" alt="<?php echo esc_attr( get_the_title( $id ) ); ?>" />
 					<?php endif; ?>
+					<?php echo hcp_videos_duration_badge( $id ); ?>
 				</div>
 				<div class="card-body">
 					<div>
