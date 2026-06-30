@@ -3420,7 +3420,10 @@ function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $ext
     });
 }
 
-add_action('wp_loaded', function() {
+// Set anonymous context early (init, priority 0) so it is attached BEFORE RCP's
+// login handler and other init-hook flows fire — wp_loaded would be too late and
+// login-failure events would miss the context.
+add_action('init', function() {
     if ( ! function_exists('\Sentry\configureScope') ) return;
     \Sentry\configureScope(function(\Sentry\State\Scope $scope): void {
         $logged_in = is_user_logged_in();
@@ -3436,7 +3439,7 @@ add_action('wp_loaded', function() {
             'profession' => $profession,
         ]);
     });
-});
+}, 0);
 
 // RCP login: user exists but wrong password — wp_signon() is called internally,
 // which fires the authenticate filter where we can capture the failure.
