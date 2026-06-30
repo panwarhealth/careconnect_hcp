@@ -87,7 +87,7 @@ get_header(); ?>
 					$related = function_exists( 'hcp_videos_related_ids' ) ? hcp_videos_related_ids( $post_id, 6 ) : array();
 					if ( $related ) : ?>
 						<h5 class="mb-base">Related videos</h5>
-						<div class="space-y-base">
+						<div class="space-y-base hcp-related-scroll">
 							<?php foreach ( $related as $rid ) :
 								$rthumb = function_exists( 'hcp_videos_thumb_url' ) ? hcp_videos_thumb_url( $rid, 'medium' ) : '';
 								$raud   = function_exists( 'hcp_videos_audience_label' ) ? hcp_videos_audience_label( $rid ) : '';
@@ -98,6 +98,7 @@ get_header(); ?>
 										<?php if ( $rthumb ) : ?>
 											<img src="<?php echo esc_url( $rthumb ); ?>" class="w-full h-full object-cover" alt="" />
 										<?php endif; ?>
+										<?php echo hcp_videos_duration_badge( $rid ); ?>
 									</div>
 									<div>
 										<?php if ( $raud ) : ?><p class="text-xs text-black mb-0"><?php echo esc_html( $raud ); ?></p><?php endif; ?>
