@@ -3420,26 +3420,42 @@ function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $ext
     });
 }
 
-// Set anonymous context early (init, priority 0) so it is attached BEFORE RCP's
-// login handler and other init-hook flows fire — wp_loaded would be too late and
-// login-failure events would miss the context.
+// Anonymous context shared by the PHP and browser trackers: a logged-in flag and
+// a profession code derived from the AHPRA prefix. Never identifies the user.
+function hcp_anon_context(): array {
+    $logged_in = is_user_logged_in();
+    $profession = 'guest';
+    if ( $logged_in ) {
+        $prefix = strtoupper(substr(wp_get_current_user()->user_login, 0, 3));
+        $valid  = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
+        $profession = in_array($prefix, $valid) ? $prefix : 'other';
+    }
+    return ['logged_in' => $logged_in ? 'true' : 'false', 'profession' => $profession];
+}
+
+// PHP tracker: tag events on init p0 so the context is attached BEFORE RCP's login
+// handler and other init-hook flows fire (wp_loaded would be too late and
+// login-failure events would miss it). Tags are filterable in the Sentry UI.
 add_action('init', function() {
     if ( ! function_exists('\Sentry\configureScope') ) return;
     \Sentry\configureScope(function(\Sentry\State\Scope $scope): void {
-        $logged_in = is_user_logged_in();
-        $profession = 'guest';
-        if ( $logged_in ) {
-            $prefix = strtoupper(substr(wp_get_current_user()->user_login, 0, 3));
-            $valid  = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
-            $profession = in_array($prefix, $valid) ? $prefix : 'other';
+        foreach ( hcp_anon_context() as $key => $value ) {
+            $scope->setTag($key, $value);
         }
-        $scope->setUser(['id' => null]);
-        $scope->setContext('hcp_context', [
-            'logged_in' => $logged_in,
-            'profession' => $profession,
-        ]);
     });
 }, 0);
+
+// Strip identifying user info from BOTH trackers (the plugin otherwise sends the
+// WP user ID, which on this site resolves to a row containing AHPRA number + email).
+add_filter('wp_sentry_user_context', function($user) {
+    return [];
+});
+
+// Browser tracker: inject the same anonymous context as tags so JS errors carry it.
+add_filter('wp_sentry_public_context', function($context) {
+    $context['tags'] = array_merge($context['tags'] ?? [], hcp_anon_context());
+    return $context;
+});
 
 // RCP login: user exists but wrong password — wp_signon() is called internally,
 // which fires the authenticate filter where we can capture the failure.
