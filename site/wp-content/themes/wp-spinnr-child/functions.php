@@ -2798,70 +2798,115 @@ function courses_gate( $content ) {
 }
 add_filter( 'the_content', 'courses_gate', 100 );
 
-// Mark quize as complete after submitting the formidable form
-function submitted_form_mark_completed_quiz($entry_id, $form_id) {
-	
-    $target_form_ids = [97, 209, 161];
-	
-    if (!in_array($form_id, $target_form_ids)) {
+/**
+ * MCA completion bridge: Formidable surveys stand in for LearnDash steps, and a
+ * single hook ties the two systems together. When that write silently fails (AJAX
+ * context, no exception), the user is permanently stuck. This consolidates the
+ * mapping, the mark-complete-and-verify worker, and the two triggers (form submit
+ * + page-load recovery) so the logic lives in exactly one place.
+ *
+ * 'submit'  => whether the submit hook auto-marks the step on form submission.
+ * 'recover' => whether the page-load hook self-heals a desync without human input.
+ *
+ * Lesson 112353 (the audit): submit=true because the hook has always tried to
+ * mark it on submission (Maria's click is the fallback when it fails, not the
+ * primary path). recover=false because auto-healing a failed audit mark would
+ * bypass Maria's compliance review — she must remain the recovery path.
+ */
+function hcp_mca_step_map(): array {
+    return [
+        97  => ['course' => 95553,  'step' => 100865, 'type' => 'quiz',   'submit' => true,  'recover' => true],  // post-learning survey
+        209 => ['course' => 111793, 'step' => 116865, 'type' => 'quiz',   'submit' => true,  'recover' => true],  // activity evaluation
+        161 => ['course' => 111793, 'step' => 112353, 'type' => 'lesson', 'submit' => true,  'recover' => false], // audit — Maria reviews; no auto-recovery
+    ];
+}
+
+function hcp_mca_step_is_complete(int $user_id, array $cfg): bool {
+    if ($cfg['type'] === 'lesson') {
+        return function_exists('learndash_is_lesson_complete')
+            && learndash_is_lesson_complete($user_id, $cfg['step'], $cfg['course']);
+    }
+    return function_exists('learndash_is_quiz_complete')
+        && learndash_is_quiz_complete($user_id, $cfg['step']);
+}
+
+// Mark the LearnDash step complete, then verify the write actually landed.
+// $force=true bypasses learndash_can_complete_step; the validated survey is the
+// trust signal. A failed verify means LearnDash silently dropped the write.
+function hcp_mca_ensure_step_complete(int $user_id, int $form_id, array $cfg, array $context = []): void {
+    if (hcp_mca_step_is_complete($user_id, $cfg)) {
         return;
-    }    
-	
-    // Get the current user's ID
-    $user_id = get_current_user_id();
-    if (!$user_id) {
-        return; // Stop if user is not logged in
     }
- 
-    
-	// Pre-learning survey form
-	if($form_id==97){
-		$quiz_id = 100865;
-		
-	}else if($form_id==209){ // Activity evaluation form
-		$quiz_id = 116865;
-
-	}else if($form_id==161){ // Retrospective analysis form
-		$lesson_id = 112353;
-		$quiz_id = $lesson_id;
-	}
-
-    // 3. Check if the quiz is already complete
-    if (function_exists('learndash_is_quiz_complete') && learndash_is_quiz_complete($user_id, $quiz_id)) {
-        return; // User has already completed this quiz
+    if (!function_exists('learndash_process_mark_complete')) {
+        return;
     }
+    learndash_process_mark_complete($user_id, $cfg['step'], false, $cfg['course'], true);
 
-    // 4. Get the Course ID for better context
-    $course_id = 0;
-    if (function_exists('learndash_get_course_id')) {
-        $course_id = learndash_get_course_id($quiz_id);
-    }
-
-    // $force=true bypasses learndash_can_complete_step; form submission is the trust signal.
-    if (function_exists('learndash_process_mark_complete')) {
-        learndash_process_mark_complete($user_id, $quiz_id, false, $course_id, true);
-
-        // Post-check: confirm the completion write actually landed. There is a
-        // confirmed intermittent silent failure on this hook (AJAX context, no
-        // exception thrown, write lost). Form 161 marks a LESSON (112353), so it
-        // needs the lesson-complete check, not the quiz one.
-        $is_lesson  = ($form_id == 161);
-        $completed  = $is_lesson
-            ? ( function_exists('learndash_is_lesson_complete') && learndash_is_lesson_complete($user_id, $quiz_id, $course_id) )
-            : ( function_exists('learndash_is_quiz_complete')   && learndash_is_quiz_complete($user_id, $quiz_id) );
-        if ( ! $completed ) {
-            hcp_sentry_capture('MCA mark-complete silently failed: step not complete after hook ran', \Sentry\Severity::error(), [
-                'user_id'   => $user_id,
-                'step_id'   => $quiz_id,
-                'step_type' => $is_lesson ? 'lesson' : 'quiz',
-                'course_id' => $course_id,
-                'entry_id'  => $entry_id,
-                'form_id'   => $form_id,
-            ]);
-        }
+    if (!hcp_mca_step_is_complete($user_id, $cfg)) {
+        $entry_id = (int) ($context['entry_id'] ?? 0);
+        hcp_sentry_capture('MCA step not complete after mark — silent LearnDash failure', \Sentry\Severity::error(), [
+            'correlation_id' => $entry_id ? hcp_mca_entry_key($entry_id) : '',
+            'trigger'        => $context['trigger'] ?? '',
+            'form_id'        => $form_id,
+            'step_id'        => $cfg['step'],
+            'step_type'      => $cfg['type'],
+            'course_id'      => $cfg['course'],
+        ]);
     }
 }
-add_action('frm_after_create_entry', 'submitted_form_mark_completed_quiz', 20, 2);
+
+// Trigger 1 — on survey submission, complete the mapped step (auto steps only).
+function hcp_mca_complete_on_submit($entry_id, $form_id): void {
+    $map = hcp_mca_step_map();
+    if (empty($map[$form_id]) || !$map[$form_id]['submit']) {
+        return;
+    }
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return;
+    }
+    hcp_mca_ensure_step_complete($user_id, (int) $form_id, $map[$form_id], [
+        'trigger'  => 'submit',
+        'entry_id' => (int) $entry_id,
+    ]);
+}
+add_action('frm_after_create_entry', 'hcp_mca_complete_on_submit', 20, 2);
+
+// Trigger 2 — on course page view, heal any desync the submit hook silently lost.
+// is_draft=0 is Formidable's own "validated, fully submitted" signal (it already
+// skips conditionally-hidden required fields), so it is the completeness check.
+function hcp_mca_recover_on_view(): void {
+    if (!is_singular('sfwd-courses')) {
+        return;
+    }
+    $course_id = get_the_ID();
+    $user_id   = get_current_user_id();
+    if (!$user_id) {
+        return;
+    }
+
+    global $wpdb;
+    foreach (hcp_mca_step_map() as $form_id => $cfg) {
+        if (!$cfg['recover'] || $cfg['course'] !== $course_id) {
+            continue;
+        }
+        if (hcp_mca_step_is_complete($user_id, $cfg)) {
+            continue;
+        }
+        $entry_id = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}frm_items WHERE form_id = %d AND user_id = %d AND is_draft = 0 LIMIT 1",
+            $form_id, $user_id
+        ));
+        if (!$entry_id) {
+            continue;
+        }
+        hcp_mca_ensure_step_complete($user_id, (int) $form_id, $cfg, [
+            'trigger'  => 'recovery',
+            'entry_id' => $entry_id,
+        ]);
+    }
+}
+add_action('wp', 'hcp_mca_recover_on_view');
 
 function change_specific_form_error_message( $message, $form ) {
     // This will change the message on ALL forms.
@@ -3402,6 +3447,26 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
 // Sentry — anonymous context, noise filtering, and login failure capture
 // =============================================================================
 
+// Correlation handle for MCA failures: Formidable's random per-entry item_key.
+// Opaque to Sentry; resolves to a user only via Panwar's own frm_items table
+// (wp-admin → Formidable → Entries), so no identifier leaves the country.
+function hcp_mca_entry_key($entry_id): string {
+    global $wpdb;
+    $key = $wpdb->get_var($wpdb->prepare("SELECT item_key FROM {$wpdb->prefix}frm_items WHERE id = %d", $entry_id));
+    return $key ?: '';
+}
+
+// The user's most recent audit (form 161) item_key — used when no form entry is
+// in scope (e.g. the course-completed hook downstream of Maria's manual action).
+function hcp_mca_user_audit_key($user_id): string {
+    global $wpdb;
+    $key = $wpdb->get_var($wpdb->prepare(
+        "SELECT item_key FROM {$wpdb->prefix}frm_items WHERE user_id = %d AND form_id = 161 ORDER BY id DESC LIMIT 1",
+        $user_id
+    ));
+    return $key ?: '';
+}
+
 // Fire a Sentry warning when an AHPRA number has an unrecognised prefix.
 // Captures only the 3-char prefix and length — never the full number.
 function hcp_check_ahpra_format($ahpra_id, $form_id): void {
@@ -3482,8 +3547,8 @@ add_filter('wp_sentry_public_context', function($context) {
 
 // MCA (course 111793): when LearnDash fires course-completed, confirm the
 // completion usermeta was actually written. If it is missing, the cert (96129)
-// likely did not issue. user_id is included deliberately — these are rare
-// operational failures Maria must resolve per-user, so the ID is necessary.
+// likely did not issue. Correlation is the user's audit (form 161) item_key —
+// opaque to Sentry, resolves to the user only via Panwar's own frm_items.
 add_action('learndash_course_completed', function($data) {
     if ( ! is_array($data) || empty($data['course']) || (int) $data['course']->ID !== 111793 ) {
         return;
@@ -3491,8 +3556,8 @@ add_action('learndash_course_completed', function($data) {
     $user_id = isset($data['user']->ID) ? (int) $data['user']->ID : 0;
     if ( $user_id && ! get_user_meta($user_id, 'course_completed_111793', true) ) {
         hcp_sentry_capture('MCA course_completed fired but usermeta not written — cert may not have issued', \Sentry\Severity::error(), [
-            'user_id'   => $user_id,
-            'course_id' => 111793,
+            'correlation_id' => hcp_mca_user_audit_key($user_id),
+            'course_id'      => 111793,
         ]);
     }
 }, 20, 1);
