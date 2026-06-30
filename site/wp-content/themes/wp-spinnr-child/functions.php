@@ -1012,6 +1012,10 @@ function check_if_aphra_exists_curl($ahpra_id){
 		}
 		else{
 			$return['message'] = xml_array_lookup_val($xml_array, 'REASON') ?? 'No match found.';
+			hcp_sentry_capture('AHPRA API returned non-200', \Sentry\Severity::error(), [
+				'ahpra_prefix' => strtoupper(substr($ahpra_id, 0, 3)),
+				'http_status'  => $info['http_code'],
+			]);
 		}
 		}
 		else{
@@ -2836,6 +2840,25 @@ function submitted_form_mark_completed_quiz($entry_id, $form_id) {
     // $force=true bypasses learndash_can_complete_step; form submission is the trust signal.
     if (function_exists('learndash_process_mark_complete')) {
         learndash_process_mark_complete($user_id, $quiz_id, false, $course_id, true);
+
+        // Post-check: confirm the completion write actually landed. There is a
+        // confirmed intermittent silent failure on this hook (AJAX context, no
+        // exception thrown, write lost). Form 161 marks a LESSON (112353), so it
+        // needs the lesson-complete check, not the quiz one.
+        $is_lesson  = ($form_id == 161);
+        $completed  = $is_lesson
+            ? ( function_exists('learndash_is_lesson_complete') && learndash_is_lesson_complete($user_id, $quiz_id, $course_id) )
+            : ( function_exists('learndash_is_quiz_complete')   && learndash_is_quiz_complete($user_id, $quiz_id) );
+        if ( ! $completed ) {
+            hcp_sentry_capture('MCA mark-complete silently failed: step not complete after hook ran', \Sentry\Severity::error(), [
+                'user_id'   => $user_id,
+                'step_id'   => $quiz_id,
+                'step_type' => $is_lesson ? 'lesson' : 'quiz',
+                'course_id' => $course_id,
+                'entry_id'  => $entry_id,
+                'form_id'   => $form_id,
+            ]);
+        }
     }
 }
 add_action('frm_after_create_entry', 'submitted_form_mark_completed_quiz', 20, 2);
@@ -3456,6 +3479,23 @@ add_filter('wp_sentry_public_context', function($context) {
     $context['tags'] = array_merge($context['tags'] ?? [], hcp_anon_context());
     return $context;
 });
+
+// MCA (course 111793): when LearnDash fires course-completed, confirm the
+// completion usermeta was actually written. If it is missing, the cert (96129)
+// likely did not issue. user_id is included deliberately — these are rare
+// operational failures Maria must resolve per-user, so the ID is necessary.
+add_action('learndash_course_completed', function($data) {
+    if ( ! is_array($data) || empty($data['course']) || (int) $data['course']->ID !== 111793 ) {
+        return;
+    }
+    $user_id = isset($data['user']->ID) ? (int) $data['user']->ID : 0;
+    if ( $user_id && ! get_user_meta($user_id, 'course_completed_111793', true) ) {
+        hcp_sentry_capture('MCA course_completed fired but usermeta not written — cert may not have issued', \Sentry\Severity::error(), [
+            'user_id'   => $user_id,
+            'course_id' => 111793,
+        ]);
+    }
+}, 20, 1);
 
 // RCP login: user exists but wrong password — wp_signon() is called internally,
 // which fires the authenticate filter where we can capture the failure.
