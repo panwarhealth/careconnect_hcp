@@ -52,7 +52,7 @@ define( 'DISALLOW_FILE_EDIT', false );
 define( 'WP_SENTRY_DSN',         getenv('SENTRY_DSN')         ?: '' );
 define( 'WP_SENTRY_BROWSER_DSN', getenv('SENTRY_DSN')         ?: '' );
 define( 'WP_SENTRY_ENV',         getenv('SENTRY_ENVIRONMENT') ?: 'development' );
-define( 'WP_SENTRY_ERROR_TYPES', E_ALL & ~E_NOTICE & ~E_DEPRECATED );
+define( 'WP_SENTRY_ERROR_TYPES', E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_USER_NOTICE & ~E_USER_DEPRECATED );
 
 /* That's all, stop editing! Happy publishing. */
 if ( ! defined( 'ABSPATH' ) ) {
