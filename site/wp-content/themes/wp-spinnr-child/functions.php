@@ -2821,13 +2821,21 @@ function hcp_mca_step_map(): array {
     ];
 }
 
+// Whether the LearnDash step has actually been marked complete. We check the
+// user-activity row directly — that is what learndash_process_mark_complete()
+// writes, for both lessons and quizzes. learndash_is_quiz_complete() is NOT
+// usable here: it checks for a quiz *attempt* record, which a force-complete
+// never creates, so it reports false even after a successful mark (verified on
+// staging — it fired a false "silent failure" on a course that completed 6/6).
 function hcp_mca_step_is_complete(int $user_id, array $cfg): bool {
-    if ($cfg['type'] === 'lesson') {
-        return function_exists('learndash_is_lesson_complete')
-            && learndash_is_lesson_complete($user_id, $cfg['step'], $cfg['course']);
-    }
-    return function_exists('learndash_is_quiz_complete')
-        && learndash_is_quiz_complete($user_id, $cfg['step']);
+    global $wpdb;
+    $row = $wpdb->get_var($wpdb->prepare(
+        "SELECT activity_id FROM {$wpdb->prefix}learndash_user_activity
+         WHERE user_id = %d AND post_id = %d AND activity_type = %s AND activity_status = 1
+         LIMIT 1",
+        $user_id, $cfg['step'], $cfg['type']
+    ));
+    return ! empty($row);
 }
 
 // Mark the LearnDash step complete, then verify the write actually landed.
