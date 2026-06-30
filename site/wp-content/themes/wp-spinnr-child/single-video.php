@@ -46,8 +46,14 @@ get_header(); ?>
 						<?php endif; ?>
 					</div>
 
-					<?php if ( $audience ) : ?>
-						<p class="text-sm text-accent font-semibold mt-base mb-0"><?php echo esc_html( $audience ); ?></p>
+					<?php
+					$duration = function_exists( 'hcp_videos_duration' ) ? hcp_videos_duration( $post_id ) : '';
+					if ( $audience || $duration ) : ?>
+						<p class="text-sm font-semibold mt-base mb-0">
+							<?php if ( $audience ) : ?><span class="text-accent"><?php echo esc_html( $audience ); ?></span><?php endif; ?>
+							<?php if ( $audience && $duration ) : ?><span class="text-paragraph"> &middot; </span><?php endif; ?>
+							<?php if ( $duration ) : ?><span class="text-paragraph"><?php echo esc_html( $duration ); ?></span><?php endif; ?>
+						</p>
 					<?php endif; ?>
 
 					<h1 class="text-2xl mt-1"><?php the_title(); ?></h1>
