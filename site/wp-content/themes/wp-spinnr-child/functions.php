@@ -2965,15 +2965,16 @@ function get_csv_cell_by_search($file, $search_column, $search_value, $return_co
 
 
 function check_aphra_regis(){
-	if (is_page("register")) {  
+	if (is_page("register")) {
+        // Always define wp_aphra so the form's inline JS never hits a
+        // ReferenceError. It is only populated when the page is reached via a
+        // campaign link carrying ?email=; otherwise it defaults to empty.
+        $aphra = '';
         if (isset($_GET['email'])) {
-            $email = sanitize_text_field($_GET['email']); 
-	   $aphra = get_csv_cell_by_search(get_stylesheet_directory() .'/documents/aphra_latest.csv', 'email', $email, 'aphra');
-		
-	   echo '<script type="text/javascript"> 
-        		var wp_aphra = "'.$aphra.'";
-    		</script>';
+            $email = sanitize_text_field($_GET['email']);
+            $aphra = get_csv_cell_by_search(get_stylesheet_directory() .'/documents/aphra_latest.csv', 'email', $email, 'aphra') ?: '';
         }
+        echo '<script type="text/javascript">var wp_aphra = '.json_encode($aphra).';</script>';
     }
 }
 
