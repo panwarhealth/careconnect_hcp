@@ -3375,7 +3375,11 @@ function custom_learndash_processing() {
 
 
 // Create a shortcode [current_user_id] to use in emails
-add_shortcode( 'current_user_id', function() { 
+add_shortcode( 'current_user_id', function() {
+    global $ld_notifications_shortcode_data;
+    if ( ! empty( $ld_notifications_shortcode_data['user_id'] ) ) {
+        return (int) $ld_notifications_shortcode_data['user_id'];
+    }
     return get_current_user_id();
 });
 
