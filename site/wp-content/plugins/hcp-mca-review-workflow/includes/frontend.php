@@ -46,9 +46,6 @@ function hcp_mca_resubmit_button_label( $html, $args ): string {
 add_filter( 'frm_setup_new_fields_vars', 'hcp_mca_audit_banner_copy', 10, 2 );
 add_filter( 'frm_setup_edit_fields_vars', 'hcp_mca_audit_banner_copy', 10, 2 );
 
-/**
- * Swap the step-3 banner (field 12465) based on whether the audit has been submitted.
- */
 function hcp_mca_audit_banner_copy( $field_array, $field ) {
 	if ( (int) $field_array['id'] !== 12465 ) {
 		return $field_array;
@@ -61,7 +58,9 @@ function hcp_mca_audit_banner_copy( $field_array, $field ) {
 
 	$state = hcp_mca_get_state( $user_id );
 
-	if ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
+	if ( hcp_mca_has_approval( $user_id ) ) {
+		$field_array['description'] = hcp_mca_approved_banner_html( 'center' );
+	} elseif ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
 		$field_array['description'] = '<blockquote class="p-base bg-recto-green text-white rounded-lg">'
 			. '<p class="text-center text-lg font-semibold mb-0">'
 			. 'Your audit has been submitted for review. Provided there are no issues with your responses, '
@@ -83,4 +82,33 @@ function hcp_mca_audit_banner_copy( $field_array, $field ) {
 	}
 
 	return $field_array;
+}
+
+function hcp_mca_approved_banner_html( string $align = 'left' ): string {
+	$p_style = ( 'center' === $align )
+		? 'width:auto;margin:0;padding:0 3rem 0 0;text-align:center;'
+		: 'width:auto;margin:0;padding:0;text-align:left;';
+
+	return '<div class="bg-recto-green text-white rounded-lg" style="padding:1rem;text-align:center;">'
+		. '<p class="text-sm font-semibold" style="' . $p_style . '">'
+		. 'This audit submission has been approved. You may edit responses but you do not need to resubmit them for review.'
+		. '</p>'
+		. '</div>';
+}
+
+add_filter( 'the_content', 'hcp_mca_prepend_approved_banner_to_lesson', 5 );
+
+function hcp_mca_prepend_approved_banner_to_lesson( $content ): string {
+	static $done = false;
+	if ( $done ) {
+		return $content;
+	}
+	if ( ! is_singular( 'sfwd-lessons' ) || get_the_ID() !== HCP_MCA_LESSON_ID ) {
+		return $content;
+	}
+	if ( ! hcp_mca_has_approval( get_current_user_id() ) ) {
+		return $content;
+	}
+	$done = true;
+	return '<div class="mt-8 mb-0">' . hcp_mca_approved_banner_html() . '</div>' . $content;
 }

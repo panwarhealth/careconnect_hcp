@@ -17,6 +17,27 @@ function hcp_mca_is_approved( int $user_id ): bool {
 	return ! empty( $state['approved_at'] );
 }
 
+function hcp_mca_has_approval( int $user_id ): bool {
+	if ( $user_id <= 0 ) {
+		return false;
+	}
+
+	$approved_entry = (int) get_user_meta( $user_id, HCP_MCA_APPROVED_ENTRY_META, true );
+	if ( $approved_entry <= 0 ) {
+		return false;
+	}
+
+	global $wpdb;
+	$latest_entry = (int) $wpdb->get_var( $wpdb->prepare(
+		"SELECT id FROM {$wpdb->prefix}frm_items
+		 WHERE user_id = %d AND form_id = %d
+		 ORDER BY updated_at DESC LIMIT 1",
+		$user_id, HCP_MCA_AUDIT_FORM_ID
+	) );
+
+	return $latest_entry === $approved_entry;
+}
+
 /**
  * Approval meta must be set before learndash_process_mark_complete fires,
  * so the completion guard reads approved_at and skips the revert.
