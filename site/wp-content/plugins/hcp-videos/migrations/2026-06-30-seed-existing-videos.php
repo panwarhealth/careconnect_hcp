@@ -48,15 +48,32 @@ return array(
 				continue;
 			}
 
-			// Vimeo (ACF text field) + listed flag.
-			update_field( 'vimeo', $v['vimeo'], $post_id );
-			update_field( 'video_listed', 1, $post_id );
+			// Vimeo (ACF text field) + listed flag. If ACF isn't loaded or
+			// the field key can't resolve, update_field() returns false and we
+			// delete the orphaned post so the idempotency check can retry cleanly.
+			$ok = function_exists( 'update_field' )
+				? ( update_field( 'vimeo', $v['vimeo'], $post_id ) !== false
+					&& update_field( 'video_listed', 1, $post_id ) !== false )
+				: false;
+
+			if ( ! $ok ) {
+				wp_delete_post( $post_id, true );
+				continue;
+			}
 
 			// Taxonomies (creates terms by name if missing).
 			if ( taxonomy_exists( 'audience' ) ) {
-				wp_set_object_terms( $post_id, $v['audience'], 'audience', false );
+				$result = wp_set_object_terms( $post_id, $v['audience'], 'audience', false );
+				if ( is_wp_error( $result ) ) {
+					wp_delete_post( $post_id, true );
+					continue;
+				}
 			}
-			wp_set_object_terms( $post_id, $v['topic'], 'video_topic', false );
+			$result = wp_set_object_terms( $post_id, $v['topic'], 'video_topic', false );
+			if ( is_wp_error( $result ) ) {
+				wp_delete_post( $post_id, true );
+				continue;
+			}
 
 			$created++;
 		}

@@ -24,7 +24,7 @@ function hcp_videos_migrations_discover(): array {
 	$migrations = array();
 	foreach ( $files as $path ) {
 		$slug = basename( $path, '.php' );
-		$defn = require $path;
+		$defn = require_once $path;
 		if ( ! is_array( $defn ) || ! isset( $defn['up'] ) || ! is_callable( $defn['up'] ) ) {
 			continue;
 		}
