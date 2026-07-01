@@ -20,25 +20,28 @@ function hcp_mca_render_approval_checkbox( WP_User $user ): void {
 	}
 
 	$state       = hcp_mca_get_state( $user->ID );
-	$is_approved = ! empty( $state['approved_at'] );
+	$is_approved = hcp_mca_has_approval( $user->ID );
 	$both_forms  = $state['has_audit_entry'] && $state['has_eval_entry'];
+	$available   = $both_forms || $is_approved;
 
 	$approved_by_name = '';
-	if ( $is_approved && ! empty( $state['approved_by'] ) ) {
-		$approver = get_user_by( 'id', (int) $state['approved_by'] );
+	if ( $is_approved ) {
+		$approved_by_id = (int) get_user_meta( $user->ID, HCP_MCA_APPROVED_BY_META, true );
+		$approver       = $approved_by_id ? get_user_by( 'id', $approved_by_id ) : null;
 		if ( $approver ) {
 			$approved_by_name = $approver->display_name;
 		}
 	}
 
 	$meta_text = '';
-	if ( ! $both_forms && ! $is_approved ) {
+	if ( ! $available ) {
 		$meta_text = ' <span style="color:#888; font-size:12px;">(available once both forms are submitted)</span>';
 	} elseif ( $is_approved && $approved_by_name ) {
-		$meta_text = sprintf(
+		$approved_at = get_user_meta( $user->ID, HCP_MCA_APPROVED_AT_META, true );
+		$meta_text   = sprintf(
 			' <span style="color:#888; font-size:12px;">(approved by %s%s)</span>',
 			esc_html( $approved_by_name ),
-			! empty( $state['approved_at'] ) ? ' on ' . esc_html( $state['approved_at'] ) : ''
+			$approved_at ? ' on ' . esc_html( $approved_at ) : ''
 		);
 	}
 	?>
@@ -52,7 +55,7 @@ function hcp_mca_render_approval_checkbox( WP_User $user ): void {
 					name="hcp_mca_submission_approved"
 					value="1"
 					<?php checked( $is_approved ); ?>
-					<?php disabled( ! $both_forms && ! $is_approved ); ?>
+					<?php disabled( ! $available ); ?>
 				/>
 				<label for="hcp-mca-submission-approved"><strong>Submission Approved</strong></label><?php echo $meta_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
@@ -91,7 +94,7 @@ function hcp_mca_save_approval_checkbox( int $user_id ): void {
 	}
 
 	$checkbox_ticked = ! empty( $_POST['hcp_mca_submission_approved'] );
-	$currently_approved = hcp_mca_is_approved( $user_id );
+	$currently_approved = hcp_mca_has_approval( $user_id );
 
 	if ( $checkbox_ticked && ! $currently_approved ) {
 		hcp_mca_approve( $user_id, get_current_user_id() );
