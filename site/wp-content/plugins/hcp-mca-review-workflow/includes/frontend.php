@@ -33,6 +33,12 @@ function hcp_mca_resubmit_button_label( $html, $args ): string {
 		return $html;
 	}
 
+	if ( hcp_mca_has_approval( $user_id ) ) {
+		$html = str_replace( '>Save and continue later<', '>Save<', $html );
+		$html = preg_replace( '/<button[^>]*frm_final_submit[^>]*>.*?<\/button>/s', '', $html );
+		return $html;
+	}
+
 	$state = hcp_mca_get_state( $user_id );
 
 	if ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
