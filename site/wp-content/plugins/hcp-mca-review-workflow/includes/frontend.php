@@ -102,6 +102,29 @@ function hcp_mca_approved_banner_html( string $align = 'left' ): string {
 		. '</div>';
 }
 
+add_action( 'wp_footer', 'hcp_mca_approved_buttons_js' );
+
+function hcp_mca_approved_buttons_js(): void {
+	if ( ! is_singular( 'sfwd-lessons' ) || get_the_ID() !== HCP_MCA_LESSON_ID ) {
+		return;
+	}
+	if ( ! hcp_mca_has_approval( get_current_user_id() ) ) {
+		return;
+	}
+	?>
+	<script>
+	(function($) {
+		function hcpMcaFixApprovedButtons() {
+			$('.frm_final_submit').remove();
+			$('.frm_save_draft').text('Save');
+		}
+		$(document).on('frmPageChanged', hcpMcaFixApprovedButtons);
+		$(document).ready(hcpMcaFixApprovedButtons);
+	})(jQuery);
+	</script>
+	<?php
+}
+
 add_filter( 'the_content', 'hcp_mca_prepend_approved_banner_to_lesson', 5 );
 
 function hcp_mca_prepend_approved_banner_to_lesson( $content ): string {
