@@ -1221,6 +1221,10 @@ add_filter('template_redirect', 'wpse51205_content');
 function wpse51205_content() {
 	global $post;
 
+	if ( ! is_object( $post ) ) {
+		return;
+	}
+
 	$rcp_user_level = get_post_meta( $post->id, 'rcp_user_level', true );
 	if( ! current_user_can( 'read' ) && $rcp_user_level == 'Subscriber' ) {
 		wp_redirect( get_home_url() );
