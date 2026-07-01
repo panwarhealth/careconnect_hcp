@@ -159,7 +159,11 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
 
 	global $wpdb;
 
-	$rows[] = [ 'Name', 'RACGP Number', 'Date of Completion'];
+	$rows[] = [ 'Name', 'RACGP Number', 'Date of Completion',
+        'Identify adult patients previously diagnosed with primary anal fissure and review their management against the treatment algorithm outlined in the learning module (retrospective analysis)',
+        'Identify three adult patients who present with a risk of anal fissure according to the screening criteria outlined in the learning module and record the outcomes of screening, diagnosis, and management  (prospective analysis)',
+        'Reflect on opportunities for improvement in your clinical practice and outline how identified changes will be implemented to enhance patient care',
+        'Content – current, contemporary, evidence-based and relevant to general practice' ];
 
     $ts_from = strtotime( $date_from . ' 00:00:00' );
 	$ts_to   = strtotime( $date_to   . ' 23:59:59' );
@@ -194,12 +198,35 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
 
         $racgp_number = get_user_meta(  $r['ID'], 'racgp_number', true );
 
-        $rows[] = [
+        $f_array = array( 11425, 11457, 11473, 11537 );
+        foreach ( $f_array as $f ) { ${"f".$f} = ""; }
+
+        $entries = FrmEntry::getAll(
+            array(
+                'it.form_id' => 209,
+                'it.user_id' => $r['ID'],
+            ),
+            ' ORDER BY it.created_at DESC',
+            1
+        );
+
+        if ( ! empty( $entries ) ) {
+            $entry = reset( $entries );
+            $entry = FrmEntry::getOne( $entry->id );
+            foreach ( $f_array as $f ) {
+                ${"f".$f} = FrmEntryMeta::get_meta_value( $entry, $f );
+            }
+        }
+
+        $new_arr = array(
             $r['display_name'],
             $racgp_number,
             gmdate( 'Y-m-d H:i:s', $ts ),
-        ];
-    } 
+        );
+        foreach ( $f_array as $f ) { array_push( $new_arr, ( ${"f".$f} ?? "-" ) ); }
+
+        $rows[] = $new_arr;
+    }
 
 	return $rows;
 }
