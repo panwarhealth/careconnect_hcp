@@ -1255,7 +1255,7 @@ function return_page($url, $form, $params){
 		} else if (count( array_intersect( rcp_get_customer_membership_level_names($customer->get_id()), array( "HCP", "Staff" ) ) )){
 			$url = "/welcome/";
 		}
-	} else if($values['form_id'] == 54) { // Registration - Therapy Area Form
+	} else if($form->id == 54) { // Registration - Therapy Area Form
 		$customer = rcp_get_customer_by_user_id($_POST['item_meta'][1510]); // User ID Field (146)
 		if(in_array( "Pharmacist", rcp_get_customer_membership_level_names($customer->get_id()) )) {
 			$url = "/welcome-pharmacist/";
@@ -1385,7 +1385,7 @@ function rcp_register_membership($entry_id, $form_id){
 			}
 		}
 
-		if( substr(strtolower($_POST['item_meta'][3989]), 0, 3) == 'pha' ) { // AHPRA Number Field (8)
+		if( substr(strtolower($_POST['item_meta'][3989] ?? ''), 0, 3) == 'pha' ) { // AHPRA Number Field (8)
 			$subscription_id = 54; //Pharmacist
 		} else {
 			$subscription_id = 22; //HCP
@@ -3643,6 +3643,19 @@ add_filter('wp_sentry_before_send', function(\Sentry\Event $event): ?\Sentry\Eve
                 }
             }
         }
+
+        if (preg_match('/^(Warning|Notice|Deprecated):/', $value)) {
+            $origin = '';
+            for ($i = count($frames) - 1; $i >= 0; $i--) {
+                $ff = $frames[$i]->getFile() ?? '';
+                if ($ff !== '') { $origin = $ff; break; }
+            }
+            if (str_contains($origin, 'wp-content/plugins/')
+                && ! str_contains($origin, 'plugins/tbst-custom-report')
+                && ! str_contains($origin, 'plugins/hcp-mca-review-workflow')) {
+                return null;
+            }
+        }
     }
     return $event;
 }, 10, 1);
@@ -3654,6 +3667,7 @@ add_filter('wp_sentry_public_options', function($options) {
         'AbortError',
         'Transition was skipped',
         'NetworkError when attempting to fetch resource',
+        'Failed to fetch',
     ));
     return $options;
 });
