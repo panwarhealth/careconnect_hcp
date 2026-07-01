@@ -3523,9 +3523,16 @@ function hcp_anon_context(): array {
     $logged_in = is_user_logged_in();
     $profession = 'guest';
     if ( $logged_in ) {
-        $prefix = strtoupper(substr(wp_get_current_user()->user_login, 0, 3));
+        $login  = wp_get_current_user()->user_login;
         $valid  = ['MED','NMW','PHA','DEN','OPT','OST','POD','PSY','CMI','OCC','PYB','ABO','MRP','PAR'];
-        $profession = in_array($prefix, $valid) ? $prefix : 'other';
+        // ~922 pre-Nov-2024 users have email addresses as user_login; detect
+        // by @ and tag them as email-login so the profession tag stays meaningful.
+        if ( str_contains( $login, '@' ) ) {
+            $profession = 'email-login';
+        } else {
+            $prefix     = strtoupper( substr( $login, 0, 3 ) );
+            $profession = in_array( $prefix, $valid ) ? $prefix : 'other';
+        }
     }
     return ['logged_in' => $logged_in ? 'true' : 'false', 'profession' => $profession];
 }
@@ -3559,10 +3566,13 @@ add_filter('wp_sentry_public_context', function($context) {
 // likely did not issue. Correlation is the user's audit (form 161) item_key —
 // opaque to Sentry, resolves to the user only via Panwar's own frm_items.
 add_action('learndash_course_completed', function($data) {
-    if ( ! is_array($data) || empty($data['course']) || (int) $data['course']->ID !== 111793 ) {
+    if ( ! is_array($data)
+        || empty($data['course'])
+        || ! is_object($data['course'])
+        || (int) $data['course']->ID !== 111793 ) {
         return;
     }
-    $user_id = isset($data['user']->ID) ? (int) $data['user']->ID : 0;
+    $user_id = ( isset($data['user']) && is_object($data['user']) ) ? (int) $data['user']->ID : 0;
     if ( $user_id && ! get_user_meta($user_id, 'course_completed_111793', true) ) {
         hcp_sentry_capture('MCA course_completed fired but usermeta not written — cert may not have issued', \Sentry\Severity::error(), [
             'correlation_id' => hcp_mca_user_audit_key($user_id),

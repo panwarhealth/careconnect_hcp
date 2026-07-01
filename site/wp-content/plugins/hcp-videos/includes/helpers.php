@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Extract the numeric Vimeo ID from a stored value that may be a full URL,
- * a player URL, or a bare ID.
+ * a player URL, a showcase URL, or a bare ID.
  */
 function hcp_videos_vimeo_id( $raw ): string {
 	$raw = trim( (string) $raw );
@@ -17,11 +17,20 @@ function hcp_videos_vimeo_id( $raw ): string {
 	if ( ctype_digit( $raw ) ) {
 		return $raw;
 	}
-	if ( preg_match( '~vimeo\.com/(?:video/)?(\d+)~', $raw, $m ) ) {
+	// Must be a vimeo.com URL to proceed further.
+	if ( ! preg_match( '~vimeo\.com~', $raw ) ) {
+		return '';
+	}
+	// Prefer an explicit /video/ID segment (showcase, album, player URLs).
+	if ( preg_match( '~(?:^|/)video/(\d+)~', $raw, $m ) ) {
 		return $m[1];
 	}
-	// Fall back to the first run of digits if present.
-	return preg_match( '~(\d{6,})~', $raw, $m ) ? $m[1] : '';
+	// The video ID is the last run of 6+ digits in the URL path (covers plain,
+	// channels/name/ID, groups/name/videos/ID, showcase/.../video/ID, etc.).
+	if ( preg_match_all( '~/(\d{6,})~', strtok( $raw, '?' ), $matches ) ) {
+		return end( $matches[1] );
+	}
+	return '';
 }
 
 /**
@@ -33,10 +42,10 @@ function hcp_videos_player_url( string $id ): string {
 
 /**
  * The play-icon overlay. Centered in its (position:relative) parent via a flex
- * wrapper so the hover-scale doesn't fight the centering transform. Styling +
- * hover are in hcp_videos_play_styles().
+ * wrapper so the hover-scale doesn't fight the centering transform.
  */
 function hcp_videos_play_icon(): string {
+	hcp_videos_play_styles();
 	return '<span class="hcp-video-play" aria-hidden="true"><svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<circle cx="25" cy="25" r="25" fill="white" fill-opacity="0.92"/>
 		<path d="M37.4331 24.1265C38.1172 24.5079 38.1172 25.4921 37.4331 25.8735L18.7369 36.2955C18.0703 36.6671 17.25 36.1852 17.25 35.422L17.25 14.578C17.25 13.8148 18.0703 13.3329 18.7369 13.7045L37.4331 24.1265Z" fill="#35B1C9"/>
@@ -44,7 +53,9 @@ function hcp_videos_play_icon(): string {
 }
 
 /**
- * Inline styles for the play overlay (centering + hover grow). Output once.
+ * Inline styles for the play overlay. Output once per request regardless of
+ * whether wp_head has fired — hcp_videos_play_icon() calls this directly so
+ * the styles are always present in AJAX/block-editor preview contexts too.
  */
 function hcp_videos_play_styles(): void {
 	static $done = false;
@@ -62,7 +73,6 @@ function hcp_videos_play_styles(): void {
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 	</style>';
 }
-add_action( 'wp_head', 'hcp_videos_play_styles' );
 
 /**
  * Format a number of seconds as m:ss (or h:mm:ss).
@@ -80,9 +90,8 @@ function hcp_videos_format_duration( int $secs ): string {
 }
 
 /**
- * Display duration for a video: the manual ACF field if set, else the value
- * auto-fetched from Vimeo and cached in `_hcpvid_duration` post meta (populated
- * on save via hcp_videos_cache_duration). Never fetches on display.
+ * Display duration for a video: the manual ACF field if set, else the
+ * auto-fetched value cached in _hcpvid_duration postmeta. Never fetches live.
  */
 function hcp_videos_duration( int $post_id ): string {
 	$manual = trim( (string) get_field( 'duration', $post_id ) );
@@ -93,17 +102,23 @@ function hcp_videos_duration( int $post_id ): string {
 }
 
 /**
- * Best-effort fetch of a video's duration from the Vimeo oEmbed endpoint
- * (no auth) and cache it. Returns the formatted string, or '' on failure.
- * Called on save and from the one-time backfill — not on display.
+ * Fetch video duration from Vimeo oEmbed and cache it in postmeta.
+ * 3-second timeout; surfaces an admin notice on failure so editors know
+ * to use the manual Duration field rather than waiting in silence.
  */
 function hcp_videos_cache_duration( int $post_id ): string {
 	$id = hcp_videos_vimeo_id( get_field( 'vimeo', $post_id ) );
 	if ( ! $id ) {
 		return '';
 	}
-	$resp = wp_remote_get( 'https://vimeo.com/api/oembed.json?url=https://vimeo.com/' . $id, array( 'timeout' => 6 ) );
+	$resp = wp_remote_get(
+		'https://vimeo.com/api/oembed.json?url=https://vimeo.com/' . $id,
+		array( 'timeout' => 3 )
+	);
 	if ( is_wp_error( $resp ) || (int) wp_remote_retrieve_response_code( $resp ) !== 200 ) {
+		add_action( 'admin_notices', function () {
+			echo '<div class="notice notice-warning is-dismissible"><p><strong>HCP Videos:</strong> Could not auto-fetch duration from Vimeo (video may be private or the server blocked the request). Enter the duration manually in the Duration field.</p></div>';
+		} );
 		return '';
 	}
 	$data = json_decode( wp_remote_retrieve_body( $resp ), true );
@@ -115,7 +130,6 @@ function hcp_videos_cache_duration( int $post_id ): string {
 	return $formatted;
 }
 
-// Refresh the cached Vimeo duration whenever a video is saved (no manual override).
 add_action( 'acf/save_post', function ( $post_id ) {
 	if ( get_post_type( $post_id ) === 'video' ) {
 		hcp_videos_cache_duration( (int) $post_id );
