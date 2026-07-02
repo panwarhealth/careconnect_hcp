@@ -39,11 +39,14 @@ CONTAINER="backups"
 TS=$(date +%Y-%m-%d-%H%M)
 DATE=$(date +%Y-%m-%d)
 # Windows az.exe (WSL interop) cannot read /tmp — stage on a Windows-visible path
+# and hand it Windows-style paths (F:\...) via wslpath.
 if [[ "$(command -v az)" == /mnt/* ]]; then
   TMP="/mnt/f/Github/.prod-backup-tmp-$$"
   mkdir -p "$TMP"
+  az_path() { wslpath -w "$1"; }
 else
   TMP=$(mktemp -d)
+  az_path() { echo "$1"; }
 fi
 
 trap 'rm -rf "$TMP"' EXIT
@@ -67,7 +70,7 @@ az storage blob upload \
   --account-name "$STORAGE_ACCOUNT" \
   --container-name "$CONTAINER" \
   --name "db/prod-$TS.sql.gz" \
-  --file "$DB_FILE" \
+  --file "$(az_path "$DB_FILE")" \
   --auth-mode key \
   --overwrite \
   -o none
@@ -93,7 +96,7 @@ az storage blob upload \
   --account-name "$STORAGE_ACCOUNT" \
   --container-name "$CONTAINER" \
   --name "site-essentials/site-essentials-$DATE.tar.gz" \
-  --file "$SITE_FILE" \
+  --file "$(az_path "$SITE_FILE")" \
   --auth-mode key \
   --overwrite \
   -o none
