@@ -7,6 +7,7 @@
 # Prerequisites:
 #   - az login --scope https://management.core.windows.net//.default
 #   - sshpass installed (apt install sshpass)
+#   - infra/.prod-secrets exists (copy from .prod-secrets.example) with PROD_PASS set
 #
 # What it does:
 #   1. SSH into prod and mysqldump hcp_care → gzip → upload to blob as db/YYYY-MM-DD-HHMM.sql.gz
@@ -19,23 +20,31 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ ! -f "$SCRIPT_DIR/.prod-secrets" ]; then
+  echo "ERROR: $SCRIPT_DIR/.prod-secrets not found — copy .prod-secrets.example and set PROD_PASS." >&2
+  exit 1
+fi
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/.prod-secrets"
+
 PROD_HOST="www9.stratus.ayuda.net.au"
 PROD_PORT="9022"
 PROD_USER="rob.hcp.carepharma.com.au"
-PROD_PASS="***REDACTED-PROD-SSH***"
 PROD_WEB="/var/www/hcp.carepharma.com.au/httpdocs"
-DB_HOST="127.0.0.1"
-DB_PORT="9306"
-DB_USER="hcp_care"
-DB_PASS="***REDACTED-DB-PASS***"
-DB_NAME="hcp_care"
 
 STORAGE_ACCOUNT="stcareconnect"
 CONTAINER="backups"
 
 TS=$(date +%Y-%m-%d-%H%M)
 DATE=$(date +%Y-%m-%d)
-TMP=$(mktemp -d)
+# Windows az.exe (WSL interop) cannot read /tmp — stage on a Windows-visible path
+if [[ "$(command -v az)" == /mnt/* ]]; then
+  TMP="/mnt/f/Github/.prod-backup-tmp-$$"
+  mkdir -p "$TMP"
+else
+  TMP=$(mktemp -d)
+fi
 
 trap 'rm -rf "$TMP"' EXIT
 
@@ -49,7 +58,7 @@ sshpass -p "$PROD_PASS" ssh -p "$PROD_PORT" \
   -o StrictHostKeyChecking=accept-new \
   -o ConnectTimeout=30 \
   "$PROD_USER@$PROD_HOST" \
-  "mysqldump --no-tablespaces -h $DB_HOST -P $DB_PORT -u $DB_USER -p'$DB_PASS' $DB_NAME | gzip" \
+  "cd $PROD_WEB && php -d memory_limit=512M \$(which wp) db export - 2>/dev/null | gzip" \
   > "$DB_FILE"
 echo "  DB dump: $(du -h "$DB_FILE" | cut -f1)"
 

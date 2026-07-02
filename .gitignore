@@ -180,3 +180,6 @@ site/wp-content/signup-debug.log
 
 # Prod deploy backups — contain real user PII, never commit
 .deploy-backups/
+
+# Infra — prod SSH credentials (never commit; see infra/prod-backup.sh)
+infra/.prod-secrets
