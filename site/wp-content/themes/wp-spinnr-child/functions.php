@@ -2548,6 +2548,22 @@ function enqueue_login_popup_assets() {
 
 }
 
+// Order Samples (page 145): "OR" separators between the samples form's radio
+// options. Was an inline script in the page content until wpautop-injected
+// <p> tags broke it for every logged-in visitor (removed by migration
+// 2026-07-02-order-samples-inline-script).
+add_action( 'wp_enqueue_scripts', function () {
+    if ( is_page( 145 ) ) {
+        wp_enqueue_script(
+            'hcp-order-samples',
+            get_stylesheet_directory_uri() . '/js/order-samples.js',
+            [ 'jquery' ],
+            filemtime( get_stylesheet_directory() . '/js/order-samples.js' ),
+            true
+        );
+    }
+} );
+
 // Priority 20 so parent theme has already registered wp-spinnr-custom-js-body (priority 10, loads after child)
 add_action( 'wp_enqueue_scripts', 'hcp_output_ungate_data', 20 );
 function hcp_output_ungate_data() {
