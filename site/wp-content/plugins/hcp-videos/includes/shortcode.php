@@ -8,6 +8,9 @@
  *   audience="slug"       — optional, filter by an audience term slug
  *   topic="slug"          — optional, filter by a video_topic term slug
  *   exclude_topic="slug"  — optional, omit videos in a video_topic term slug
+ *   series_total="4"      — optional, label cards "Episode N" and show a
+ *                           "coming soon" note until N episodes exist (0 = off)
+ *   columns="3"           — optional, grid columns: 1, 2, or 3 (default 3)
  *   limit="-1"            — optional, max videos (default all)
  */
 
@@ -18,6 +21,8 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		'audience'      => '',
 		'topic'         => '',
 		'exclude_topic' => '',
+		'series_total'  => 0,
+		'columns'       => 3,
 		'limit'         => -1,
 	), $atts, 'video_grid' );
 
@@ -55,14 +60,22 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		return '';
 	}
 
+	$series_total = (int) $atts['series_total'];
+	$is_series    = $series_total > 0;
+
+	$cols      = max( 1, (int) $atts['columns'] );
+	$grid_cols = $cols === 1 ? '' : ( $cols === 2 ? 'md:grid-cols-2' : 'lg:grid-cols-3 md:grid-cols-2' );
+
 	ob_start();
-	echo '<div id="postgrid" class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
+	echo '<div id="postgrid" class="grid ' . esc_attr( $grid_cols ) . ' gap-base">';
+	$n = 0;
 	while ( $q->have_posts() ) {
 		$q->the_post();
-		$id       = get_the_ID();
-		$thumb    = hcp_videos_thumb_url( $id, 'medium' );
-		$audience = hcp_videos_audience_label( $id );
-		$icon     = hcp_videos_play_icon();
+		$n++;
+		$id      = get_the_ID();
+		$thumb   = hcp_videos_thumb_url( $id, 'medium' );
+		$eyebrow = $is_series ? 'Episode ' . $n : hcp_videos_audience_label( $id );
+		$icon    = hcp_videos_play_icon();
 		?>
 		<a class="no-underline" href="<?php echo esc_url( get_permalink( $id ) ); ?>">
 			<div class="card h-full overflow-hidden">
@@ -75,7 +88,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 				</div>
 				<div class="card-body">
 					<div>
-						<?php if ( $audience ) : ?><p class="text-sm text-black"><?php echo esc_html( $audience ); ?></p><?php endif; ?>
+						<?php if ( $eyebrow ) : ?><p class="text-sm text-black"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
 						<h5 class="min-h-14"><?php echo esc_html( get_the_title( $id ) ); ?></h5>
 					</div>
 					<span class="underline text-accent font-semibold">Watch Video</span>
@@ -85,6 +98,9 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		<?php
 	}
 	echo '</div>';
+	if ( $is_series && $n < $series_total ) {
+		echo '<p class="hcp-soon-note">Stay tuned &mdash; Episode ' . (int) ( $n + 1 ) . ' of ' . (int) $series_total . ' coming soon.</p>';
+	}
 	wp_reset_postdata();
 	return ob_get_clean();
 }

@@ -72,6 +72,7 @@ function hcp_videos_play_styles(): void {
 		.hcp-related-scroll .hcp-video-duration{bottom:4px;right:4px;font-size:.62rem;padding:2px 4px;}
 		.hcp-video-desc, .hcp-video-desc p{letter-spacing:.2px;}
 		.hcp-video-desc .speaker-label{font-weight:600;}
+		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 	</style>';
 }

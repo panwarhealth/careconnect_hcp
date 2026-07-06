@@ -35,7 +35,7 @@ return array(
 
 		$content = '<p>The Diabetes Sick Day Management Clinical Bites series provides practical guidance for primary care clinicians to improve the uptake and implementation of sick day action plans for patients with diabetes.</p>'
 			. '<p>In this episode, Credentialled Diabetes Educator and Consultant Pharmacist Deborah Hawthorne explains why illness is riskier in people living with diabetes, what a sick day action plan is and how it helps, and how health professionals can initiate sick day planning with their patients.</p>'
-			. '<p><span class="speaker-label">About the speaker:</span> Deborah Hawthorne is a Credentialled Diabetes Educator, rural Consultant Pharmacist, and chair of the Pharmaceutical Society of Australia (PSA)\'s Consultant Pharmacist Community of Special Interest. She has a diverse background in GP clinics, diabetes education, medication reviews, telehealth, clinical education, and research. Her advocacy has earned her multiple national awards, including PSA Consultant Pharmacist of the Year 2023.</p>';
+			. '<p style="font-style:italic;"><span class="speaker-label">About the speaker:</span> Deborah Hawthorne is a Credentialled Diabetes Educator, rural Consultant Pharmacist, and chair of the Pharmaceutical Society of Australia (PSA)\'s Consultant Pharmacist Community of Special Interest. She has a diverse background in GP clinics, diabetes education, medication reviews, telehealth, clinical education, and research. Her advocacy has earned her multiple national awards, including PSA Consultant Pharmacist of the Year 2023.</p>';
 
 		$post_id = wp_insert_post( array(
 			'post_type'    => 'video',
