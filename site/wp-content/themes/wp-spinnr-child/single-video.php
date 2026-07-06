@@ -86,21 +86,16 @@ get_header(); ?>
 						$ad_image = get_field( 'ad_image' );
 						$ad_link  = get_field( 'ad_link' );
 						?>
+						<?php if ( $ad_image && ! empty( $ad_image['url'] ) ) : ?>
 						<div class="mb-2xl flex lg:justify-start justify-center">
-							<?php if ( $ad_image && ! empty( $ad_image['url'] ) ) : ?>
-								<?php if ( $ad_link ) : ?><a href="<?php echo esc_url( $ad_link ); ?>" target="_blank" rel="noopener nofollow"><?php endif; ?>
-									<img src="<?php echo esc_url( $ad_image['url'] ); ?>"
-										width="300" height="250"
-										style="width:300px;height:250px;object-fit:cover;max-width:100%;border-radius:.5rem;"
-										alt="<?php echo esc_attr( $ad_image['alt'] ?? '' ); ?>" />
-								<?php if ( $ad_link ) : ?></a><?php endif; ?>
-							<?php else : ?>
-								<div style="width:300px;height:250px;max-width:100%;border:2px dashed #c9ced6;background:#f3f5f6;border-radius:.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9aa3af;text-align:center;line-height:1.4;">
-									<span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:.75rem;">Advertisement</span>
-									<span style="font-size:.875rem;">300 × 250</span>
-								</div>
-							<?php endif; ?>
+							<?php if ( $ad_link ) : ?><a href="<?php echo esc_url( $ad_link ); ?>" target="_blank" rel="noopener nofollow"><?php endif; ?>
+								<img src="<?php echo esc_url( $ad_image['url'] ); ?>"
+									width="300" height="250"
+									style="width:300px;height:250px;object-fit:cover;max-width:100%;border-radius:.5rem;"
+									alt="<?php echo esc_attr( $ad_image['alt'] ?? '' ); ?>" />
+							<?php if ( $ad_link ) : ?></a><?php endif; ?>
 						</div>
+						<?php endif; ?>
 
 						<?php if ( ! empty( $related ) ) : ?>
 							<h5 class="mb-base">Related videos</h5>
