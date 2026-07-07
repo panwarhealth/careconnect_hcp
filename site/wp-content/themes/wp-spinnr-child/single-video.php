@@ -32,6 +32,7 @@ get_header(); ?>
 				if ( $related ) {
 					_prime_post_caches( $related, true, true );
 				}
+				$resources = function_exists( 'get_field' ) ? array_filter( (array) get_field( 'video_resources', $post_id ) ) : array();
 			} else {
 				$poster = function_exists( 'hcp_videos_thumb_url' ) ? hcp_videos_thumb_url( $post_id, 'large' ) : '';
 			}
@@ -124,6 +125,15 @@ get_header(); ?>
 						<?php endif; ?>
 
 					</aside>
+
+					<?php if ( ! empty( $resources ) ) : ?>
+					<div class="column lg:col-span-12 mt-2xl">
+						<h2 class="mb-base">Resources</h2>
+						<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">
+							<?php foreach ( $resources as $rid ) { echo hcp_videos_resource_card( (int) $rid ); } ?>
+						</div>
+					</div>
+					<?php endif; ?>
 				<?php endif; ?>
 
 			</div>

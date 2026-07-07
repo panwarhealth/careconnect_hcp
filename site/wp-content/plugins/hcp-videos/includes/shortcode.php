@@ -111,7 +111,8 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		return hcp_videos_carousel_wrap( $cards ) . $soon;
 	}
 
-	return '<div id="postgrid" class="grid ' . esc_attr( $grid_cols ) . ' gap-base">' . $cards . '</div>' . $soon;
+	$grid_cls = trim( $grid_cols . ( $cols === 1 ? ' hcp-grid-single' : '' ) );
+	return '<div id="postgrid" class="grid ' . esc_attr( $grid_cls ) . ' gap-base">' . $cards . '</div>' . $soon;
 }
 
 /**
@@ -146,7 +147,10 @@ function hcp_videos_carousel_wrap( string $cards ): string {
 		),
 	) );
 
-	$init = '<script>(function($){$(function(){if($.fn.owlCarousel){$("#' . $uid . '").owlCarousel(' . $opts . ');}});})(jQuery);</script>';
+	// Carousel only at >=992px (desktop). Below that the cards fall back to a
+	// responsive grid (1-up on phones, 2-up at tablet portrait) — see the CSS in
+	// helpers.php. Re-evaluated on resize so it works both ways.
+	$init = '<script>(function($){var opts=' . $opts . ';function boot(){var $c=$("#' . $uid . '");if(!$c.length)return;var big=window.matchMedia("(min-width:992px)").matches;if(big){if(!$c.hasClass("owl-loaded")&&$.fn.owlCarousel){$c.owlCarousel(opts);}}else if($c.hasClass("owl-loaded")){$c.trigger("destroy.owl.carousel");}}$(function(){boot();});$(window).on("resize",boot);})(jQuery);</script>';
 
 	return '<div id="' . $uid . '" class="owl-carousel owl-theme hcp-video-carousel">' . $slides . '</div>' . $init;
 }

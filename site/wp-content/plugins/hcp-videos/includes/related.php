@@ -1,11 +1,15 @@
 <?php
 /**
- * Related-videos resolver — returns ALL other videos in relevance order so the
- * sidebar acts as the full library (scrolling, like YouTube). Order:
+ * Related-videos resolver. Order:
  *   1. Manual picks (ACF `related_videos`), in the chosen order.
  *   2. Other listed videos sharing a `video_topic` term (most recent first).
  *   3. Every remaining listed video (most recent first).
  * Always excludes the current video and de-dupes.
+ *
+ * Series-scoping: a video that belongs to a `video_topic` (a series, e.g.
+ * Clinical Bites) relates ONLY within that series — step 3 is skipped so the
+ * sidebar doesn't top up with unrelated videos. Videos with no topic keep the
+ * full-library fallback.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -62,9 +66,12 @@ function hcp_videos_related_ids( int $post_id, int $limit = 50 ): array {
 				'terms'    => wp_list_pluck( $terms, 'term_id' ),
 			) ),
 		) ) );
+
+		// Series video: relate only within the series — skip the full-library fill.
+		return array_slice( $ordered, 0, $limit );
 	}
 
-	// 3. Everything else (listed), most recent first.
+	// 3. Everything else (listed), most recent first — only for videos with no topic.
 	$add( get_posts( array(
 		'post_type'      => 'video',
 		'post_status'    => 'publish',

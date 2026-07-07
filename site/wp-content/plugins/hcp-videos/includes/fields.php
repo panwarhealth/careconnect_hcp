@@ -78,6 +78,17 @@ add_action( 'acf/init', function () {
 				'type'         => 'url',
 				'instructions' => 'Where the ad banner clicks through to.',
 			),
+			array(
+				'key'          => 'field_hcpvid_resources',
+				'label'        => 'Resources',
+				'name'         => 'video_resources',
+				'type'         => 'post_object',
+				'instructions' => 'Search and pick resources (tools, leave-behinds, downloads) to show at the bottom of this video. Leave empty for no resources section. Only existing Resources can be picked — create one first if it is not in the list.',
+				'post_type'    => array( 'resources' ),
+				'multiple'     => 1,
+				'ui'           => 1,
+				'return_format'=> 'id',
+			),
 		),
 		'location' => array(
 			array(

@@ -70,10 +70,11 @@ function hcp_videos_play_styles(): void {
 		.hcp-video-duration{position:absolute;bottom:8px;right:8px;z-index:6;background:rgba(0,0,0,.8);color:#fff;font-size:.72rem;font-weight:600;line-height:1;padding:3px 6px;border-radius:4px;letter-spacing:.02em;}
 		.hcp-related-scroll .hcp-video-play svg{width:34px;height:34px;}
 		.hcp-related-scroll .hcp-video-duration{bottom:4px;right:4px;font-size:.62rem;padding:2px 4px;}
-		.hcp-video-desc, .hcp-video-desc p{letter-spacing:.2px;}
-		.hcp-video-desc .speaker-label{font-weight:600;}
+		.hcp-video-desc, .hcp-video-desc p{letter-spacing:.2px;font-size:.875rem;line-height:1.6;}
+		.hcp-video-desc .speaker-label{font-weight:700;}
 		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
 		.hcp-video-carousel{position:relative;}
+		.hcp-video-carousel.owl-loaded{margin-top:1.5rem;}
 		.hcp-video-carousel .owl-nav{margin:0;}
 		.hcp-video-carousel .owl-nav button.owl-prev,
 		.hcp-video-carousel .owl-nav button.owl-next{position:absolute!important;top:calc(50% - 1rem);transform:translateY(-50%);width:44px;height:44px;margin:0!important;border-radius:9999px!important;background:rgba(255,255,255,.95)!important;box-shadow:0 2px 10px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:#35B1C9!important;z-index:10;transition:background .15s ease;}
@@ -85,6 +86,9 @@ function hcp_videos_play_styles(): void {
 		.hcp-video-carousel .owl-nav button.owl-next.disabled{opacity:0;pointer-events:none;}
 		.hcp-video-carousel .hcp-nav-prev,.hcp-video-carousel .hcp-nav-next{font-size:1.7rem;line-height:1;background:none!important;padding:0!important;margin:0!important;}
 		.hcp-video-carousel .owl-dots{text-align:center;margin-top:1rem;}
+		@media(max-width:991px){.hcp-video-carousel:not(.owl-loaded){display:grid!important;grid-template-columns:1fr;gap:2rem 1.25rem;padding-top:1.75rem;}.hcp-video-carousel:not(.owl-loaded) .item{max-width:360px;width:100%;margin:0 auto;}.hcp-grid-single{justify-items:center;}.hcp-grid-single>a{width:100%;min-width:260px;max-width:360px;}}
+		@media(min-width:600px) and (max-width:991px){.hcp-video-carousel:not(.owl-loaded){grid-template-columns:1fr 1fr;}}
+		@media(max-width:899px){#clinicalbiteshero .grid.items-center{grid-template-columns:1fr!important;}#clinicalbiteshero .grid.items-center>.column{grid-column:auto!important;}}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 	</style>';
 }
@@ -195,4 +199,68 @@ function hcp_videos_audience_label( int $post_id ): string {
 		return '';
 	}
 	return join( ', ', wp_list_pluck( $terms, 'name' ) );
+}
+
+/**
+ * Resolve the click target + label for a `resources` post, mirroring the
+ * priority used by the site's [resources] shortcode: a downloadable file, then
+ * an interactive-tool URL, then a Vimeo link. Returns url '' when none set.
+ */
+function hcp_videos_resource_link( int $rid ): array {
+	$download = get_field( 'download', $rid );
+	if ( is_array( $download ) && ! empty( $download['url'] ) ) {
+		return array( 'url' => $download['url'], 'label' => 'View Resource', 'is_video' => false );
+	}
+
+	$tool = trim( (string) get_field( 'tool', $rid ) );
+	if ( $tool !== '' ) {
+		return array( 'url' => $tool, 'label' => 'Try Now', 'is_video' => false );
+	}
+
+	$vimeo = hcp_videos_vimeo_id( get_field( 'vimeo', $rid ) );
+	if ( $vimeo !== '' ) {
+		return array( 'url' => hcp_videos_player_url( $vimeo ), 'label' => 'Watch Video', 'is_video' => true );
+	}
+
+	return array( 'url' => '', 'label' => '', 'is_video' => false );
+}
+
+/**
+ * Render a single resource as a house-style card (matches [video_grid] and the
+ * /resources page). Returns '' if the resource is unpublished or has no target.
+ */
+function hcp_videos_resource_card( int $rid ): string {
+	if ( get_post_status( $rid ) !== 'publish' ) {
+		return '';
+	}
+	$link = hcp_videos_resource_link( $rid );
+	if ( $link['url'] === '' ) {
+		return '';
+	}
+
+	$thumb    = get_the_post_thumbnail_url( $rid, 'medium' );
+	$audience = hcp_videos_audience_label( $rid );
+	$icon     = $link['is_video'] ? hcp_videos_play_icon() : '';
+
+	ob_start();
+	?>
+	<a class="no-underline" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener">
+		<div class="card h-full overflow-hidden">
+			<div class="bg-secondary p-md h-48 rounded-t relative">
+				<?php echo $icon; ?>
+				<?php if ( $thumb ) : ?>
+					<img src="<?php echo esc_url( $thumb ); ?>" class="h-full object-contain mx-auto" alt="<?php echo esc_attr( get_the_title( $rid ) ); ?>" />
+				<?php endif; ?>
+			</div>
+			<div class="card-body">
+				<div>
+					<?php if ( $audience ) : ?><p class="text-sm text-black"><?php echo esc_html( $audience ); ?></p><?php endif; ?>
+					<h5 class="min-h-14"><?php echo esc_html( get_the_title( $rid ) ); ?></h5>
+				</div>
+				<span class="underline text-accent font-semibold"><?php echo esc_html( $link['label'] ); ?></span>
+			</div>
+		</div>
+	</a>
+	<?php
+	return ob_get_clean();
 }
