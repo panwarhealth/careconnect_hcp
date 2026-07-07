@@ -73,6 +73,18 @@ function hcp_videos_play_styles(): void {
 		.hcp-video-desc, .hcp-video-desc p{letter-spacing:.2px;}
 		.hcp-video-desc .speaker-label{font-weight:600;}
 		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
+		.hcp-video-carousel{position:relative;}
+		.hcp-video-carousel .owl-nav{margin:0;}
+		.hcp-video-carousel .owl-nav button.owl-prev,
+		.hcp-video-carousel .owl-nav button.owl-next{position:absolute!important;top:calc(50% - 1rem);transform:translateY(-50%);width:44px;height:44px;margin:0!important;border-radius:9999px!important;background:rgba(255,255,255,.95)!important;box-shadow:0 2px 10px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:#35B1C9!important;z-index:10;transition:background .15s ease;}
+		.hcp-video-carousel .owl-nav button.owl-prev{left:-6px;}
+		.hcp-video-carousel .owl-nav button.owl-next{right:-6px;}
+		.hcp-video-carousel .owl-nav button.owl-prev:hover,
+		.hcp-video-carousel .owl-nav button.owl-next:hover{background:#fff!important;}
+		.hcp-video-carousel .owl-nav button.owl-prev.disabled,
+		.hcp-video-carousel .owl-nav button.owl-next.disabled{opacity:0;pointer-events:none;}
+		.hcp-video-carousel .hcp-nav-prev,.hcp-video-carousel .hcp-nav-next{font-size:1.7rem;line-height:1;background:none!important;padding:0!important;margin:0!important;}
+		.hcp-video-carousel .owl-dots{text-align:center;margin-top:1rem;}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 	</style>';
 }

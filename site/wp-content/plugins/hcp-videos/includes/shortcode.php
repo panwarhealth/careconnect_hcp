@@ -10,6 +10,7 @@
  *   exclude_topic="slug"  — optional, omit videos in a video_topic term slug
  *   series_total="4"      — optional, label cards "Episode N" and show a
  *                           "coming soon" note until N episodes exist (0 = off)
+ *   layout="grid"         — optional, "grid" (default) or "carousel" (Owl)
  *   columns="3"           — optional, grid columns: 1, 2, or 3 (default 3)
  *   limit="-1"            — optional, max videos (default all)
  */
@@ -22,6 +23,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		'topic'         => '',
 		'exclude_topic' => '',
 		'series_total'  => 0,
+		'layout'        => 'grid',
 		'columns'       => 3,
 		'limit'         => -1,
 	), $atts, 'video_grid' );
@@ -62,12 +64,13 @@ function hcp_videos_grid_shortcode( $atts ): string {
 
 	$series_total = (int) $atts['series_total'];
 	$is_series    = $series_total > 0;
+	$is_carousel  = strtolower( (string) $atts['layout'] ) === 'carousel';
 
 	$cols      = max( 1, (int) $atts['columns'] );
 	$grid_cols = $cols === 1 ? '' : ( $cols === 2 ? 'md:grid-cols-2' : 'lg:grid-cols-3 md:grid-cols-2' );
 
+	// Build the cards once; the wrapper (grid vs carousel) is chosen below.
 	ob_start();
-	echo '<div id="postgrid" class="grid ' . esc_attr( $grid_cols ) . ' gap-base">';
 	$n = 0;
 	while ( $q->have_posts() ) {
 		$q->the_post();
@@ -97,11 +100,54 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		</a>
 		<?php
 	}
-	echo '</div>';
-	if ( $is_series && $n < $series_total ) {
-		echo '<p class="hcp-soon-note">Stay tuned &mdash; Episode ' . (int) ( $n + 1 ) . ' of ' . (int) $series_total . ' coming soon.</p>';
-	}
+	$cards = ob_get_clean();
 	wp_reset_postdata();
-	return ob_get_clean();
+
+	$soon = ( $is_series && $n < $series_total )
+		? '<p class="hcp-soon-note">Stay tuned &mdash; Episode ' . (int) ( $n + 1 ) . ' of ' . (int) $series_total . ' coming soon.</p>'
+		: '';
+
+	if ( $is_carousel ) {
+		return hcp_videos_carousel_wrap( $cards ) . $soon;
+	}
+
+	return '<div id="postgrid" class="grid ' . esc_attr( $grid_cols ) . ' gap-base">' . $cards . '</div>' . $soon;
+}
+
+/**
+ * Wrap card markup in an Owl Carousel (the theme enqueues Owl 2.3.4 site-wide
+ * via extend_spinnr.php). Each card becomes a slide; init is inlined per the
+ * site's existing carousel pattern. Unique id per call so multiple grids on a
+ * page don't collide.
+ */
+function hcp_videos_carousel_wrap( string $cards ): string {
+	static $seq = 0;
+	$seq++;
+	$uid = 'hcp-video-carousel-' . $seq;
+
+	// Owl treats each direct child as a slide.
+	$slides = str_replace( '<a class="no-underline"', '<div class="item"><a class="no-underline"', $cards );
+	$slides = str_replace( '</a>', '</a></div>', $slides );
+
+	$opts = wp_json_encode( array(
+		'margin'             => 20,
+		'nav'                => true,
+		'dots'               => true,
+		'loop'               => true,
+		'autoplay'           => true,
+		'autoplayTimeout'    => 4000,
+		'autoplayHoverPause' => true,
+		'smartSpeed'         => 1200,
+		'navText'            => array( '<span class="hcp-nav-prev">&#8249;</span>', '<span class="hcp-nav-next">&#8250;</span>' ),
+		'responsive'         => array(
+			0    => array( 'items' => 1 ),
+			768  => array( 'items' => 2 ),
+			1200 => array( 'items' => 3 ),
+		),
+	) );
+
+	$init = '<script>(function($){$(function(){if($.fn.owlCarousel){$("#' . $uid . '").owlCarousel(' . $opts . ');}});})(jQuery);</script>';
+
+	return '<div id="' . $uid . '" class="owl-carousel owl-theme hcp-video-carousel">' . $slides . '</div>' . $init;
 }
 add_shortcode( 'video_grid', 'hcp_videos_grid_shortcode' );
