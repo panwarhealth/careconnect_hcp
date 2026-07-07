@@ -103,7 +103,7 @@ get_header(); ?>
 						$ad_link  = get_field( 'ad_link' );
 						?>
 						<?php if ( $ad_image && ! empty( $ad_image['url'] ) ) : ?>
-						<div class="mb-2xl flex lg:justify-start justify-center">
+						<div class="mb-2xl hidden lg:flex lg:justify-start justify-center">
 							<?php if ( $ad_link ) : ?><a href="<?php echo esc_url( $ad_link ); ?>" target="_blank" rel="noopener nofollow"><?php endif; ?>
 								<img src="<?php echo esc_url( $ad_image['url'] ); ?>"
 									width="300" height="250"
@@ -147,6 +147,18 @@ get_header(); ?>
 						<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">
 							<?php foreach ( $resources as $rid ) { echo hcp_videos_resource_card( (int) $rid ); } ?>
 						</div>
+					</div>
+					<?php endif; ?>
+
+					<?php // Mobile only: ad moves to the very bottom, after related videos + resources. ?>
+					<?php if ( $ad_image && ! empty( $ad_image['url'] ) ) : ?>
+					<div class="column lg:col-span-12 lg:hidden mt-2xl flex justify-center">
+						<?php if ( $ad_link ) : ?><a href="<?php echo esc_url( $ad_link ); ?>" target="_blank" rel="noopener nofollow"><?php endif; ?>
+							<img src="<?php echo esc_url( $ad_image['url'] ); ?>"
+								width="300" height="250"
+								style="width:300px;height:250px;object-fit:cover;max-width:100%;border-radius:.5rem;"
+								alt="<?php echo esc_attr( $ad_image['alt'] ?? '' ); ?>" />
+						<?php if ( $ad_link ) : ?></a><?php endif; ?>
 					</div>
 					<?php endif; ?>
 				<?php endif; ?>

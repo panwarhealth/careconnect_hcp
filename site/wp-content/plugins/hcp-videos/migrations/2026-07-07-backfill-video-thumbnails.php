@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 return array(
-	'description' => 'Backfill cached Vimeo posters (_hcpvid_thumb) for videos missing one.',
+	'description' => 'Backfill cached Vimeo posters + durations for videos missing them.',
 	'up'          => function () {
 		$videos = get_posts( array(
 			'post_type'      => 'video',
@@ -28,12 +28,15 @@ return array(
 		$skipped = 0;
 		$failed = 0;
 		foreach ( $videos as $vid ) {
-			if ( has_post_thumbnail( $vid ) || get_post_meta( $vid, '_hcpvid_thumb', true ) ) {
+			$has_poster   = has_post_thumbnail( $vid ) || get_post_meta( $vid, '_hcpvid_thumb', true );
+			$has_duration = get_post_meta( $vid, '_hcpvid_duration', true ) || trim( (string) get_field( 'duration', $vid ) );
+			if ( $has_poster && $has_duration ) {
 				$skipped++;
 				continue;
 			}
+			// Fetches both poster and duration in one call.
 			hcp_videos_cache_vimeo_meta( (int) $vid );
-			if ( get_post_meta( $vid, '_hcpvid_thumb', true ) ) {
+			if ( get_post_meta( $vid, '_hcpvid_thumb', true ) || get_post_meta( $vid, '_hcpvid_duration', true ) ) {
 				$filled++;
 			} else {
 				$failed++;
