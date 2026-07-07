@@ -4,8 +4,8 @@
  *
  * The Hydralyte video sits alone in its topic, so the series-scoped resolver
  * leaves its sidebar empty. Cross-promote the Clinical Bites episodes there
- * instead, newest episode first (menu_order DESC), and turn auto-fill off so
- * the list stays exactly the series.
+ * instead, in episode order (Episode 1 first, menu_order ASC), and turn
+ * auto-fill off so the list stays exactly the series.
  *
  * Video resolved by Vimeo ID, series by term slug (both stable per env).
  * Idempotent and non-destructive: skips if related videos are already picked.
@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 return array(
-	'description' => 'Hydralyte video: related sidebar = Clinical Bites episodes, descending.',
+	'description' => 'Hydralyte video: related sidebar = Clinical Bites episodes, ascending (Ep 1 first).',
 	'up'          => function () {
 		$hydralyte_vimeo = '1122083239';
 		$series_slug     = 'clinical-bites-diabetes';
@@ -45,7 +45,7 @@ return array(
 			'posts_per_page' => -1,
 			'post__not_in'   => array( $video_id ),
 			'fields'         => 'ids',
-			'orderby'        => array( 'menu_order' => 'DESC', 'date' => 'DESC' ),
+			'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
 			'tax_query'      => array( array(
 				'taxonomy' => 'video_topic',
 				'field'    => 'slug',
@@ -59,6 +59,6 @@ return array(
 		update_field( 'related_videos', $episodes, $video_id );
 		update_field( 'related_autofill', 0, $video_id );
 
-		return "video {$video_id} <- " . count( $episodes ) . ' episodes (desc): ' . implode( ',', $episodes );
+		return "video {$video_id} <- " . count( $episodes ) . ' episodes (asc): ' . implode( ',', $episodes );
 	},
 );
