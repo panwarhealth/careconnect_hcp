@@ -72,6 +72,9 @@ function hcp_videos_play_styles(): void {
 		.hcp-related-scroll .hcp-video-duration{bottom:4px;right:4px;font-size:.62rem;padding:2px 4px;}
 		.hcp-video-desc, .hcp-video-desc p{letter-spacing:.2px;font-size:.875rem;line-height:1.6;}
 		.hcp-video-desc .speaker-label{font-weight:700;}
+		.hcp-clamp.hcp-collapsed{max-height:6.4em;overflow:hidden;position:relative;}
+		.hcp-clamp.hcp-collapsed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2em;background:linear-gradient(rgba(255,255,255,0),#fff);pointer-events:none;}
+		.hcp-desc-toggle{display:inline-block;background:none;border:0;padding:0;margin-top:.5rem;color:#35B1C9;font-weight:600;font-size:.875rem;cursor:pointer;text-decoration:underline;}
 		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
 		.hcp-video-carousel{position:relative;}
 		.hcp-video-carousel.owl-loaded{margin-top:1.5rem;}

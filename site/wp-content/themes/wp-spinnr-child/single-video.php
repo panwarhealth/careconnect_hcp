@@ -28,7 +28,7 @@ get_header(); ?>
 				$player   = function_exists( 'hcp_videos_player_url' ) ? hcp_videos_player_url( $vimeo_id ) : '';
 				$audience = function_exists( 'hcp_videos_audience_label' ) ? hcp_videos_audience_label( $post_id ) : '';
 				$duration = function_exists( 'hcp_videos_duration' ) ? hcp_videos_duration( $post_id ) : '';
-				$related  = function_exists( 'hcp_videos_related_ids' ) ? hcp_videos_related_ids( $post_id, 50 ) : array();
+				$related  = function_exists( 'hcp_videos_related_ids' ) ? hcp_videos_related_ids( $post_id, 3 ) : array();
 				if ( $related ) {
 					_prime_post_caches( $related, true, true );
 				}
@@ -75,9 +75,24 @@ get_header(); ?>
 
 						<h1 class="text-2xl mt-1"><?php echo esc_html( get_the_title() ); ?></h1>
 
-						<div class="content-block hcp-video-desc">
-							<?php the_content(); ?>
+						<div class="content-block">
+							<div class="hcp-video-desc hcp-clamp hcp-collapsed">
+								<?php the_content(); ?>
+							</div>
+							<button type="button" class="hcp-desc-toggle">Read more</button>
 						</div>
+						<script>
+						document.addEventListener('DOMContentLoaded', function(){
+							var el = document.querySelector('.hcp-clamp');
+							var btn = document.querySelector('.hcp-desc-toggle');
+							if (!el || !btn) return;
+							if (el.scrollHeight <= el.clientHeight + 4) { el.classList.remove('hcp-collapsed'); btn.style.display = 'none'; return; }
+							btn.addEventListener('click', function(){
+								el.classList.toggle('hcp-collapsed');
+								btn.textContent = el.classList.contains('hcp-collapsed') ? 'Read more' : 'Read less';
+							});
+						});
+						</script>
 					</div>
 
 					<!-- SIDEBAR (stacks under main on mobile) -->
