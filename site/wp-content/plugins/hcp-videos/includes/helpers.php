@@ -132,7 +132,9 @@ function hcp_videos_cache_vimeo_meta( int $post_id ): string {
 	}
 	$resp = wp_remote_get(
 		'https://vimeo.com/api/oembed.json?width=640&url=https://vimeo.com/' . $id,
-		array( 'timeout' => 3 )
+		// Referer = the whitelisted prod domain so embed-restricted videos still
+		// return their poster regardless of which environment makes the call.
+		array( 'timeout' => 5, 'headers' => array( 'Referer' => 'https://hcp.carepharma.com.au' ) )
 	);
 	if ( is_wp_error( $resp ) || (int) wp_remote_retrieve_response_code( $resp ) !== 200 ) {
 		add_action( 'admin_notices', function () {
