@@ -2,7 +2,7 @@
 /**
  * Related-videos resolver. Order:
  *   1. Manual picks (ACF `related_videos`), in the chosen order.
- *   2. Other listed videos sharing a `video_topic` term (most recent first).
+ *   2. Other listed videos sharing a `video_topic` term (series/episode order).
  *   3. Every remaining listed video (most recent first).
  * Always excludes the current video and de-dupes.
  *
@@ -57,8 +57,8 @@ function hcp_videos_related_ids( int $post_id, int $limit = 50 ): array {
 			'posts_per_page' => -1,
 			'post__not_in'   => array( $post_id ),
 			'fields'         => 'ids',
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'orderby'        => 'menu_order date',
+			'order'          => 'ASC',
 			'meta_query'     => hcp_videos_listed_meta_query(),
 			'tax_query'      => array( array(
 				'taxonomy' => 'video_topic',
