@@ -88,7 +88,7 @@ function hcp_videos_play_styles(): void {
 		.hcp-video-carousel .owl-dots{text-align:center;margin-top:1rem;}
 		@media(max-width:991px){.hcp-video-carousel:not(.owl-loaded){display:grid!important;grid-template-columns:1fr;gap:2rem 1.25rem;padding-top:1.75rem;}.hcp-video-carousel:not(.owl-loaded) .item{max-width:360px;width:100%;margin:0 auto;}.hcp-grid-single{justify-items:center;}.hcp-grid-single>a{width:100%;min-width:260px;max-width:360px;}}
 		@media(min-width:600px) and (max-width:991px){.hcp-video-carousel:not(.owl-loaded){grid-template-columns:1fr 1fr;}}
-		@media(max-width:899px){#clinicalbiteshero .grid.items-center{grid-template-columns:1fr!important;}#clinicalbiteshero .grid.items-center>.column{grid-column:auto!important;}}
+		@media(max-width:899px){.hcp-cb-hero .grid.items-center{grid-template-columns:1fr!important;}.hcp-cb-hero .grid.items-center>.column{grid-column:auto!important;}}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 	</style>';
 }
@@ -209,6 +209,12 @@ function hcp_videos_audience_label( int $post_id ): string {
  * an interactive-tool URL, then a Vimeo link. Returns url '' when none set.
  */
 function hcp_videos_resource_link( int $rid ): array {
+	// A non-`resources` post (e.g. a blog article) picked as a resource — link
+	// straight to the article rather than a download/tool/video.
+	if ( get_post_type( $rid ) !== 'resources' ) {
+		return array( 'url' => get_permalink( $rid ), 'label' => 'Read Article', 'is_video' => false );
+	}
+
 	$download = get_field( 'download', $rid );
 	if ( is_array( $download ) && ! empty( $download['url'] ) ) {
 		return array( 'url' => $download['url'], 'label' => 'View Resource', 'is_video' => false );

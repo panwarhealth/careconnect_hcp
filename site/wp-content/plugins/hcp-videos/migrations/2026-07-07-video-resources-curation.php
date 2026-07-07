@@ -23,7 +23,7 @@ return array(
 			'839949677'  => array( 'how-to-spray', 'nasal-saline-patient-leaflet', 'fess-recommendation' ),                                    // FESS – How to Use Nasal Spray
 			'839949859'  => array( 'how-to-wash', 'nasal-washing-guide-for-patients', 'nasal-saline-patient-leaflet' ),                        // FESS – How to Use Nasal Wash
 			'865429849'  => array( 'the-role-of-pharmacists-in-sleep-health', 'hcp-fess-sleep-factsheet', 'patient-fess-sleep-factsheet' ),    // The Role of Pharmacists in sleep health
-			'1207250947' => array( 'hydarlyte-sick-days-care-plan', 'rehydrating-patients-who-have-vomiting-or-diarrhoea', 'general-usage' ),  // Why Sick Day Planning is Important in Diabetes
+			'1207250947' => array( 'hydarlyte-sick-days-care-plan', 'hydralyte-patient-leaflet', 'sip-to-stand-why-hydration-is-essential-in-pots' ),  // Why Sick Day Planning is Important in Diabetes (leaflet + blog article)
 		);
 
 		// Build a normalised Vimeo-ID -> video-post-ID index (handles URL or bare-ID storage).
@@ -55,7 +55,11 @@ return array(
 
 			$rids = array();
 			foreach ( $slugs as $slug ) {
+				// Prefer a `resources` post; fall back to a blog article of the same slug.
 				$r = get_page_by_path( $slug, OBJECT, 'resources' );
+				if ( ! $r ) {
+					$r = get_page_by_path( $slug, OBJECT, 'post' );
+				}
 				if ( $r ) {
 					$rids[] = $r->ID;
 				}
