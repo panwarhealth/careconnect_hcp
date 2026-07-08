@@ -2435,7 +2435,7 @@ function handle_header_menu_shortcode($atts, $content = null, $tag = '') {
       ><a class="btn cta m-0" href="/log-in">Login</a>
     [/user_status_content]'); ?>
 	<?php echo do_shortcode('[user_status_content show_to="logged_in"]
-      <a class="btn ghost m-0" href="/edit-your-profile">Edit Profile</a>
+      <a class="btn ghost m-0 hidden lg:inline-flex" href="/edit-your-profile">Edit Profile</a>
       <a class="btn cta m-0" href="' . wp_logout_url( home_url() ) . '">Logout</a>
     [/user_status_content]'); 
 ?>
