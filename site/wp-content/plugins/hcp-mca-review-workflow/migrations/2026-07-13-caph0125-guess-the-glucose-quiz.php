@@ -210,12 +210,14 @@ JS;
 
 		/* ---- assemble post_content ---- */
 		$content = ''
+		/* perfected typography carried over from the CAPH0111 (Dr Jonny) article */
+		. '<style>.entry-content p{line-height:1.7}.entry-content li{line-height:1.7}.entry-content h2{line-height:1.35}.entry-content h3{line-height:1.35}</style>'
 		/* header */
 		. '<div class="section pb-xl" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center" data-pb-label="Content Block">'
 		. '<div class="flex gap-md items-center justify-center mb-lg"><p class="bg-accent-secondary mb-0 px-6 py-2 rounded-full text-heading">Interactive</p><p class="mb-0">13.08.26</p></div>'
 		. '<h1>Guess the Glucose Challenge</h1></div></div></div></div>'
 		/* intro */
-		. '<div class="pt-0 section pb-0" data-pb-label="Section"><div class="mx-auto max-w-3xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center" data-pb-label="Content Block">'
+		. '<div class="pt-0 section pb-0" data-pb-label="Section"><div class="mx-auto max-w-3xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center py-0 section" data-pb-label="Content Block">'
 		. '<p>' . $intro . '</p>'
 		. '<h2 class="mt-lg">Can you correctly pick which item contains <em>less</em> sugar per serving?</h2>'
 		. '</div></div></div></div>'
@@ -237,7 +239,7 @@ JS;
 		. $js
 		. '</div></div></div></div>'
 		/* clinical explainer */
-		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
+		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
 		. '<h2>ORS have less sugar than you may think, and are suitable for people with diabetes<sup>1,2</sup></h2>'
 		. '<p>ORS formulations aligned with World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, ORS can be considered carbohydrate-free, depending on the specific product.*<sup>2</sup></p>'
 		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).<sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
