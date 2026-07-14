@@ -17,6 +17,9 @@
  *
  * Files required at wp-content/uploads/ on each environment BEFORE running:
  *   - 2026/07/ggq-hero.png  (featured-card hero image; placeholder for now, real art later)
+ *   - 2026/07/ggq/<key>.png tile images: 8 foods (latte, apple, blueberries, oat-milk, almonds,
+ *     coconut-water, apple-juice, banana) as circular transparent PNGs + ORS product shots on white
+ *     (ors-1, ors-2, ors-3, ors-3-1, ors-3-2) rotated one per round.
  * Media already on the site (no upload needed): Vimeo MOA video 1122083239,
  *   Hydralyte Patient Leaflet PDF (2025/11/CAPH0051...), leaflet thumbnail (2025/12/...).
  */
@@ -51,22 +54,25 @@ return [
 		$base = home_url( '' );
 
 		/* ---- data: ORS (fixed lower-sugar side) + the 8 comparators ---- */
-		$ors   = [ 'Oral rehydration solution', '1.35 g / 100 mL', 1.35 ];
+		$img_base = $base . '/wp-content/uploads/2026/07/ggq/';
+		$ors      = [ 'Oral rehydration solution', '1.35 g / 100 mL', 1.35 ];
+		$ors_imgs = [ 'ors-1.png', 'ors-2.png', 'ors-3.png', 'ors-3-1.png', 'ors-3-2.png' ]; // rotated per round
+		$ors_urls = array_map( function ( $f ) use ( $img_base ) { return $img_base . $f; }, $ors_imgs );
 		$foods = [
-			[ 'Unsweetened oat milk',      '3 g / 200 mL',  3 ],
-			[ 'Unsweetened coconut water', '6 g / 200 mL',  6 ],
-			[ 'Almonds',                   '9 g / 1 cup',   9 ],
-			[ 'Small latte',               '9 g / 230 mL',  9 ],
-			[ 'Unsweetened apple juice',   '10 g / 100 mL', 10 ],
-			[ 'Blueberries',               '14 g / 1 cup',  14 ],
-			[ 'Whole banana',              '17 g',          17 ],
-			[ 'Whole apple',               '17 g',          17 ],
+			[ 'Unsweetened oat milk',      '3 g / 200 mL',  3,  'oat-milk' ],
+			[ 'Unsweetened coconut water', '6 g / 200 mL',  6,  'coconut-water' ],
+			[ 'Almonds',                   '9 g / 1 cup',   9,  'almonds' ],
+			[ 'Small latte',               '9 g / 230 mL',  9,  'latte' ],
+			[ 'Unsweetened apple juice',   '10 g / 100 mL', 10, 'apple-juice' ],
+			[ 'Blueberries',               '14 g / 1 cup',  14, 'blueberries' ],
+			[ 'Whole banana',              '17 g',          17, 'banana' ],
+			[ 'Whole apple',               '17 g',          17, 'apple' ],
 		];
 
-		$tile = function ( $role, $name, $serving ) {
+		$tile = function ( $role, $name, $serving, $img ) {
 			return '<button type="button" class="ggq-tile" data-role="' . esc_attr( $role ) . '">'
 				. '<span class="ggq-badge" aria-hidden="true"></span>'
-				. '<span class="ggq-thumb" aria-hidden="true"></span>'
+				. '<span class="ggq-thumb"><img src="' . esc_url( $img ) . '" alt="" loading="lazy" /></span>'
 				. '<span class="ggq-name">' . esc_html( $name ) . '</span>'
 				. '<span class="ggq-grams">' . esc_html( $serving ) . '</span>'
 				. '</button>';
@@ -75,13 +81,15 @@ return [
 		/* ---- rounds ---- */
 		$rounds = '';
 		foreach ( $foods as $i => $f ) {
-			$n = $i + 1;
+			$n        = $i + 1;
+			$ors_img  = $img_base . $ors_imgs[ $i % count( $ors_imgs ) ];
+			$food_img = $img_base . $f[3] . '.png';
 			$rounds .= '<div class="ggq-round" data-round="' . $n . '">'
 				. '<p class="ggq-eyebrow">Round ' . $n . ' of 8</p>'
 				. '<h3 class="ggq-q">Which contains <em>less</em> sugar?</h3>'
 				. '<div class="ggq-tiles">'
-				. $tile( 'ors', $ors[0], $ors[1] )
-				. $tile( 'food', $f[0], $f[1] )
+				. $tile( 'ors', $ors[0], $ors[1], $ors_img )
+				. $tile( 'food', $f[0], $f[1], $food_img )
 				. '</div>'
 				. '<p class="ggq-cue" aria-hidden="true">Next ↓</p>'
 				. '</div>';
@@ -117,9 +125,12 @@ return [
 #ggq .ggq-q{text-align:center;font-size:2rem;line-height:1.2;margin:0 0 28px}
 #ggq .ggq-q em{color:var(--ggq-orange);font-style:normal}
 #ggq .ggq-tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-#ggq .ggq-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;padding:28px 18px;background:#fff;border:2px solid var(--ggq-line);border-radius:20px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;font:inherit;width:100%}
+#ggq .ggq-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:300px;padding:28px 18px;background:#fff;border:2px solid var(--ggq-line);border-radius:14px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;font:inherit;width:100%}
 #ggq .ggq-tile:hover{border-color:var(--ggq-orange);box-shadow:0 8px 24px rgba(243,113,31,.14);transform:translateY(-2px)}
-#ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:#f5f7f8;color:#8a99a0;font-weight:800;font-size:1.5rem}
+#ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
+#ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:6px}
 #ggq .ggq-name{font-weight:800;font-size:1.35rem;line-height:1.25}
 #ggq .ggq-grams{font-weight:700;font-size:1.05rem;color:#5b6b72;opacity:0;max-height:0;transition:opacity .3s}
 #ggq .ggq-badge{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
@@ -151,7 +162,7 @@ return [
 #ggq .ggq-bar-row.is-ors .ggq-bar-fill{background:var(--ggq-orange)}
 #ggq .ggq-bar-val{font-size:.85rem;font-weight:700;color:#5b6b72}
 #ggq .ggq-notscale{text-align:center;font-size:.8rem;color:#8a99a0;margin:14px 0 0}
-@media(max-width:640px){#ggq .ggq-q{font-size:1.5rem}#ggq .ggq-tiles{grid-template-columns:1fr}#ggq .ggq-tile{min-height:150px}#ggq .ggq-bar-row{grid-template-columns:96px 1fr 74px;gap:8px}#ggq .ggq-bar-label{font-size:.8rem}}
+@media(max-width:640px){#ggq .ggq-q{font-size:1.5rem}#ggq .ggq-tiles{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}#ggq .ggq-tile{min-height:220px}#ggq .ggq-thumb{width:140px;height:140px}#ggq .ggq-bar-row{grid-template-columns:96px 1fr 74px;gap:8px}#ggq .ggq-bar-label{font-size:.8rem}}
 </style>
 CSS;
 
@@ -168,7 +179,11 @@ CSS;
   if(wrap){shuffle(rounds.slice()).forEach(function(r){wrap.appendChild(r);});}
   // randomise left/right within each round
   rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(Math.random()<0.5){t.appendChild(t.firstElementChild);}}});
-  Array.prototype.slice.call(root.querySelectorAll('.ggq-round')).forEach(function(r,i){var e=r.querySelector('.ggq-eyebrow');if(e){e.textContent='Round '+(i+1)+' of 8';}});
+  var orsImgs=[];try{orsImgs=JSON.parse(root.getAttribute('data-ors')||'[]');}catch(e){}
+  Array.prototype.slice.call(root.querySelectorAll('.ggq-round')).forEach(function(r,i){
+    var e=r.querySelector('.ggq-eyebrow');if(e){e.textContent='Round '+(i+1)+' of 8';}
+    if(orsImgs.length){var im=r.querySelector('.ggq-tile[data-role="ors"] .ggq-thumb img');if(im){im.src=orsImgs[i%orsImgs.length];}}
+  });
   var total=rounds.length,answered=0,score=0,done=false;
   var bar=root.querySelector('.ggq-progress');
   var countEl=root.querySelector('.ggq-progress-count');
@@ -224,7 +239,7 @@ JS;
 		/* quiz (HCP-gated, like CAPH0111) */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
 		. $css
-		. '<div id="ggq">'
+		. '<div id="ggq" data-ors="' . esc_attr( wp_json_encode( $ors_urls ) ) . '">'
 		. '<div class="ggq-progress"><span class="ggq-progress-count">0 of 8 answered</span><span class="ggq-progress-track"><span class="ggq-progress-fill"></span></span></div>'
 		. '<div class="ggq-rounds">' . $rounds . '</div>'
 		/* results */
