@@ -3641,6 +3641,16 @@ function hcp_sentry_auth_error(string $wp_error_code): string {
     return $map[$wp_error_code] ?? 'other';
 }
 
+// Server-side send failures (SMTP rejection, connection failure). Bounces occur
+// after the relay accepts the message and never reach PHP — only the relay's own
+// logs record those. No recipient/subject captured: they can carry names.
+add_action('wp_mail_failed', 'hcp_sentry_mail_failed');
+function hcp_sentry_mail_failed(WP_Error $error): void {
+    hcp_sentry_capture('Email send failed', \Sentry\Severity::error(), [
+        'failure_detail' => $error->get_error_message(),
+    ]);
+}
+
 function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $extra = []): void {
     if ( ! function_exists('\Sentry\withScope') ) return;
     \Sentry\withScope(function(\Sentry\State\Scope $scope) use ($message, $level, $extra): void {
