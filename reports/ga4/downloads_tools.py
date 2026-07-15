@@ -89,7 +89,7 @@ def map_channel(channel_group: str, source: str, medium: str) -> str:
         return "Direct"
 
     if ch == "email" or "email" in med:
-        if any(x in src for x in ["med-today", "medtoday", "med_today", "hps",
+        if any(x in src for x in ["med-today", "medtoday", "med_today", "medicinetoday", "hps",
                                     "health-professional", "health_professional"]):
             return "MED Today / HPS"
         if "mailchimp" in src or src in ("mc",):
