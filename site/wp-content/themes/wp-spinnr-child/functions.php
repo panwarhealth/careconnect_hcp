@@ -2414,12 +2414,14 @@ function handle_header_menu_shortcode($atts, $content = null, $tag = '') {
 	ob_start(); 
 	?>
 	<div class="">
+      <a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="Care Connect home">
       <img
         decoding="async"
         src="/wp-content/uploads/2021/10/CARE_CONNECT_LOGO-190.png"
         class="h-base my-base rounded-none"
-        alt=""
+        alt="Care Connect"
       />
+      </a>
     </div>
     <div class="hidden lg:block ml-auto">
       <!-- spinnr:eyJpZCI6InBiLWVsZW1lbnQtd3AtbWVudXMtMSIsImxhYmVsIjoid3AtbWVudXMiLCJlbGVtZW50Ijoid3AtbWVudXMiLCJjaGlsZHJlbiI6W10sInBiX2F0dHJpYnV0ZXMiOnsiY2xhc3MiOiJoZWFkZXItbWVudSIsInN0eWxlIjoiIn0sInBiX2NvbXBvbmVudF9kYXRhIjp7ImRpc3BsYXkiOiJkaXYiLCJtZW51IjoyNTgsImxpbmtfY2xhc3MiOiIifSwiZHJhZ2dhYmxlIjp0cnVlLCJkcm9wcGFibGUiOnRydWV9  -->
@@ -2935,6 +2937,114 @@ function hcp_mca_recover_on_view(): void {
     }
 }
 add_action('wp', 'hcp_mca_recover_on_view');
+
+/**
+ * Skip the 6-week idle-reminder notification for users who have already
+ * submitted the clinical audit (form 161, non-draft) — their next step is
+ * Panwar's review, not a login, so "continue your CPD activity" is wrong.
+ */
+function hcp_mca_skip_idle_reminder_after_audit_submit($send, $shortcode_data) {
+    $notification_id = (int) ($shortcode_data['notification_id'] ?? 0);
+    $user_id         = (int) ($shortcode_data['user_id'] ?? 0);
+    if (!$send || !$notification_id || !$user_id) {
+        return $send;
+    }
+    if (get_post_meta($notification_id, '_ld_notifications_trigger', true) !== 'not_logged_in') {
+        return $send;
+    }
+    global $wpdb;
+    $submitted = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}frm_items WHERE form_id = 161 AND user_id = %d AND is_draft = 0",
+        $user_id
+    ));
+    return $submitted > 0 ? false : $send;
+}
+add_filter('learndash_notifications_send_notification', 'hcp_mca_skip_idle_reminder_after_audit_submit', 10, 2);
+
+/**
+ * Homepage for logged-in users: the page content (SPINNR-built, in the DB)
+ * hardcodes "Login or Register to view" card footers and "Register for Care
+ * Connect" banners. Rewrite at render time rather than editing builder markup.
+ */
+function hcp_home_logged_in_view_links($content) {
+    if (!is_front_page() || !is_user_logged_in()) {
+        return $content;
+    }
+    $targets = [
+        'Healthcare Professional Resources' => '/resources',
+        'Patient Resources'                 => '/resources',
+        'Innovative consultation tools'     => '/tools-and-videos',
+        'Samples or Demo Kits'              => '/order-samples',
+        'Clinical Papers'                   => '/resources',
+        'Interactive Model'                 => '/rectogesic-3d-model',
+        'Allergy Analyser'                  => '/allergy-analyser-tool',
+        'Latest Articles'                   => '/blog',
+    ];
+    $pattern = '#<a[^>]*href="/log-?in"[^>]*>Login</a>\s*or\s*<a[^>]*href="/register"[^>]*>Register</a>\s*to view\s*#i';
+    return preg_replace_callback($pattern, function ($m) use (&$content, $targets) {
+        static $offset = 0;
+        $pos = strpos($content, $m[0], $offset);
+        $before = $pos !== false ? substr($content, 0, $pos) : $content;
+        if ($pos !== false) {
+            $offset = $pos + 1;
+        }
+        preg_match_all('#<h[234][^>]*>([^<]{3,80})</h[234]>#', $before, $h);
+        $href = '';
+        for ($i = count($h[1]) - 1; $i >= 0; $i--) {
+            foreach ($targets as $title => $url) {
+                if (stripos($h[1][$i], $title) !== false) {
+                    $href = $url;
+                    break 2;
+                }
+            }
+        }
+        return $href === ''
+            ? ''
+            : '<a href="' . esc_url($href) . '" target="_self" class="">View</a> ';
+    }, $content);
+}
+add_filter('the_content', 'hcp_home_logged_in_view_links', 20);
+
+/**
+ * Member homepage: logged-in users see the Welcome page content at the
+ * homepage URL (pharmacists get their variant), instead of the anonymous
+ * marketing page. Same URL, no redirect - the front-page query is swapped
+ * to the welcome page before it runs.
+ */
+function hcp_member_homepage(WP_Query $query): void {
+    if (is_admin() || !$query->is_main_query() || !is_user_logged_in()) {
+        return;
+    }
+    $front_id = (int) get_option('page_on_front');
+    if (!$front_id || (int) $query->get('page_id') !== $front_id) {
+        return;
+    }
+    $slug = 'welcome';
+    if (function_exists('rcp_get_customer_by_user_id')) {
+        $customer = rcp_get_customer_by_user_id(get_current_user_id());
+        if ($customer && in_array('Pharmacist', rcp_get_customer_membership_level_names($customer->get_id()), true)) {
+            $slug = 'welcome-pharmacist';
+        }
+    }
+    $welcome = get_page_by_path($slug);
+    if ($welcome && $welcome->post_status === 'publish') {
+        $query->set('page_id', $welcome->ID);
+    }
+}
+add_action('pre_get_posts', 'hcp_member_homepage');
+
+/**
+ * Hide the homepage "Register for Care Connect" banner sections for
+ * logged-in users (the banners carry no unique class; keyed off their
+ * CTA background image).
+ */
+function hcp_home_logged_in_hide_register_banner() {
+    if (!is_front_page() || !is_user_logged_in()) {
+        return;
+    }
+    echo '<style>body.logged-in.home div[data-pb-label="Section"]:has(div[style*="CTA-background-small"]){display:none;}</style>';
+}
+add_action('wp_head', 'hcp_home_logged_in_hide_register_banner');
 
 function change_specific_form_error_message( $message, $form ) {
     // This will change the message on ALL forms.
@@ -3529,6 +3639,16 @@ function hcp_sentry_auth_error(string $wp_error_code): string {
         'invalid_email'      => 'not_found',
     ];
     return $map[$wp_error_code] ?? 'other';
+}
+
+// Server-side send failures (SMTP rejection, connection failure). Bounces occur
+// after the relay accepts the message and never reach PHP — only the relay's own
+// logs record those. No recipient/subject captured: they can carry names.
+add_action('wp_mail_failed', 'hcp_sentry_mail_failed');
+function hcp_sentry_mail_failed(WP_Error $error): void {
+    hcp_sentry_capture('Email send failed', \Sentry\Severity::error(), [
+        'failure_detail' => $error->get_error_message(),
+    ]);
 }
 
 function hcp_sentry_capture(string $message, \Sentry\Severity $level, array $extra = []): void {
