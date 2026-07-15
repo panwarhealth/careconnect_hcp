@@ -260,8 +260,8 @@ def main() -> None:
     md.append("Each section is defined by a `pagePath` regex applied to all events in the session. A session that hits multiple sections is counted in each.\n")
     for name, patterns, regex in SECTIONS:
         md.append(f"### {name}")
-        for p in patterns:
-            md.append(f"- `{p}`")
+        for pat in patterns:
+            md.append(f"- `{pat}`")
         md.append(f"- *Regex used:* `{regex}`")
         md.append("")
     md.append(f"### {OTHER_NAME}")
