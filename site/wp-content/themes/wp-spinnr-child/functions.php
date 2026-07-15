@@ -3006,6 +3006,34 @@ function hcp_home_logged_in_view_links($content) {
 add_filter('the_content', 'hcp_home_logged_in_view_links', 20);
 
 /**
+ * Member homepage: logged-in users see the Welcome page content at the
+ * homepage URL (pharmacists get their variant), instead of the anonymous
+ * marketing page. Same URL, no redirect - the front-page query is swapped
+ * to the welcome page before it runs.
+ */
+function hcp_member_homepage(WP_Query $query): void {
+    if (is_admin() || !$query->is_main_query() || !is_user_logged_in()) {
+        return;
+    }
+    $front_id = (int) get_option('page_on_front');
+    if (!$front_id || (int) $query->get('page_id') !== $front_id) {
+        return;
+    }
+    $slug = 'welcome';
+    if (function_exists('rcp_get_customer_by_user_id')) {
+        $customer = rcp_get_customer_by_user_id(get_current_user_id());
+        if ($customer && in_array('Pharmacist', rcp_get_customer_membership_level_names($customer->get_id()), true)) {
+            $slug = 'welcome-pharmacist';
+        }
+    }
+    $welcome = get_page_by_path($slug);
+    if ($welcome && $welcome->post_status === 'publish') {
+        $query->set('page_id', $welcome->ID);
+    }
+}
+add_action('pre_get_posts', 'hcp_member_homepage');
+
+/**
  * Hide the homepage "Register for Care Connect" banner sections for
  * logged-in users (the banners carry no unique class; keyed off their
  * CTA background image).
