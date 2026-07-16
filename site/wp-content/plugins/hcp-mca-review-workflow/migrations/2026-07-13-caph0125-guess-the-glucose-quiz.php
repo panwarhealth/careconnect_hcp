@@ -295,7 +295,7 @@ JS;
 
 		$post_id = wp_insert_post(
 			[
-				'post_title'   => 'Guess the Glucose Challenge',
+				'post_title'   => 'Interactive Quiz: Guess the Glucose Challenge',
 				'post_name'    => $slug,
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
