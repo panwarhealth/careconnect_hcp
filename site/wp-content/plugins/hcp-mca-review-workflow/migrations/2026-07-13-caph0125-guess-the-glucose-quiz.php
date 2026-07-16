@@ -21,7 +21,9 @@
  *     coconut-water, apple-juice, banana) as circular transparent PNGs + ORS product shots on white
  *     (ors-1, ors-2, ors-3, ors-3-1, ors-3-2) rotated one per round.
  * Media already on the site (no upload needed): Vimeo MOA video 1122083239,
- *   Hydralyte Patient Leaflet PDF (2025/11/CAPH0051...), leaflet thumbnail (2025/12/...).
+ *   Hydralyte Patient Leaflet PDF (2025/11/CAPH0051...), leaflet thumbnail (2025/12/...),
+ *   Sick Days leaflet PDF + thumb (2026/03/CAPH0089..., 2026/03/hydra-sick-days.png),
+ *   Sip to Stand featured image (2025/11/iStock-1296209723-768x512.jpg).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -32,10 +34,11 @@ defined( 'ABSPATH' ) || exit;
  * so anything after it is never defined). Guarded against redeclaration.
  */
 if ( ! function_exists( 'hcp_ggq_res_card' ) ) {
-	function hcp_ggq_res_card( $title, $desc, $url, $cta, $target ) {
+	function hcp_ggq_res_card( $title, $desc, $url, $cta, $target, $img ) {
 		return '<div class="card column flex flex-col text-center md:text-left" data-pb-label="Column">'
-			. '<div class="card-body content-block pb-0" data-pb-label="Content Block"><h3>' . esc_html( $title ) . '</h3><hr /><p>' . esc_html( $desc ) . '</p></div>'
-			. '<div class="card-body content-block mt-auto pb-0" data-pb-label="Content Block"><div class="flex mt-auto justify-center md:justify-start"><a class="btn cta my-0" href="' . esc_url( $url ) . '" target="' . esc_attr( $target ) . '">' . esc_html( $cta ) . '</a></div></div>'
+			. '<div class="bg-secondary content-block h-4xl" data-pb-label="Content Block"><img src="' . esc_url( $img ) . '" class="mx-auto my-sm h-40 h-56" alt="" /></div>'
+			. '<div class="card-body content-block pb-0 h-auto" data-pb-label="Content Block"><h3>' . esc_html( $title ) . '</h3><hr /><p>' . esc_html( $desc ) . '</p></div>'
+			. '<div class="card-body content-block mt-auto h-auto" data-pb-label="Content Block"><div class="flex mt-auto justify-center md:justify-start"><a class="btn cta my-0" href="' . esc_url( $url ) . '" target="' . esc_attr( $target ) . '">' . esc_html( $cta ) . '</a></div></div>'
 			. '</div>';
 	}
 }
@@ -255,33 +258,33 @@ JS;
 		. '</div></div></div></div>'
 		/* clinical explainer */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
-		. '<h2>ORS have less sugar than you may think, and are suitable for people with diabetes<sup>1,2</sup></h2>'
+		. '<h2>ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
 		. '<p>ORS formulations aligned with World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, ORS can be considered carbohydrate-free, depending on the specific product.*<sup>2</sup></p>'
 		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).<sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative w-full mt-lg rounded-xl overflow-hidden" style="aspect-ratio:16/9"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
 		/* callout */
-		. '<div class="card mt-8 p-3xl pt-6 pb-6" style="background-color:#FDECE0"><p class="mb-0 text-lg">Clinicians can feel confident recommending true, WHO-aligned ORS formulations such as Hydralyte to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
+		. '<div class="card mt-8 p-3xl pt-6 pb-6" style="background-color:#FDE2CD"><p class="mb-0 text-lg">Clinicians can feel confident recommending true, WHO-aligned ORS formulations such as Hydralyte to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
 		. '</div></div></div></div>'
 		/* related resources */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block"><h2>Related resources</h2></div>'
 		. '<div class="grid md:grid-cols-2 gap-base mt-base">'
-		. hcp_ggq_res_card( 'Clinical Bites Series: Diabetes Sick Day Management', 'Bite-sized videos with practical sick day management advice, featuring CDE Deb Hawthorne.', $base . '/clinical-bites/', 'Watch series', '_self' )
-		. hcp_ggq_res_card( 'Sip to Stand: Why Hydration is Essential in POTS', 'Key information to support hydration management in POTS.', $base . '/blog/sip-to-stand-why-hydration-is-essential-in-pots/', 'Read article', '_self' )
-		. hcp_ggq_res_card( 'Hydralyte Patient Leaflet', 'A helpful fact sheet to ensure appropriate ORS use and guide product selection.', $base . '/wp-content/uploads/2025/11/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR.pdf', 'Download', '_blank' )
-		. hcp_ggq_res_card( 'Order Hydralyte samples', 'Have samples delivered directly to your practice.', $base . '/order-samples/', 'Order samples', '_self' )
+		. hcp_ggq_res_card( 'Hydralyte Sick Day Management Leaflet', 'Practical sick day advice to share with patients, including when to use ORS.', $base . '/wp-content/uploads/2026/03/CAPH0089-Hydralyte-APP-2026_Sick-Days-LB_2pp-A4_V3.2.pdf', 'Download', '_blank', $base . '/wp-content/uploads/2026/03/hydra-sick-days.png' )
+		. hcp_ggq_res_card( 'Sip to Stand: Why Hydration is Essential in POTS', 'Key information to support hydration management in POTS.', $base . '/blog/sip-to-stand-why-hydration-is-essential-in-pots/', 'Read article', '_self', $base . '/wp-content/uploads/2025/11/iStock-1296209723-768x512.jpg' )
+		. hcp_ggq_res_card( 'Hydralyte Patient Leaflet', 'A helpful fact sheet to ensure appropriate ORS use and guide product selection.', $base . '/wp-content/uploads/2025/11/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR.pdf', 'Download', '_blank', $base . '/wp-content/uploads/2025/12/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR_thumbnail.png' )
+		. hcp_ggq_res_card( 'Order Hydralyte samples', 'Have samples delivered directly to your practice.', $base . '/order-samples/', 'Order samples', '_self', $base . '/wp-content/uploads/2026/07/ggq/ors-1.png' )
 		. '</div></div></div></div>'
 		/* logged-out register/login band */
 		. '<div class="py-0 section" data-pb-label="Section">[not_logged_in]<div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid mt-xl" data-pb-label="Container"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Welcome to Care Connect</h2><p><span style="font-size:1rem">The online portal for healthcare professional resources from Care Pharmaceuticals. Register to take the challenge.</span></p></div></div><div class="content-block flex items-center gap-xl" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/register">Register</a><a class="btn cta mt-md ml-auto" href="/login">Login</a></div></div></div>[/not_logged_in]</div>'
 		/* footnotes / references / mandatories */
 		. '<div class="section pt-0" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column md:col-span-full py-xl" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
 		. '<p class="text-sm">*When used as directed. ORS carbohydrate content is dose-dependent and may impact blood glucose levels with additional doses.</p>'
-		. '<p class="text-sm">CDE, credentialled diabetes educator; ORS, oral rehydration solutions; POTS, postural orthostatic tachycardia syndrome; SGLT1, sodium-glucose cotransporter 1; WHO, World Health Organization.</p>'
+		. '<p class="text-sm">ORS, oral rehydration solutions; POTS, postural orthostatic tachycardia syndrome; SGLT1, sodium-glucose cotransporter 1; WHO, World Health Organization.</p>'
 		. '<p class="text-sm"><b>References:</b></p>'
 		. '<ol class="text-sm">'
 		. '<li>World Health Organization (WHO). Oral rehydration salts. Production of the new ORS. 2006. Available from: https://www.who.int/publications/i/item/WHO-FCH-CAH-06.1 (accessed July 2026).</li>'
-		. '<li>Australian Diabetes Educators Association. Clinical guiding principles for sick day management of adults with type 1 diabetes or type 2 diabetes: A guide for health professionals, Version 4.1.0 [updated June 2025].</li>'
-		. '<li>The Concise New Zealand Food Composition Tables, 14th Edition 2021.</li>'
+		. '<li>Australian Diabetes Educators Association. Clinical guiding principles for sick day management of adults with type 1 diabetes or type 2 diabetes: A guide for health professionals, Version 4.1.0 [updated June 2025]. Available from: https://www.ndss.com.au/wp-content/uploads/clinical-guide-sick-day-mngt.pdf (accessed July 2026).</li>'
+		. '<li>The Concise New Zealand Food Composition Tables, 14th Edition 2021. Available from: https://www.foodcomposition.co.nz/foodfiles/concise-tables/ (accessed July 2026).</li>'
 		. '<li>Mishra AB. <i>Int J Life Sci Biotechnol Pharm Res</i>. 2025;14(7):516&#8211;517.</li>'
 		. '<li>Jeukendrup AE, et al. <i>Nutr Metab (Lond)</i>. 2009;6:9.</li>'
 		. '<li>Wright EM, et al. <i>J Intern Med</i>. 2007;261(1):32&#8211;43.</li>'
