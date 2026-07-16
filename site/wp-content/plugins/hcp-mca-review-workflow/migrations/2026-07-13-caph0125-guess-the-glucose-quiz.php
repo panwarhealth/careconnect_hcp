@@ -113,10 +113,10 @@ return [
 				. '</div>';
 		}
 
-		/* ---- scoped CSS (Hydralyte orange #F3711F; green/red stay semantic) ---- */
+		/* ---- scoped CSS (Hydralyte orange #FF6B00; green/red stay semantic) ---- */
 		$css = <<<'CSS'
 <style>
-#ggq{--ggq-orange:#F3711F;--ggq-orange-d:#d9611a;--ggq-green:#1a9d5b;--ggq-red:#d64545;--ggq-line:#d9e1e4;max-width:820px;margin:0 auto}
+#ggq{--ggq-orange:#FF6B00;--ggq-orange-d:#E05E00;--ggq-green:#1a9d5b;--ggq-red:#d64545;--ggq-line:#d9e1e4;max-width:820px;margin:0 auto}
 #ggq .ggq-progress{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(160%);z-index:60;display:flex;align-items:center;gap:14px;min-width:270px;max-width:90vw;padding:12px 22px;background:#fff;border:1px solid var(--ggq-line);border-radius:99px;box-shadow:0 10px 34px rgba(20,30,40,.16);opacity:0;transition:transform .3s ease,opacity .3s ease}
 #ggq .ggq-progress.is-visible{transform:translateX(-50%) translateY(0);opacity:1}
 #ggq .ggq-progress.is-hidden{transform:translateX(-50%) translateY(160%);opacity:0}
@@ -129,7 +129,7 @@ return [
 #ggq .ggq-q em{color:var(--ggq-orange);font-style:normal}
 #ggq .ggq-tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 #ggq .ggq-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:300px;padding:28px 18px;background:#fff;border:2px solid var(--ggq-line);border-radius:14px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;font:inherit;width:100%}
-#ggq .ggq-tile:hover{border-color:var(--ggq-orange);box-shadow:0 8px 24px rgba(243,113,31,.14);transform:translateY(-2px)}
+#ggq .ggq-tile:hover{border-color:var(--ggq-orange);box-shadow:0 8px 24px rgba(255,107,0,.14);transform:translateY(-2px)}
 #ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
 #ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 #ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
@@ -264,7 +264,7 @@ JS;
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative w-full mt-lg rounded-xl overflow-hidden" style="aspect-ratio:16/9"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
 		/* callout */
-		. '<div class="card mt-8 p-3xl pt-6 pb-6" style="background-color:#FDE2CD"><p class="mb-0 text-lg">Clinicians can feel confident recommending true, WHO-aligned ORS formulations such as Hydralyte to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
+		. '<div class="card mt-8 p-3xl pt-6 pb-6" style="background-color:#FF8424"><p class="mb-0 text-lg" style="color:#fff">Clinicians can feel confident recommending true, WHO-aligned ORS formulations such as Hydralyte to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
 		. '</div></div></div></div>'
 		/* related resources */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block"><h2>Related resources</h2></div>'
