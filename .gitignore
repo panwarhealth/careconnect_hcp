@@ -50,6 +50,7 @@ site/wp-content/plugins/*
 !site/wp-content/plugins/tbst-custom-report/
 !site/wp-content/plugins/hcp-mca-review-workflow/
 !site/wp-content/plugins/hcp-videos/
+!site/wp-content/plugins/hcp-seo/
 !site/wp-content/plugins/index.php
 !site/wp-content/plugins/.gitkeep
 
@@ -77,7 +78,6 @@ site/wp-trackback.php
 site/xmlrpc.php
 site/readme.html
 site/license.txt
-site/robots.txt
 
 # Default WP themes — we use wp-spinnr / wp-spinnr-child only. The image
 # re-populates these on fresh-boot; leaving them on disk is harmless.

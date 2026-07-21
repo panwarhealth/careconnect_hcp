@@ -22,6 +22,17 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 	</Files>
 </IfModule>
 
+# BEGIN HCP SEO
+# Uploaded documents are HCP-only material and must never be indexed (TGA).
+# PDFs are served directly by Apache (WP rewrite skips real files), so the
+# noindex has to be a response header, not a meta tag or robots.txt rule.
+<IfModule mod_headers.c>
+<FilesMatch "\.(pdf|docx?|pptx?|xlsx?|ppsx?)$">
+    Header set X-Robots-Tag "noindex, nofollow, noarchive"
+</FilesMatch>
+</IfModule>
+# END HCP SEO
+
 # BEGIN WordPress
 # The directives (lines) between "BEGIN WordPress" and "END WordPress" are
 # dynamically generated, and should only be modified via WordPress filters.
