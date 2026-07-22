@@ -42,7 +42,7 @@ if ( ! function_exists( 'hcp_ggq_res_card' ) ) {
 				. '</span></span>'
 			: '';
 		return '<div class="card column flex flex-col text-center md:text-left" data-pb-label="Column">'
-			. '<div class="bg-secondary content-block" data-pb-label="Content Block" style="position:relative;padding:12px"><img src="' . esc_url( $img ) . '" class="mx-auto h-56" alt="" />' . $play . '</div>'
+			. '<div class="bg-secondary content-block" data-pb-label="Content Block" style="position:relative;padding:12px"><a href="' . esc_url( $url ) . '" target="' . esc_attr( $target ) . '" style="display:block" aria-label="' . esc_attr( $title ) . '"><img src="' . esc_url( $img ) . '" class="mx-auto h-56" alt="" />' . $play . '</a></div>'
 			. '<div class="card-body content-block pb-0 h-auto" data-pb-label="Content Block"><h3>' . esc_html( $title ) . '</h3><hr /><p>' . esc_html( $desc ) . '</p></div>'
 			. '<div class="card-body content-block mt-auto h-auto" data-pb-label="Content Block"><div class="flex mt-auto justify-center md:justify-start"><a class="btn cta my-0" href="' . esc_url( $url ) . '" target="' . esc_attr( $target ) . '">' . esc_html( $cta ) . '</a></div></div>'
 			. '</div>';
