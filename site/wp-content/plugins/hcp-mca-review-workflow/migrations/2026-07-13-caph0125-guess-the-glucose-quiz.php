@@ -288,7 +288,7 @@ JS;
 		. '<p class="mb-0" style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
 		. '</div>'
 		/* MOA video (Vimeo 1122083239) */
-		. '<div class="relative w-full rounded-xl overflow-hidden" style="aspect-ratio:16/9"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
+		. '<div class="relative rounded-xl overflow-hidden mx-auto" style="aspect-ratio:228/426;width:100%;max-width:300px"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
 		. '</div>'
 		. '</div>'
 		. '</div></div></div></div>'
