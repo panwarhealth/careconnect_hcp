@@ -29,11 +29,11 @@ d = ImageDraw.Draw(img)
 
 # ---- left text block (gaps above/below title measured equal) ----
 x = 80 * S
-d.text((x, 118 * S), "Q U I Z", font=medium(26), fill=CREAM)
-d.text((x, 158 * S), "Guess the", font=semibold(84), fill=WHITE)
-d.text((x, 256 * S), "Glucose", font=semibold(84), fill=WHITE)
-d.text((x, 354 * S), "Challenge", font=semibold(84), fill=WHITE)
-d.text((x, 492 * S), "Which contains less sugar?", font=medium(34), fill=CREAM)
+d.text((x, 101 * S), "Q U I Z", font=medium(26), fill=CREAM)
+d.text((x, 141 * S), "Guess the", font=semibold(84), fill=WHITE)
+d.text((x, 239 * S), "Glucose", font=semibold(84), fill=WHITE)
+d.text((x, 337 * S), "Challenge", font=semibold(84), fill=WHITE)
+d.text((x, 475 * S), "Which contains less sugar?", font=medium(34), fill=CREAM)
 
 # ---- right tiles: two white circles with drop shadow ----
 def smooth_ellipse_mask(size):

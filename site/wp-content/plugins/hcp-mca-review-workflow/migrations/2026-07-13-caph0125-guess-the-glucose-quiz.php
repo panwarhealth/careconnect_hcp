@@ -34,9 +34,15 @@ defined( 'ABSPATH' ) || exit;
  * so anything after it is never defined). Guarded against redeclaration.
  */
 if ( ! function_exists( 'hcp_ggq_res_card' ) ) {
-	function hcp_ggq_res_card( $title, $desc, $url, $cta, $target, $img ) {
+	function hcp_ggq_res_card( $title, $desc, $url, $cta, $target, $img, $is_video = false ) {
+		$play = $is_video
+			? '<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
+				. '<span style="width:60px;height:60px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center">'
+				. '<span style="width:0;height:0;border-left:20px solid #FF6B00;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px"></span>'
+				. '</span></span>'
+			: '';
 		return '<div class="card column flex flex-col text-center md:text-left" data-pb-label="Column">'
-			. '<div class="bg-secondary content-block h-4xl" data-pb-label="Content Block"><img src="' . esc_url( $img ) . '" class="mx-auto my-sm h-40 h-56" alt="" /></div>'
+			. '<div class="bg-secondary content-block" data-pb-label="Content Block" style="position:relative;padding:12px"><img src="' . esc_url( $img ) . '" class="mx-auto h-56" alt="" />' . $play . '</div>'
 			. '<div class="card-body content-block pb-0 h-auto" data-pb-label="Content Block"><h3>' . esc_html( $title ) . '</h3><hr /><p>' . esc_html( $desc ) . '</p></div>'
 			. '<div class="card-body content-block mt-auto h-auto" data-pb-label="Content Block"><div class="flex mt-auto justify-center md:justify-start"><a class="btn cta my-0" href="' . esc_url( $url ) . '" target="' . esc_attr( $target ) . '">' . esc_html( $cta ) . '</a></div></div>'
 			. '</div>';
@@ -129,6 +135,7 @@ return [
 #ggq .ggq-progress-track{flex:1;height:8px;min-width:110px;border-radius:99px;background:#f0f2f4;overflow:hidden}
 #ggq .ggq-progress-fill{display:block;height:100%;width:0;background:var(--ggq-orange);border-radius:99px;transition:width .35s ease}
 #ggq .ggq-round{padding:48px 0;border-bottom:1px dashed var(--ggq-line)}
+#ggq .ggq-rounds .ggq-round:first-child{padding-top:36px}
 #ggq .ggq-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;font-weight:700;color:var(--ggq-orange-d);text-align:center;margin:0 0 8px}
 #ggq .ggq-q{text-align:center;font-size:2rem;line-height:1.2;margin:0 0 28px}
 #ggq .ggq-q em{color:var(--ggq-orange);font-style:normal}
@@ -136,9 +143,9 @@ return [
 #ggq .ggq-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:300px;padding:28px 18px;background:#fff;border:2px solid var(--ggq-line);border-radius:14px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;font:inherit;width:100%}
 #ggq .ggq-tile:hover{border-color:var(--ggq-orange);box-shadow:0 8px 24px rgba(255,107,0,.14);transform:translateY(-2px)}
 #ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
-#ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+#ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
 #ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
-#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:6px}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:cover}
 #ggq .ggq-name{font-weight:800;font-size:1.35rem;line-height:1.25}
 #ggq .ggq-grams{font-weight:700;font-size:1.05rem;color:#5b6b72;opacity:0;max-height:0;transition:opacity .3s}
 #ggq .ggq-badge{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
@@ -154,12 +161,12 @@ return [
 #ggq .ggq-cue{text-align:center;color:var(--ggq-orange-d);font-weight:600;margin:22px 0 0;opacity:0;transition:opacity .3s}
 #ggq .ggq-round.is-done .ggq-cue{opacity:1}
 #ggq .ggq-round:last-of-type .ggq-cue{display:none}
-#ggq-results{display:none;padding:44px 0 8px}
+#ggq-results{display:none;padding:44px 0 48px}
 #ggq-results.is-shown{display:block}
 #ggq .ggq-score{text-align:center;margin:0 0 6px}
-#ggq .ggq-score-num{font-size:3rem;font-weight:800;color:var(--ggq-orange)}
+#ggq .ggq-score-num{font-size:2.4rem;font-weight:800;color:var(--ggq-orange)}
 #ggq .ggq-score-sub{text-align:center;color:#5b6b72;margin:0 0 30px}
-#ggq .ggq-rank-title{text-transform:uppercase;letter-spacing:.1em;font-weight:800;font-size:.9rem;color:var(--ggq-orange-d);text-align:center;margin:0 0 4px}
+#ggq .ggq-rank-title{text-transform:uppercase;letter-spacing:.1em;font-weight:800;font-size:.9rem;color:var(--ggq-orange-d);text-align:center;margin:28px 0 4px}
 #ggq .ggq-rank-arrow{position:relative;height:2px;background:var(--ggq-orange);margin:0 12px 22px}
 #ggq .ggq-rank-arrow::after{content:"";position:absolute;right:-2px;top:-4px;border-left:10px solid var(--ggq-orange);border-top:5px solid transparent;border-bottom:5px solid transparent}
 #ggq .ggq-bar-row{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:12px;padding:0;min-height:52px}
@@ -252,10 +259,10 @@ JS;
 		/* intro (wider container so it sits on ~3 lines, not 4) */
 		. '<div class="pt-lg section pb-0" data-pb-label="Section"><div class="mx-auto max-w-4xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center py-0 section" data-pb-label="Content Block">'
 		. '<p>' . $intro . '</p>'
-		. '<h2 class="mt-lg">Can you correctly pick which item contains <em>less</em> sugar per serving?</h2>'
+		. '<h2 style="margin-top:2.75rem;margin-bottom:.75rem">Can you correctly pick which item contains <em>less</em> sugar per serving?</h2>'
 		. '</div></div></div></div>'
 		/* quiz (HCP-gated, like CAPH0111) */
-		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
+		. '<div class="pt-0 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
 		. $css
 		. '<div id="ggq">'
 		. '<div class="ggq-progress"><span class="ggq-progress-count">0 of 8 answered</span><span class="ggq-progress-track"><span class="ggq-progress-fill"></span></span></div>'
@@ -272,9 +279,9 @@ JS;
 		. '</div></div></div></div>'
 		/* clinical explainer — light-orange panel; subhead centred dark-orange; body + bold callout sit left of the MOA video */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-5xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
-		. '<div class="rounded-xl p-lg md:p-xl" style="background-color:#FDECE0">'
-		. '<h2 class="text-center" style="color:#C2410C">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
-		. '<div class="grid md:grid-cols-2 gap-lg items-center mt-lg">'
+		. '<div class="rounded-xl" style="background-color:#FFE8D6;padding:1.9rem clamp(1.5rem,4vw,2.5rem);margin-bottom:2rem">'
+		. '<h2 class="text-center" style="color:#FF6B00;margin-bottom:2rem">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
+		. '<div class="grid md:grid-cols-2 gap-lg items-start mt-0">'
 		. '<div>'
 		. '<p>ORS formulations based on World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>ORS can be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
 		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
@@ -288,11 +295,11 @@ JS;
 		/* related resources — three tiles in one row, then the sample-order blue banner (CAPH0111 pattern) */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block"><h2>Related resources</h2></div>'
 		. '<div class="grid md:grid-cols-3 gap-base mt-base">'
-		. hcp_ggq_res_card( 'Clinical Bites Series: Diabetes Sick Day Management', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne.', $base . '/tools-and-videos/', 'Watch videos', '_self', $base . '/wp-content/uploads/2026/07/caph0105-clinical-bites-video-1-thumbnail.png' )
+		. hcp_ggq_res_card( 'Clinical Bites Series: Diabetes Sick Day Management', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne.', $base . '/tools-and-videos/', 'Watch videos', '_self', $base . '/wp-content/uploads/2026/07/caph0105-clinical-bites-video-1-thumbnail.png', true )
 		. hcp_ggq_res_card( 'Sip to Stand: Why Hydration is Essential in POTS', 'Key information to support hydration management in POTS.', $base . '/blog/sip-to-stand-why-hydration-is-essential-in-pots/', 'Read article', '_self', $base . '/wp-content/uploads/2025/11/iStock-1296209723-768x512.jpg' )
 		. hcp_ggq_res_card( 'Hydralyte Patient Leaflet', 'A helpful fact sheet to ensure appropriate ORS use and guide product selection.', $base . '/wp-content/uploads/2025/11/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR.pdf', 'Download', '_blank', $base . '/wp-content/uploads/2025/12/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR_thumbnail.png' )
 		. '</div>'
-		. '<div class="grid mt-xl"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Order Hydralyte samples</h2><p>Have samples delivered directly to your practice</p></div></div><div class="content-block grid items-center ml-auto" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/order-samples/" target="_self" rel="noopener">Order samples</a></div></div></div>'
+		. '<div class="grid" style="margin-top:2.75rem"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Order Hydralyte samples</h2><p>Have samples delivered directly to your practice</p></div></div><div class="content-block grid items-center ml-auto" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/order-samples/" target="_self" rel="noopener">Order samples</a></div></div></div>'
 		. '</div></div></div>'
 		/* logged-out register/login band */
 		. '<div class="py-0 section" data-pb-label="Section">[not_logged_in]<div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid mt-xl" data-pb-label="Container"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Welcome to Care Connect</h2><p><span style="font-size:1rem">The online portal for healthcare professional resources from Care Pharmaceuticals. Register to take the challenge.</span></p></div></div><div class="content-block flex items-center gap-xl" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/register">Register</a><a class="btn cta mt-md ml-auto" href="/login">Login</a></div></div></div>[/not_logged_in]</div>'
