@@ -280,7 +280,7 @@ JS;
 		/* clinical explainer — light-orange panel; subhead centred dark-orange; body + bold callout sit left of the MOA video */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-5xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
 		. '<div class="rounded-xl" style="background-color:#FFE8D6;padding:1.9rem clamp(1.5rem,4vw,2.5rem);margin-bottom:2rem">'
-		. '<h2 class="text-center" style="color:#FF6B00;margin-bottom:2rem">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
+		. '<h2 class="text-center" style="color:#FF6B00;margin-bottom:2rem;font-size:clamp(1.4rem,4.8vw,2rem);line-height:1.25">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
 		. '<div class="grid md:grid-cols-2 gap-lg items-start mt-0">'
 		. '<div>'
 		. '<p>ORS formulations based on World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>ORS can be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
