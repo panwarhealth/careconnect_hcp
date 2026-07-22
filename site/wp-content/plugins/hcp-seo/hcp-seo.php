@@ -52,6 +52,14 @@ function hcp_seo_indexable_post_types(): array {
 }
 
 /**
+ * PDF-redirect interstitials (eDM tracking pages) render a GA event then
+ * bounce straight to a noindexed PDF — never content, never in search.
+ */
+function hcp_seo_is_pdf_redirect( int $post_id ): bool {
+	return get_post_meta( $post_id, '_wp_page_template', true ) === 'template-pdf-redirect.php';
+}
+
+/**
  * @param WP_Post|object $post Full WP_Post or a lightweight row exposing
  *                             ID/post_type/post_name (Rank Math's sitemap
  *                             provider passes stdClass, not WP_Post).
@@ -65,6 +73,7 @@ function hcp_seo_must_noindex_post( object $post ): bool {
 
 	return ! in_array( $post_type, hcp_seo_indexable_post_types(), true )
 		|| hcp_seo_is_gated( (int) $post->ID )
+		|| hcp_seo_is_pdf_redirect( (int) $post->ID )
 		|| in_array( $slug, hcp_seo_noise_slugs(), true );
 }
 
