@@ -16,10 +16,10 @@
  * auto-publishes — and auto-features — on that date).
  *
  * Files required at wp-content/uploads/ on each environment BEFORE running:
- *   - 2026/07/ggq-hero.png  (featured-card hero image; placeholder for now, real art later)
+ *   - 2026/07/ggq-hero.png  (header banner + /blog/ featured-card thumbnail: title + food/ORS coins)
  *   - 2026/07/ggq/<key>.png tile images: 8 foods (latte, apple, blueberries, oat-milk, almonds,
- *     coconut-water, apple-juice, banana) as circular transparent PNGs + ORS product shots on white
- *     (ors-1, ors-2, ors-3, ors-3-1, ors-3-2) rotated one per round.
+ *     coconut-water, apple-juice, banana) as circular transparent PNGs + ors-generic.png
+ *     (approved generic ORS glass, used for every round — MD asked to drop the branded packs).
  * Media already on the site (no upload needed): Vimeo MOA video 1122083239,
  *   Hydralyte Patient Leaflet PDF (2025/11/CAPH0051...), leaflet thumbnail (2025/12/...),
  *   Sick Days leaflet PDF + thumb (2026/03/CAPH0089..., 2026/03/hydra-sick-days.png),
@@ -58,9 +58,14 @@ return [
 
 		/* ---- data: ORS (fixed lower-sugar side) + the 8 comparators ---- */
 		$img_base = $base . '/wp-content/uploads/2026/07/ggq/';
-		$ors      = [ 'Oral rehydration solution', '1.35 g / 100 mL', 1.35 ];
-		$ors_imgs = [ 'ors-1.png', 'ors-2.png', 'ors-3.png', 'ors-3-1.png', 'ors-3-2.png' ]; // rotated per round
-		$ors_urls = array_map( function ( $f ) use ( $img_base ) { return $img_base . $f; }, $ors_imgs );
+		$ors         = [ 'Oral rehydration solution', '1.35 g / 100 mL', 1.35 ];
+		$ors_img_url = $img_base . 'ors-generic.png'; // one approved generic ORS glass for every round
+
+		// Keep a value's unit with its number ("100 mL" never splits) and compound food names together,
+		// so the glucose list wraps sensibly ("1.35 g /" then "100 mL"; "Unsweetened" then "oat milk").
+		$fmt_unit  = function ( $s ) { return str_replace( [ ' mL', ' cup', ' g' ], [ "\u{A0}mL", "\u{A0}cup", "\u{A0}g" ], $s ); };
+		$grp_label = function ( $s ) { return str_replace( [ 'oat milk', 'coconut water', 'apple juice' ], [ "oat\u{A0}milk", "coconut\u{A0}water", "apple\u{A0}juice" ], $s ); };
+
 		$foods = [
 			[ 'Unsweetened oat milk',      '3 g / 200 mL',  3,  'oat-milk' ],
 			[ 'Unsweetened coconut water', '6 g / 200 mL',  6,  'coconut-water' ],
@@ -72,12 +77,12 @@ return [
 			[ 'Whole apple',               '17 g',          17, 'apple' ],
 		];
 
-		$tile = function ( $role, $name, $serving, $img ) {
+		$tile = function ( $role, $name, $serving, $img ) use ( $fmt_unit, $grp_label ) {
 			return '<button type="button" class="ggq-tile" data-role="' . esc_attr( $role ) . '">'
 				. '<span class="ggq-badge" aria-hidden="true"></span>'
 				. '<span class="ggq-thumb"><img src="' . esc_url( $img ) . '" alt="" loading="lazy" /></span>'
-				. '<span class="ggq-name">' . esc_html( $name ) . '</span>'
-				. '<span class="ggq-grams">' . esc_html( $serving ) . '</span>'
+				. '<span class="ggq-name">' . esc_html( $grp_label( $name ) ) . '</span>'
+				. '<span class="ggq-grams">' . esc_html( $fmt_unit( $serving ) ) . '</span>'
 				. '</button>';
 		};
 
@@ -85,7 +90,7 @@ return [
 		$rounds = '';
 		foreach ( $foods as $i => $f ) {
 			$n        = $i + 1;
-			$ors_img  = $img_base . $ors_imgs[ $i % count( $ors_imgs ) ];
+			$ors_img  = $ors_img_url;
 			$food_img = $img_base . $f[3] . '.png';
 			$rounds .= '<div class="ggq-round" data-round="' . $n . '">'
 				. '<p class="ggq-eyebrow">Round ' . $n . ' of 8</p>'
@@ -107,9 +112,9 @@ return [
 			$pct    = max( 9, round( $r[2] / $max * 100 ) );
 			$is_ors = ( abs( $r[2] - 1.35 ) < 0.01 );
 			$bars  .= '<div class="ggq-bar-row' . ( $is_ors ? ' is-ors' : '' ) . '">'
-				. '<span class="ggq-bar-label">' . esc_html( $r[0] ) . '</span>'
+				. '<span class="ggq-bar-label">' . esc_html( $grp_label( $r[0] ) ) . '</span>'
 				. '<span class="ggq-bar-track"><span class="ggq-bar-fill" style="width:' . $pct . '%"></span></span>'
-				. '<span class="ggq-bar-val">' . esc_html( $r[1] ) . '</span>'
+				. '<span class="ggq-bar-val">' . esc_html( $fmt_unit( $r[1] ) ) . '</span>'
 				. '</div>';
 		}
 
@@ -157,8 +162,8 @@ return [
 #ggq .ggq-rank-title{text-transform:uppercase;letter-spacing:.1em;font-weight:800;font-size:.9rem;color:var(--ggq-orange-d);text-align:center;margin:0 0 4px}
 #ggq .ggq-rank-arrow{position:relative;height:2px;background:var(--ggq-orange);margin:0 12px 22px}
 #ggq .ggq-rank-arrow::after{content:"";position:absolute;right:-2px;top:-4px;border-left:10px solid var(--ggq-orange);border-top:5px solid transparent;border-bottom:5px solid transparent}
-#ggq .ggq-bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:12px;padding:6px 0}
-#ggq .ggq-bar-label{font-size:.9rem;text-align:right;color:#3a464c}
+#ggq .ggq-bar-row{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:12px;padding:0;min-height:52px}
+#ggq .ggq-bar-label{font-size:.9rem;text-align:right;color:#3a464c;line-height:1.25}
 #ggq .ggq-bar-track{height:22px;background:#f0f2f4;border-radius:99px;overflow:hidden}
 #ggq .ggq-bar-fill{display:block;height:100%;background:#c9d3d7;border-radius:99px}
 #ggq .ggq-bar-row.is-ors .ggq-bar-label{font-weight:800;color:var(--ggq-orange-d)}
@@ -182,10 +187,8 @@ CSS;
   if(wrap){shuffle(rounds.slice()).forEach(function(r){wrap.appendChild(r);});}
   // randomise left/right within each round
   rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(Math.random()<0.5){t.appendChild(t.firstElementChild);}}});
-  var orsImgs=[];try{orsImgs=JSON.parse(root.getAttribute('data-ors')||'[]');}catch(e){}
   Array.prototype.slice.call(root.querySelectorAll('.ggq-round')).forEach(function(r,i){
     var e=r.querySelector('.ggq-eyebrow');if(e){e.textContent='Round '+(i+1)+' of 8';}
-    if(orsImgs.length){var im=r.querySelector('.ggq-tile[data-role="ors"] .ggq-thumb img');if(im){im.src=orsImgs[i%orsImgs.length];}}
   });
   var total=rounds.length,answered=0,score=0,done=false;
   var bar=root.querySelector('.ggq-progress');
@@ -211,13 +214,22 @@ CSS;
     if(ors)ors.classList.add('is-correct');
     if(tile.getAttribute('data-role')==='food'){tile.classList.add('is-wrong');}else{score++;}
     answered++;update();
+    var next=round.nextElementSibling;
     if(answered===total){
       done=true;
       var num=results.querySelector('.ggq-score-num');
-      if(num)num.textContent=score+' / '+total;
+      if(num)num.textContent=score+' out of '+total;
       if(bar){bar.classList.remove('is-visible');bar.classList.add('is-hidden');}
       results.classList.add('is-shown');
     }
+    // auto-advance: let the reveal register, then glide to the next pairing (or to the results)
+    setTimeout(function(){
+      if(answered===total){
+        if(results){results.scrollIntoView({behavior:'smooth',block:'start'});}
+      }else if(next){
+        next.scrollIntoView({behavior:'smooth',block:'center'});
+      }
+    },600);
   });
 })();
 </script>
@@ -230,50 +242,58 @@ JS;
 		$content = ''
 		/* perfected typography carried over from the CAPH0111 (Dr Jonny) article */
 		. '<style>.entry-content p{line-height:1.7}.entry-content li{line-height:1.7}.entry-content h2{line-height:1.35}.entry-content h3{line-height:1.35}</style>'
-		/* header */
-		. '<div class="section pb-xl" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center" data-pb-label="Content Block">'
-		. '<div class="flex gap-md items-center justify-center mb-lg"><p class="bg-accent-secondary mb-0 px-6 py-2 rounded-full text-heading">Interactive</p><p class="mb-0">13.08.26</p></div>'
-		. '<h1>Guess the Glucose Challenge</h1></div></div></div></div>'
-		/* intro */
-		. '<div class="pt-0 section pb-0" data-pb-label="Section"><div class="mx-auto max-w-3xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center py-0 section" data-pb-label="Content Block">'
+		/* header — eyebrow/date pill; the banner image below carries the title (H1 kept for a11y/SEO) */
+		. '<div class="section pb-lg" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center" data-pb-label="Content Block">'
+		. '<div class="flex gap-md items-center justify-center mb-0"><p class="bg-accent-secondary mb-0 px-6 py-2 rounded-full text-heading">Quiz</p><p class="mb-0">13.08.26</p></div>'
+		. '<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Guess the Glucose Challenge</h1></div></div></div></div>'
+		/* header banner (doubles as the /blog/ featured-card thumbnail) */
+		. '<div class="pt-0 section pb-0" data-pb-label="Section"><div class="mx-auto max-w-4xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
+		. '<img src="' . $base . '/wp-content/uploads/2026/07/ggq-hero.png" class="h-auto rounded-xl w-full" alt="Guess the Glucose Challenge" /></div></div></div></div>'
+		/* intro (wider container so it sits on ~3 lines, not 4) */
+		. '<div class="pt-lg section pb-0" data-pb-label="Section"><div class="mx-auto max-w-4xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center py-0 section" data-pb-label="Content Block">'
 		. '<p>' . $intro . '</p>'
 		. '<h2 class="mt-lg">Can you correctly pick which item contains <em>less</em> sugar per serving?</h2>'
 		. '</div></div></div></div>'
 		/* quiz (HCP-gated, like CAPH0111) */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
 		. $css
-		. '<div id="ggq" data-ors="' . esc_attr( wp_json_encode( $ors_urls ) ) . '">'
+		. '<div id="ggq">'
 		. '<div class="ggq-progress"><span class="ggq-progress-count">0 of 8 answered</span><span class="ggq-progress-track"><span class="ggq-progress-fill"></span></span></div>'
 		. '<div class="ggq-rounds">' . $rounds . '</div>'
 		/* results */
 		. '<div id="ggq-results">'
-		. '<p class="ggq-score">Your score</p><p class="ggq-score"><span class="ggq-score-num">0 / 8</span></p>'
-		. '<p class="ggq-score-sub">In every pairing, the ORS had less sugar than the food or drink.</p>'
-		. '<p class="ggq-rank-title">Glucose content</p><div class="ggq-rank-arrow"></div>'
+		. '<p class="ggq-score">Your score</p><p class="ggq-score"><span class="ggq-score-num">0 out of 8</span></p>'
+		. '<p class="ggq-rank-title">Glucose content per serving</p><div class="ggq-rank-arrow"></div>'
 		. $bars
 		. '<p class="ggq-notscale">Not to scale. Based on average sugar content per serving, not a direct comparison.</p>'
 		. '</div>'
 		. '</div>'
 		. $js
 		. '</div></div></div></div>'
-		/* clinical explainer */
-		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
-		. '<h2>ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
-		. '<p>ORS formulations aligned with World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, ORS can be considered carbohydrate-free, depending on the specific product.*<sup>2</sup></p>'
-		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).<sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
+		/* clinical explainer — light-orange panel; subhead centred dark-orange; body + bold callout sit left of the MOA video */
+		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-5xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
+		. '<div class="rounded-xl p-lg md:p-xl" style="background-color:#FDECE0">'
+		. '<h2 class="text-center" style="color:#C2410C">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
+		. '<div class="grid md:grid-cols-2 gap-lg items-center mt-lg">'
+		. '<div>'
+		. '<p>ORS formulations based on World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>ORS can be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
+		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
+		. '<p class="mb-0" style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
+		. '</div>'
 		/* MOA video (Vimeo 1122083239) */
-		. '<div class="relative w-full mt-lg rounded-xl overflow-hidden" style="aspect-ratio:16/9"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
-		/* callout */
-		. '<div class="card mt-8 p-3xl pt-6 pb-6" style="background-color:#FF8424"><p class="mb-0 text-lg" style="color:#fff">Clinicians can feel confident recommending true, WHO-aligned ORS formulations such as Hydralyte to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
+		. '<div class="relative w-full rounded-xl overflow-hidden" style="aspect-ratio:16/9"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
+		. '</div>'
+		. '</div>'
 		. '</div></div></div></div>'
-		/* related resources */
+		/* related resources — three tiles in one row, then the sample-order blue banner (CAPH0111 pattern) */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block"><h2>Related resources</h2></div>'
-		. '<div class="grid md:grid-cols-2 gap-base mt-base">'
-		. hcp_ggq_res_card( 'Hydralyte Sick Day Management Leaflet', 'Practical sick day advice to share with patients, including when to use ORS.', $base . '/wp-content/uploads/2026/03/CAPH0089-Hydralyte-APP-2026_Sick-Days-LB_2pp-A4_V3.2.pdf', 'Download', '_blank', $base . '/wp-content/uploads/2026/03/hydra-sick-days.png' )
+		. '<div class="grid md:grid-cols-3 gap-base mt-base">'
+		. hcp_ggq_res_card( 'Clinical Bites Series: Diabetes Sick Day Management', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne.', $base . '/tools-and-videos/', 'Watch videos', '_self', $base . '/wp-content/uploads/2026/07/caph0105-clinical-bites-video-1-thumbnail.png' )
 		. hcp_ggq_res_card( 'Sip to Stand: Why Hydration is Essential in POTS', 'Key information to support hydration management in POTS.', $base . '/blog/sip-to-stand-why-hydration-is-essential-in-pots/', 'Read article', '_self', $base . '/wp-content/uploads/2025/11/iStock-1296209723-768x512.jpg' )
 		. hcp_ggq_res_card( 'Hydralyte Patient Leaflet', 'A helpful fact sheet to ensure appropriate ORS use and guide product selection.', $base . '/wp-content/uploads/2025/11/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR.pdf', 'Download', '_blank', $base . '/wp-content/uploads/2025/12/CAPH0051_Hydralyte-Patient-Leaflet_A4_2pp_V3.0_HR_thumbnail.png' )
-		. hcp_ggq_res_card( 'Order Hydralyte samples', 'Have samples delivered directly to your practice.', $base . '/order-samples/', 'Order samples', '_self', $base . '/wp-content/uploads/2026/07/ggq/ors-1.png' )
-		. '</div></div></div></div>'
+		. '</div>'
+		. '<div class="grid mt-xl"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Order Hydralyte samples</h2><p>Have samples delivered directly to your practice</p></div></div><div class="content-block grid items-center ml-auto" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/order-samples/" target="_self" rel="noopener">Order samples</a></div></div></div>'
+		. '</div></div></div>'
 		/* logged-out register/login band */
 		. '<div class="py-0 section" data-pb-label="Section">[not_logged_in]<div class="mx-auto max-w-7xl w-full px-4 md:px-6 grid mt-xl" data-pb-label="Container"><div class="bg-center bg-cover col-span-full column justify-between items-center md:flex md:p-md md:p-xl p-lg rounded-md theme-dark gap-y-0" data-pb-label="Column" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/CTA-background-small.png\');"><div class="content-block items-center justify-between md:flex" data-pb-label="Content Block"><div><h2>Welcome to Care Connect</h2><p><span style="font-size:1rem">The online portal for healthcare professional resources from Care Pharmaceuticals. Register to take the challenge.</span></p></div></div><div class="content-block flex items-center gap-xl" data-pb-label="Content Block"><a class="btn cta mt-md ml-auto" href="/register">Register</a><a class="btn cta mt-md ml-auto" href="/login">Login</a></div></div></div>[/not_logged_in]</div>'
 		/* footnotes / references / mandatories */
@@ -295,12 +315,12 @@ JS;
 
 		$post_id = wp_insert_post(
 			[
-				'post_title'   => 'Interactive Quiz: Guess the Glucose Challenge',
+				'post_title'   => 'QUIZ: Guess the Glucose Challenge',
 				'post_name'    => $slug,
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
 				'post_content' => $content,
-				'post_excerpt' => 'Think ORS are too sugary for patients with diabetes? Take the challenge and see how they really stack up against everyday foods and drinks.',
+				'post_excerpt' => 'Think oral rehydration solutions contain too much glucose for some patients?',
 				'post_date'    => current_time( 'mysql' ), // publish now → newest post → /blog/ featured slot
 				'post_author'  => 1,
 			],
@@ -312,6 +332,9 @@ JS;
 		}
 
 		wp_set_post_categories( $post_id, [ 1 ] );
+
+		// Per-post featured-card button text (read by the {{card_cta}} REST field on /blog/).
+		update_post_meta( $post_id, '_hcp_card_cta', 'Take the quiz' );
 
 		/* featured image (placeholder hero; real art swaps in later) — needed for the /blog/ featured card */
 		$hero_rel = '2026/07/ggq-hero.png';

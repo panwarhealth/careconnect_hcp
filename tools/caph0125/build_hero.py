@@ -29,7 +29,7 @@ d = ImageDraw.Draw(img)
 
 # ---- left text block (gaps above/below title measured equal) ----
 x = 80 * S
-d.text((x, 118 * S), "I N T E R A C T I V E   Q U I Z", font=medium(26), fill=CREAM)
+d.text((x, 118 * S), "Q U I Z", font=medium(26), fill=CREAM)
 d.text((x, 158 * S), "Guess the", font=semibold(84), fill=WHITE)
 d.text((x, 256 * S), "Glucose", font=semibold(84), fill=WHITE)
 d.text((x, 354 * S), "Challenge", font=semibold(84), fill=WHITE)
@@ -59,7 +59,7 @@ def paste_with_shadow(base, tile, pos):
     base.alpha_composite(tile, pos)
 
 canvas = img.convert("RGBA")
-ors = circle_tile(GGQ + "ors-1.png", 300 * S, 26 * S)
+ors = circle_tile(GGQ + "ors-generic.png", 300 * S, 0)
 food = circle_tile(GGQ + "apple.png", 300 * S, 0)
 paste_with_shadow(canvas, ors, (760 * S, 70 * S))
 paste_with_shadow(canvas, food, (870 * S, 290 * S))
@@ -76,5 +76,5 @@ tw = d.textlength("VS", font=f)
 d.text((bx + (bs - tw) / 2, by + 20 * S), "VS", font=f, fill=WHITE)
 
 final = canvas.convert("RGB").resize((1200, 630), Image.LANCZOS)
-final.save("ggq-hero-mock.png")
-print("saved")
+final.save("/home/doobz/projects/careconnect_hcp/site/wp-content/uploads/2026/07/ggq-hero.png")
+print("saved ggq-hero.png")
