@@ -169,7 +169,7 @@ return [
 #ggq .ggq-rank-title{text-transform:uppercase;letter-spacing:.1em;font-weight:800;font-size:.9rem;color:var(--ggq-orange-d);text-align:center;margin:28px 0 4px}
 #ggq .ggq-rank-arrow{position:relative;height:2px;background:var(--ggq-orange);margin:0 12px 22px}
 #ggq .ggq-rank-arrow::after{content:"";position:absolute;right:-2px;top:-4px;border-left:10px solid var(--ggq-orange);border-top:5px solid transparent;border-bottom:5px solid transparent}
-#ggq .ggq-bar-row{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:12px;padding:0;min-height:52px}
+#ggq .ggq-bar-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:12px;padding:0;min-height:52px}
 #ggq .ggq-bar-label{font-size:.9rem;text-align:right;color:#3a464c;line-height:1.25}
 #ggq .ggq-bar-track{height:22px;background:#f0f2f4;border-radius:99px;overflow:hidden}
 #ggq .ggq-bar-fill{display:block;height:100%;background:#c9d3d7;border-radius:99px}
@@ -177,7 +177,7 @@ return [
 #ggq .ggq-bar-row.is-ors .ggq-bar-fill{background:var(--ggq-orange)}
 #ggq .ggq-bar-val{font-size:.85rem;font-weight:700;color:#5b6b72}
 #ggq .ggq-notscale{text-align:center;font-size:.8rem;color:#8a99a0;margin:14px 0 0}
-@media(max-width:640px){#ggq .ggq-q{font-size:1.5rem}#ggq .ggq-tiles{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}#ggq .ggq-tile{min-height:220px}#ggq .ggq-thumb{width:140px;height:140px}#ggq .ggq-bar-row{grid-template-columns:96px 1fr 74px;gap:8px}#ggq .ggq-bar-label{font-size:.8rem}}
+@media(max-width:640px){#ggq .ggq-q{font-size:1.5rem}#ggq .ggq-tiles{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}#ggq .ggq-tile{min-height:220px}#ggq .ggq-thumb{width:140px;height:140px}#ggq .ggq-bar-row{grid-template-columns:84px 1fr 104px;gap:8px}#ggq .ggq-bar-label{font-size:.8rem}#ggq .ggq-bar-val{font-size:.8rem}}
 </style>
 CSS;
 
@@ -243,7 +243,7 @@ CSS;
 JS;
 
 		/* ---- copy blocks ---- */
-		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low-sugar diets (e.g., people with diabetes).<sup>2</sup> But how much glucose is really in ORS?';
+		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low&#8209;sugar diets (e.g., people with diabetes).<sup>2</sup> But how much glucose is really in ORS?';
 
 		/* ---- assemble post_content ---- */
 		$content = ''
@@ -284,8 +284,8 @@ JS;
 		. '<div class="grid md:grid-cols-2 gap-lg items-start mt-0">'
 		. '<div>'
 		. '<p>ORS formulations based on World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>ORS can be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
-		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium-glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium-glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
-		. '<p class="mb-0" style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at-risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
+		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium&#8209;glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium&#8209;glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
+		. '<p class="mb-0" style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
 		. '</div>'
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative rounded-xl overflow-hidden mx-auto" style="aspect-ratio:228/426;width:100%;max-width:300px"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
@@ -327,7 +327,7 @@ JS;
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
 				'post_content' => $content,
-				'post_excerpt' => 'Think oral rehydration solutions contain too much glucose for some patients?',
+				'post_excerpt' => 'Think oral rehydration solutions contain too much glucose for some patients? Take the challenge and see how they really stack up against everyday foods and drinks.',
 				'post_date'    => current_time( 'mysql' ), // publish now → newest post → /blog/ featured slot
 				'post_author'  => 1,
 			],
