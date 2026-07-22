@@ -25,4 +25,5 @@ if ( is_admin() ) {
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-migrations-page.php';
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-user-profile.php';
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-tools-page.php';
+	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-auto-membership.php';
 }
