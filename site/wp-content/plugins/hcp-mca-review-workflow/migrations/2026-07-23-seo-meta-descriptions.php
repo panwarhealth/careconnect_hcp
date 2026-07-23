@@ -76,6 +76,15 @@ return [
 		$applied = [];
 		$missing = [];
 
+		// Static front page: Rank Math's homepage_title option only applies to
+		// a latest-posts front page, so the meta must live on the page itself.
+		$front = (int) get_option( 'page_on_front' );
+		if ( $front ) {
+			update_post_meta( $front, 'rank_math_title', 'HCP Care Connect Portal | Clinical Resources for Healthcare Professionals' );
+			update_post_meta( $front, 'rank_math_description', 'Free clinical education, in-consultation tools and product samples for Australian GPs, pharmacists and nurses. Register with your AHPRA number for access.' );
+			$applied[] = 'front-page';
+		}
+
 		foreach ( $pages as $slug => [ $title, $description ] ) {
 			$page = get_page_by_path( $slug );
 			if ( ! $page ) {
