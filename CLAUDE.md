@@ -18,7 +18,7 @@ An **inherited WordPress site** for **hcp.carepharma.com.au** — a healthcare-p
 | MySQL | 8.0.41 Community | live host phpMyAdmin |
 | Apache | 2.4.66 (Debian) | live host phpMyAdmin |
 | WordPress | whatever ships in the zip — don't upgrade without explicit instruction | zip contents |
-| Active theme | `wp-spinnr-child` (child of `wp-spinnr`) | DB options |
+| Active theme | `wp-spinnr-child` (child of `wp-spinnr` — **our in-house fork v4.0.0 since 2026-07**: SPINNR service integration stripped, never accepts SPINNR updates, TBST's SPINNR charge cancellable; raw-HTML type list lives in `inc/config.php` `WP_SPINNR_RAW_TYPES`) | DB options |
 | DB table prefix | `tbstwp_` | zip's `wp-config.php` |
 
 **Versions are pinned for a reason** — plugin/PHP drift is the usual cause of "works locally, breaks in prod." Always verify with:
@@ -251,7 +251,7 @@ docker compose exec -T db \
 ## Known gotchas
 
 - **Windows bind-mount was slow (resolved 2026-04-15 by WSL migration).** On NTFS via 9P, page loads were 15–25s. After migrating to `~/projects/careconnect_hcp` inside WSL ext4, warm page loads are ~280ms. If you're ever on a new dev machine and see the slow behavior, it's because the repo is on Windows NTFS — move it to WSL.
-- **Fresh `git clone` is NOT a runnable site.** Licensed third-party plugins (LearnDash, Formidable Pro, RCP, WP Rocket, ACF Pro, etc.), bundled `vendor/` dirs inside plugins/themes (e.g. `wp-spinnr/inc/plugins/jwt/includes/vendor/autoload.php`), and `wp-content/uploads/` (~416 MB) are all gitignored. Without them, WP fatal-errors before rendering. The restore flow is documented in `README.md` → pull `site-essentials-YYYY-MM-DD.tar.gz` from `stcareconnect/backups` container and extract into `./site/`. WP core and default themes/plugins are NOT in the tarball — the Docker image populates those on first boot.
+- **Fresh `git clone` is NOT a runnable site.** Licensed third-party plugins (LearnDash, Formidable Pro, RCP, WP Rocket, ACF Pro, etc.), bundled `vendor/` dirs inside plugins, and `wp-content/uploads/` (~416 MB) are all gitignored. Without them, WP fatal-errors before rendering. The restore flow is documented in `README.md` → pull `site-essentials-YYYY-MM-DD.tar.gz` from `stcareconnect/backups` container and extract into `./site/`. WP core and default themes/plugins are NOT in the tarball — the Docker image populates those on first boot.
 - **Refresh `site-essentials` when prod plugins update** (or uploads grow meaningfully). See README for the `tar czf` + `az storage blob upload` recipe. Cadence is probably monthly; confirm with prod reality rather than the calendar.
 - **On WSL, `which az` → Windows `az.exe` (via interop).** API-only commands work, but `az storage blob upload/download --file /tmp/foo` fails with `[WinError 2] file not found` because Windows can't see `/tmp/`. Stage the artifact at `/mnt/f/Github/…` first (Windows sees it as `F:\Github\…`) and upload from there. Or install native az in WSL: `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash`. For storage ops prefer `--auth-mode key` (auto-pulls account key via ARM token) over `--auth-mode login` (needs separate storage-scope token).
 - **A fresh WSL clone needs two git-config tweaks** (per-clone, not global) or you'll see 300 phantom "modified" files after any file-system operation:

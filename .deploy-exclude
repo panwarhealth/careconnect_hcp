@@ -49,11 +49,10 @@ site/wp-content/plugins/**
 !site/wp-content/plugins/hcp-mca-review-workflow/**
 !site/wp-content/plugins/hcp-seo/**
 
-# --- Parent theme (only push if explicitly edited) ----------------------
-# Child theme (wp-spinnr-child) IS deployable — it's what we actually edit.
-# The parent is rarely touched; if you do edit it, delete this line for
-# that specific deploy and add it back after.
-site/wp-content/themes/wp-spinnr/**
+# --- Themes (both ours since the 2026-07 spinnr fork) -------------------
+# wp-spinnr is our in-house fork (v4.0.0, SPINNR service stripped);
+# both parent and child are deployable.
+!site/wp-content/themes/wp-spinnr/**
 !site/wp-content/themes/wp-spinnr-child/**
 
 # --- Default WP themes (not used, don't sync) ---------------------------
