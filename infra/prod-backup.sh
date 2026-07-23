@@ -114,7 +114,7 @@ prune() {
     --prefix "$prefix" \
     --auth-mode key \
     --query "sort_by([].{name:name,modified:properties.lastModified},&modified) | [].name" \
-    -o tsv 2>/dev/null)
+    -o tsv 2>/dev/null | tr -d '\r')
   total=$(echo "$blobs" | grep -c . || true)
   delete_count=$(( total - keep ))
   if [ "$delete_count" -gt 0 ]; then
