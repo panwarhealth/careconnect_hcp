@@ -1,0 +1,48 @@
+# hcp.carepharma.com.au — healthcare professionals portal
+# Gated clinical content is excluded from search via meta robots (pages) and
+# X-Robots-Tag headers (uploaded documents). Uploads are deliberately NOT
+# disallowed here: crawlers must be able to fetch a file to see its noindex
+# header, and a disallow would leave already-known URLs indexable as URL-only.
+
+User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+Disallow: /wp-login.php
+Disallow: /log-in/
+Disallow: /register/
+Disallow: /no-access/
+Disallow: /login-customizer/
+Disallow: /download/
+
+# --- AI / answer-engine crawlers: welcome on public content ---
+# Listed explicitly so intent is documented and future per-bot overrides
+# have a home. OAI-SearchBot feeds ChatGPT search citations.
+User-agent: GPTBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: OAI-SearchBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: ClaudeBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: Claude-Web
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: PerplexityBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: Google-Extended
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: CCBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+Sitemap: https://hcp.carepharma.com.au/sitemap_index.xml
