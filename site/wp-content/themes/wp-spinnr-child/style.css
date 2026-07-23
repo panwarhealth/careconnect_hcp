@@ -122,3 +122,11 @@ Version:        1.0
 .frm_checkbox .frm_required {
     margin-left: 3px !important;
 }
+
+/* Gated-content login/register panel: pin to the top of the blurred block
+   (with breathing room) so it's visible without scrolling long content.
+   !important required — spinnr.min.css loads after this file. */
+.logged_in_users_only .login-overlay {
+    align-items: flex-start !important;
+    padding-top: 250px !important;
+}

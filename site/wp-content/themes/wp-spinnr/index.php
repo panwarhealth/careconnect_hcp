@@ -18,9 +18,8 @@ get_header();
 $add_section = true;
 $show_sidebar = true;
 
-// Check if post is locked to SPINNR
-$post_types = explode(',', get_option('lock_editor'));
-if (count($post_types) > 0 && in_array(get_post_type(), $post_types)) {
+// Raw builder HTML renders without the section/sidebar wrapper
+if (in_array(get_post_type(), WP_SPINNR_RAW_TYPES, true)) {
 	$add_section = false;
 }
 

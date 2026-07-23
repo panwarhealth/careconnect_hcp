@@ -15,7 +15,7 @@ The deny-list is codified in [`.deploy-exclude`](../.deploy-exclude) at the repo
 | Path in repo | Path on prod (Plesk) | When |
 |---|---|---|
 | `site/wp-content/themes/wp-spinnr-child/` | `httpdocs/wp-content/themes/wp-spinnr-child/` | Every theme change |
-| `site/wp-content/themes/wp-spinnr/` | `httpdocs/wp-content/themes/wp-spinnr/` | Only if the parent theme was edited (rare — prefer child) |
+| `site/wp-content/themes/wp-spinnr/` | `httpdocs/wp-content/themes/wp-spinnr/` | Ours since the 2026-07 fork (v4.0.0, SPINNR service stripped). Deploy whenever edited. NOTE: a parent-theme deploy after the fork must also DELETE the stripped files on prod (inc/api-key-check.php, updater.php, spinnr-links.php, theme-settings.php, encryption.php, custom-rest-api.php, use-child-theme.php, inc/plugins/) — plain FTP sync won't remove them |
 | `site/wp-content/plugins/tbst-custom-report/` | `httpdocs/wp-content/plugins/tbst-custom-report/` | Every custom plugin change |
 | `site/wp-content/plugins/hcp-mca-review-workflow/` | `httpdocs/wp-content/plugins/hcp-mca-review-workflow/` | Every custom plugin change |
 | `site/wp-content/plugins/hcp-seo/` | `httpdocs/wp-content/plugins/hcp-seo/` | Every custom plugin change |

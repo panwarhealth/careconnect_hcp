@@ -73,9 +73,9 @@ function hcp_mca_migrations_run_pending(): array {
 
 			$log[] = [ 'slug' => $slug, 'status' => 'ok', 'message' => $message ];
 		} catch ( \Throwable $e ) {
-			// Stop on first error so slug ordering stays deterministic.
+			// A failed migration stays pending and re-runs next time; later
+			// migrations still get their chance.
 			$log[] = [ 'slug' => $slug, 'status' => 'error', 'message' => $e->getMessage() ];
-			break;
 		}
 	}
 

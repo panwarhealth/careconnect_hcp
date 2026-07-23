@@ -2109,8 +2109,13 @@ if (! function_exists('resources_fn')) :
 						'orderby' => 'ID',
 						'hide_empty' => true,
 					));
+					// Prescription brands must not be shown to the public (TGA).
+					$hcp_rx_brands = array( 'rectogesic' );
 					if ($terms) {
 						foreach ($terms as $term) {
+							if ( ! is_user_logged_in() && in_array( $term->slug, $hcp_rx_brands, true ) ) {
+								continue;
+							}
 							$btn_class = 'text-heading';
 							if ($brand == $term->slug) {
 								$btn_class = 'text-accent';
@@ -2169,7 +2174,12 @@ if (! function_exists('resources_fn')) :
 						<?php while ($query->have_posts()) {
 							$query->the_post();
 					
-							if( rcp_user_can_access( get_current_user_id(), get_the_ID() ) ) {
+							// rcp_user_can_access() does not enforce role-based
+							// (rcp_user_level) restrictions against anonymous
+							// visitors, so restricted resources must be hidden
+							// explicitly when logged out.
+							$hcp_res_restricted = get_post_meta( get_the_ID(), 'rcp_user_level', true ) || get_post_meta( get_the_ID(), 'rcp_subscription_level', true );
+							if( ( is_user_logged_in() || ! $hcp_res_restricted ) && rcp_user_can_access( get_current_user_id(), get_the_ID() ) ) {
 								$vidIcon = '';
 								$url = '';
 								$lity = '';
