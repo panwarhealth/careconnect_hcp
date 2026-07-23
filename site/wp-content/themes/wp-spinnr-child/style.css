@@ -128,5 +128,5 @@ Version:        1.0
    !important required — spinnr.min.css loads after this file. */
 .logged_in_users_only .login-overlay {
     align-items: flex-start !important;
-    padding-top: 300px !important;
+    padding-top: 250px !important;
 }
