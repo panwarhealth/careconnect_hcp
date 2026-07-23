@@ -42,8 +42,8 @@ return [
 		$t                             = (array) get_option( 'rank-math-options-titles', [] );
 		$t['title_separator']          = '|';
 		$t['capitalize_titles']        = 'off';
-		$t['homepage_title']           = 'Care Connect | Clinical Resources for Healthcare Professionals';
-		$t['homepage_description']     = 'Product information, clinical education and free sample ordering for Australian healthcare professionals.';
+		$t['homepage_title']           = 'HCP Care Connect Portal | Clinical Resources for Healthcare Professionals';
+		$t['homepage_description']     = 'Free clinical education, in-consultation tools and product samples for Australian GPs, pharmacists and nurses. Register with your AHPRA number for access.';
 		$t['pt_post_title']            = '%title% %sep% %sitename%';
 		$t['pt_post_default_rich_snippet'] = 'article';
 		$t['pt_post_default_article_type'] = 'Article';
@@ -57,7 +57,34 @@ return [
 		$t['local_business_type']     = 'MedicalOrganization';
 		$t['organization_description'] = "Care Connect is Care Pharmaceuticals' portal for Australian healthcare professionals: product information, clinical education and free sample ordering.";
 		$t['url']                     = home_url( '/' );
-		$logo_id                      = attachment_url_to_postid( content_url( '/uploads/2025/02/HR-CARE-CONNECT-LOGO-WHITE.png' ) );
+		// Square 512x512 logo for Google knowledge panel, bundled with hcp-seo.
+		// Sideload into the media library once; reuse on re-runs.
+		$logo_file = WP_PLUGIN_DIR . '/hcp-seo/assets/care-pharmaceuticals-logo-square-512.png';
+		$logo_id   = 0;
+		$existing  = get_posts( [
+			'post_type'   => 'attachment',
+			'name'        => 'care-pharmaceuticals-logo-square-512',
+			'numberposts' => 1,
+			'fields'      => 'ids',
+		] );
+		if ( $existing ) {
+			$logo_id = (int) $existing[0];
+		} elseif ( file_exists( $logo_file ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			$tmp = wp_tempnam( 'care-pharmaceuticals-logo-square-512.png' );
+			copy( $logo_file, $tmp );
+			$result = media_handle_sideload( [
+				'name'     => 'care-pharmaceuticals-logo-square-512.png',
+				'tmp_name' => $tmp,
+			], 0, 'Care Pharmaceuticals logo (square)' );
+			if ( is_wp_error( $result ) ) {
+				@unlink( $tmp );
+				throw new \RuntimeException( 'Logo sideload failed: ' . $result->get_error_message() );
+			}
+			$logo_id = (int) $result;
+		}
 		if ( $logo_id ) {
 			$t['knowledgegraph_logo']    = wp_get_attachment_url( $logo_id );
 			$t['knowledgegraph_logo_id'] = $logo_id;
@@ -73,8 +100,9 @@ return [
 		}
 		update_option( 'rank-math-options-titles', $t );
 
-		$s                   = (array) get_option( 'rank-math-options-sitemap', [] );
-		$s['items_per_page'] = 200;
+		$s                    = (array) get_option( 'rank-math-options-sitemap', [] );
+		$s['authors_sitemap'] = 'off';
+		$s['items_per_page']  = 200;
 		$s['include_images'] = 'on';
 		$s['pt_post_sitemap'] = 'on';
 		$s['pt_page_sitemap'] = 'on';
