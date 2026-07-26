@@ -24,6 +24,8 @@ function hcp_seo_noise_slugs(): array {
 		'therapy-hub',
 		'therapy-product',
 		'therapy-areas-v2',
+		// Logged-in activity hub; 302s to the landing page for anonymous visitors.
+		'anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage',
 	];
 }
 

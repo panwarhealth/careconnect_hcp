@@ -16,7 +16,10 @@ Disallow: /download/
 
 # --- AI / answer-engine crawlers: welcome on public content ---
 # Listed explicitly so intent is documented and future per-bot overrides
-# have a home. OAI-SearchBot feeds ChatGPT search citations.
+# have a home. Vendors split these by purpose: *-SearchBot tokens build the
+# retrieval index that produces citations, *-User tokens fetch live on a
+# user's request, and the plain tokens are training-corpus collection.
+# Blocking a retrieval token removes the site from AI answers entirely.
 User-agent: GPTBot
 Disallow: /wp-admin/
 Disallow: /download/
@@ -25,15 +28,27 @@ User-agent: OAI-SearchBot
 Disallow: /wp-admin/
 Disallow: /download/
 
+User-agent: ChatGPT-User
+Disallow: /wp-admin/
+Disallow: /download/
+
 User-agent: ClaudeBot
 Disallow: /wp-admin/
 Disallow: /download/
 
-User-agent: Claude-Web
+User-agent: Claude-SearchBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: Claude-User
 Disallow: /wp-admin/
 Disallow: /download/
 
 User-agent: PerplexityBot
+Disallow: /wp-admin/
+Disallow: /download/
+
+User-agent: Perplexity-User
 Disallow: /wp-admin/
 Disallow: /download/
 
