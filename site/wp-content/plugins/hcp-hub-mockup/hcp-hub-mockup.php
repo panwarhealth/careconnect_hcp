@@ -138,10 +138,11 @@ function hbm_landing_data() {
 		if ( $vid )  $counts[] = $vid . ' video' . ( $vid > 1 ? 's' : '' );
 		if ( $tool ) $counts[] = $tool . ' tool' . ( $tool > 1 ? 's' : '' );
 		$rows[] = array(
-			'name'   => html_entity_decode( $term->name ),
-			'img'    => home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' ),
-			'url'    => home_url( HBM_HUB . '?area=' . $slug ),
-			'counts' => implode( ' · ', $counts ),
+			'name'     => html_entity_decode( $term->name ),
+			'img'      => home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' ),
+			'url'      => home_url( HBM_HUB . '?area=' . $slug ),
+			'counts'   => implode( ' · ', $counts ),
+			'initials' => $a[0],
 		);
 	}
 	return $rows;
@@ -190,6 +191,74 @@ function hbm_landing( $atts ) {
 	return $out;
 }
 add_shortcode( 'hub_landing', 'hbm_landing' );
+
+/* ================= [hub_card_trials] — card-design comparison page ================= */
+function hbm_card_trials() {
+	$rows = array_slice( hbm_landing_data(), 0, 3 );
+	$sec  = function ( $label, $cards ) {
+		return '<div class="mb-3xl"><p class="text-sm uppercase tracking-wide text-accent font-semibold mb-base">' . esc_html( $label ) . '</p>'
+			. '<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">' . $cards . '</div></div>';
+	};
+	$out = '<style>.hbm-tile img{transition:transform .35s ease}.hbm-tile:hover img{transform:scale(1.05)}</style><div class="hbm">';
+
+	/* A — gradient tile (current) */
+	$c = '';
+	foreach ( $rows as $r ) { $c .= hbm_tile( $r, '260px' ); }
+	$out .= $sec( 'A — Photo tile, gradient text (current)', $c );
+
+	/* B — photo + white footer */
+	$c = '';
+	foreach ( $rows as $r ) {
+		$c .= '<a class="no-underline card overflow-hidden block h-full" href="' . esc_url( $r['url'] ) . '">';
+		$c .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:190px;object-fit:cover;display:block">';
+		$c .= '<div class="card-body"><div><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+		$c .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></div></a>';
+	}
+	$out .= $sec( 'B — Photo with white footer', $c );
+
+	/* C — framed inset photo */
+	$c = '';
+	foreach ( $rows as $r ) {
+		$c .= '<a class="no-underline card block h-full" href="' . esc_url( $r['url'] ) . '" style="padding:.75rem">';
+		$c .= '<span class="block rounded-lg overflow-hidden"><img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:170px;object-fit:cover;display:block"></span>';
+		$c .= '<div style="padding:.9rem .35rem .35rem"><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+		$c .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></a>';
+	}
+	$out .= $sec( 'C — Framed inset photo', $c );
+
+	/* D — photo + solid accent bar */
+	$c = '';
+	foreach ( $rows as $r ) {
+		$c .= '<a class="no-underline rounded-lg overflow-hidden block h-full" href="' . esc_url( $r['url'] ) . '">';
+		$c .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:190px;object-fit:cover;display:block">';
+		$c .= '<div style="background:#35B1C9;color:#fff;padding:.9rem 1.1rem"><h5 class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</h5>';
+		$c .= '<p class="text-sm m-0" style="color:rgba(255,255,255,.9)">' . esc_html( $r['counts'] ) . '</p></div></a>';
+	}
+	$out .= $sec( 'D — Photo with accent bar', $c );
+
+	/* E — compact thumb row */
+	$c = '';
+	foreach ( $rows as $r ) {
+		$c .= '<a class="no-underline card flex items-center h-full" href="' . esc_url( $r['url'] ) . '" style="padding:.75rem;gap:1rem">';
+		$c .= '<img src="' . esc_url( $r['img'] ) . '" alt="" class="rounded-lg" style="width:84px;height:84px;object-fit:cover;flex-shrink:0">';
+		$c .= '<div><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+		$c .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></a>';
+	}
+	$out .= $sec( 'E — Compact thumb row', $c );
+
+	/* F — no photo, initials monogram */
+	$c = '';
+	foreach ( $rows as $r ) {
+		$c .= '<a class="no-underline card bg-secondary block h-full" href="' . esc_url( $r['url'] ) . '" style="padding:1.5rem">';
+		$c .= '<span class="flex items-center justify-center rounded-full mb-base" style="width:64px;height:64px;background:#35B1C9;color:#fff;font-weight:700;font-size:1.25rem">' . esc_html( $r['initials'] ) . '</span>';
+		$c .= '<h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+		$c .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></a>';
+	}
+	$out .= $sec( 'F — No photo, initials monogram', $c );
+
+	return $out . '</div>';
+}
+add_shortcode( 'hub_card_trials', 'hbm_card_trials' );
 
 /* ================= [hub_area] ================= */
 function hbm_area( $atts ) {
