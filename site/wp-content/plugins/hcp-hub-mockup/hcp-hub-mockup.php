@@ -14,6 +14,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// White footer so the light-blue landing section reads as its own band.
+// Site-wide because this plugin only ever runs on the local mockup.
+add_action( 'wp_head', function () {
+	echo '<style>footer.site-footer.bg-secondary{background:#fff !important}</style>';
+} );
+
 const HBM_LANDING = '/resource-hub/';
 const HBM_HUB     = '/therapy-hub/';
 const HBM_PRODUCT = '/therapy-product/';
