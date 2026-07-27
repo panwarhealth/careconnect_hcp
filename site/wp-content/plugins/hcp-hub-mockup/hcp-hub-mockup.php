@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const HBM_LANDING = '/therapy-areas/';
+const HBM_LANDING = '/resource-hub/';
 const HBM_HUB     = '/therapy-hub/';
 const HBM_PRODUCT = '/therapy-product/';
 const HBM_PRODUCT_IMG = '/wp-content/uploads/2023/06/FESS-Original-product-screenshot.jpg';
@@ -343,7 +343,7 @@ function hbm_install() {
 	$banner = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/Resources.jpg\');"> <div class="container"> <div class="column"> <div class="content-block max-w-3xl"> <h1>Resource Hub</h1> <p>Everything in one place — resources, videos, tools, articles and product information. Choose an area to explore its hub.</p> </div> </div> </div> </div>' . "\n";
 
 	$pages = array(
-		'therapy-areas'    => array( 'Mockup Resource Hub',        $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
+		'resource-hub'     => array( 'Mockup Resource Hub',        $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
 		'therapy-areas-v4' => array( 'Resource Hub v4 (split)',    $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing style="split"] </div> </div> </div> </div>' ),
 		'therapy-hub'      => array( 'Mockup Hub',           '[hub_area slug="nasal-health"]' ),
 		'therapy-product'  => array( 'Mockup Product',       '[hub_product]' ),
@@ -380,14 +380,14 @@ function hbm_install() {
 				wp_delete_post( $item->ID, true );
 				continue;
 			}
-			if ( strpos( $url, '/therapy-areas' ) !== false ) {
+			if ( strpos( $url, '/resource-hub' ) !== false ) {
 				$have_therapy = true;
 			}
 		}
 		if ( ! $have_therapy ) {
 			wp_update_nav_menu_item( 258, 0, array(
 				'menu-item-title'    => 'Resource Hub',
-				'menu-item-url'      => trailingslashit( $base ) . 'therapy-areas/',
+				'menu-item-url'      => trailingslashit( $base ) . 'resource-hub/',
 				'menu-item-status'   => 'publish',
 				'menu-item-type'     => 'custom',
 				'menu-item-position' => 1,
