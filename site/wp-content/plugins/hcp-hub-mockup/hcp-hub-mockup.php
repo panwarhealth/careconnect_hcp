@@ -189,7 +189,7 @@ function hbm_landing( $atts ) {
 
 		/* default: photo with white footer (card B) */
 		default:
-			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2" style="gap:2.5rem">';
+			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2" style="gap:2rem">';
 			foreach ( $rows as $r ) {
 				$out .= '<a class="no-underline hbm-tile card overflow-hidden block h-full" href="' . esc_url( $r['url'] ) . '">';
 				$out .= '<span class="block overflow-hidden"><img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:230px;object-fit:cover;display:block"></span>';
