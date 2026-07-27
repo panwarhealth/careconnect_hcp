@@ -178,9 +178,9 @@ function hbm_landing( $atts ) {
 			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
 			foreach ( $rows as $r ) {
 				$out .= '<a class="no-underline hbm-tile card overflow-hidden block h-full" href="' . esc_url( $r['url'] ) . '">';
-				$out .= '<span class="block overflow-hidden"><img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:250px;object-fit:cover;display:block"></span>';
-				$out .= '<div class="card-body"><div><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
-				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></div></a>';
+				$out .= '<span class="block overflow-hidden"><img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:230px;object-fit:cover;display:block"></span>';
+				$out .= '<div style="padding:.8rem 1.25rem 1rem"><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></a>';
 			}
 			$out .= '</div></div>';
 	}
