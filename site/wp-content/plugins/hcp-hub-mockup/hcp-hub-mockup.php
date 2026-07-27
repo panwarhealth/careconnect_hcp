@@ -159,24 +159,11 @@ function hbm_tile( $r, $h, $htag = 'h5' ) {
 }
 
 function hbm_landing( $atts ) {
-	$atts  = shortcode_atts( array( 'columns' => '3', 'style' => 'tile' ), $atts );
+	$atts  = shortcode_atts( array( 'style' => 'tile' ), $atts );
 	$rows  = hbm_landing_data();
-	$out   = '<style>.hbm-tile img,.hbm-icon img{transition:transform .35s ease}.hbm-tile:hover img,.hbm-icon:hover img{transform:scale(1.05)}</style>';
+	$out   = '<style>.hbm-tile img{transition:transform .35s ease}.hbm-tile:hover img{transform:scale(1.05)}</style>';
 
 	switch ( $atts['style'] ) {
-
-		/* feature tile + smaller tiles around it */
-		case 'mosaic':
-			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-base">';
-			foreach ( $rows as $i => $r ) {
-				if ( $i === 0 ) {
-					$out .= '<div class="md:col-span-2 lg:col-span-2" style="grid-row:span 2">' . hbm_tile( $r, '100%', 'h3' ) . '</div>';
-				} else {
-					$out .= hbm_tile( $r, '240px' );
-				}
-			}
-			$out .= '</div></div>';
-			break;
 
 		/* horizontal cards — photo left, text right */
 		case 'split':
@@ -192,68 +179,11 @@ function hbm_landing( $atts ) {
 			$out .= '</div></div>';
 			break;
 
-		/* circular photo medallions, name under */
-		case 'icon':
-			$out .= '<div class="hbm"><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg text-center">';
-			foreach ( $rows as $r ) {
-				$out .= '<a class="no-underline hbm-icon block" href="' . esc_url( $r['url'] ) . '">';
-				$out .= '<span class="block mx-auto rounded-full overflow-hidden mb-base" style="width:160px;height:160px;box-shadow:0 6px 18px rgba(15,38,46,.15)">';
-				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">';
-				$out .= '</span>';
-				$out .= '<h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
-				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p>';
-				$out .= '</a>';
-			}
-			$out .= '</div></div>';
-			break;
-
-		/* full-width photo bands stacked down the page */
-		case 'strips':
-			$out .= '<div class="hbm flex flex-col gap-base">';
-			foreach ( $rows as $r ) {
-				$out .= '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:150px">';
-				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">';
-				$out .= '<div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(15,38,46,.82) 0%,rgba(15,38,46,.45) 45%,rgba(15,38,46,0) 75%)"></div>';
-				$out .= '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 2rem;color:#fff">';
-				$out .= '<h3 class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</h3>';
-				$out .= '<p class="text-sm m-0" style="color:rgba(255,255,255,.85)">' . esc_html( $r['counts'] ) . '</p>';
-				$out .= '</div></a>';
-			}
-			$out .= '</div>';
-			break;
-
-		/* horizontal scroll-snap of tall portrait tiles */
-		case 'carousel':
-			$out .= '<style>.hbm-rail{display:flex;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.75rem}.hbm-rail>*{flex:0 0 240px;scroll-snap-align:start}.hbm-rail::-webkit-scrollbar{height:8px}.hbm-rail::-webkit-scrollbar-thumb{background:#cfdcde;border-radius:4px}</style>';
-			$out .= '<div class="hbm"><div class="hbm-rail">';
-			foreach ( $rows as $r ) {
-				$out .= hbm_tile( $r, '360px' );
-			}
-			$out .= '</div></div>';
-			break;
-
-		/* duotone brand-teal tiles, name centered */
-		case 'accent':
-			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-base">';
-			foreach ( $rows as $r ) {
-				$out .= '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:200px">';
-				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1)">';
-				$out .= '<div style="position:absolute;inset:0;background:rgba(53,177,201,.78);mix-blend-mode:multiply"></div>';
-				$out .= '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem;color:#fff">';
-				$out .= '<h4 class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</h4>';
-				$out .= '<p class="text-sm m-0" style="color:rgba(255,255,255,.9)">' . esc_html( $r['counts'] ) . '</p>';
-				$out .= '</div></a>';
-			}
-			$out .= '</div></div>';
-			break;
-
 		/* default: uniform photo tiles */
 		default:
-			$two  = ( $atts['columns'] === '2' );
-			$grid = $two ? 'grid lg:grid-cols-2 md:grid-cols-2 gap-lg' : 'grid lg:grid-cols-3 md:grid-cols-2 gap-base';
-			$out .= '<div class="hbm"><div class="' . $grid . '">';
+			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
 			foreach ( $rows as $r ) {
-				$out .= hbm_tile( $r, $two ? '340px' : '260px', $two ? 'h4' : 'h5' );
+				$out .= hbm_tile( $r, '260px' );
 			}
 			$out .= '</div></div>';
 	}
@@ -416,8 +346,8 @@ function hbm_install() {
 	$banner = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/Resources.jpg\');"> <div class="container"> <div class="column"> <div class="content-block max-w-3xl"> <h1>Resource Hub</h1> <p>Everything in one place — resources, videos, tools, articles and product information. Choose an area to explore its hub.</p> </div> </div> </div> </div>' . "\n";
 
 	$pages = array(
-		'therapy-areas'    => array( 'Mockup Resource Hub', $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
-		'therapy-areas-v2' => array( 'Resource Hub v2',     $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing columns="2"] </div> </div> </div> </div>' ),
+		'therapy-areas'    => array( 'Mockup Resource Hub',        $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
+		'therapy-areas-v4' => array( 'Resource Hub v4 (split)',    $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing style="split"] </div> </div> </div> </div>' ),
 		'therapy-hub'      => array( 'Mockup Hub',           '[hub_area slug="nasal-health"]' ),
 		'therapy-product'  => array( 'Mockup Product',       '[hub_product]' ),
 	);
