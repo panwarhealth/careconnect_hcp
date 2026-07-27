@@ -347,7 +347,7 @@ function hbm_install() {
 	$banner = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/Resources.jpg\');"> <div class="container"> <div class="column"> <div class="content-block max-w-3xl"> <h1>Resource Hub</h1> <p>Everything in one place — resources, videos, tools, articles and product information. Choose an area to explore its hub.</p> </div> </div> </div> </div>' . "\n";
 
 	$pages = array(
-		'resource-hub'     => array( 'Mockup Resource Hub',        $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
+		'resource-hub'     => array( 'Mockup Resource Hub',        $banner . '<div class="section bg-secondary"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
 		'therapy-areas-v4' => array( 'Resource Hub v4 (split)',    $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing style="split"] </div> </div> </div> </div>' ),
 		'therapy-hub'      => array( 'Mockup Hub',           '[hub_area slug="nasal-health"]' ),
 		'therapy-product'  => array( 'Mockup Product',       '[hub_product]' ),
