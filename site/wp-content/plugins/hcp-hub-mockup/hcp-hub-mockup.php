@@ -115,9 +115,10 @@ function hbm_sec_close() {
 /* per-area banner background image — the area's own landing-card image when
    present, else the shared clinical banner */
 function hbm_banner_img( $slug ) {
-	$rel = '/wp-content/uploads/hub-mockup/' . $slug . '.jpg';
-	if ( file_exists( untrailingslashit( ABSPATH ) . $rel ) ) {
-		return home_url( $rel );
+	$rel  = '/wp-content/uploads/hub-mockup/' . $slug . '.jpg';
+	$file = untrailingslashit( ABSPATH ) . $rel;
+	if ( file_exists( $file ) ) {
+		return home_url( $rel . '?v=' . filemtime( $file ) );
 	}
 	return home_url( '/wp-content/uploads/2025/02/Resources.jpg' );
 }
@@ -137,9 +138,12 @@ function hbm_landing_data() {
 		$counts = array( $pdf . ' resources' );
 		if ( $vid )  $counts[] = $vid . ' video' . ( $vid > 1 ? 's' : '' );
 		if ( $tool ) $counts[] = $tool . ' tool' . ( $tool > 1 ? 's' : '' );
+		$rel  = '/wp-content/uploads/hub-mockup/' . $slug . '.jpg';
+		$file = untrailingslashit( ABSPATH ) . $rel;
 		$rows[] = array(
 			'name'     => html_entity_decode( $term->name ),
-			'img'      => home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' ),
+			// mtime cache-buster: image files get swapped during design reviews
+			'img'      => home_url( $rel . ( file_exists( $file ) ? '?v=' . filemtime( $file ) : '' ) ),
 			'url'      => home_url( HBM_HUB . '?area=' . $slug ),
 			'counts'   => implode( ' · ', $counts ),
 			'initials' => $a[0],
