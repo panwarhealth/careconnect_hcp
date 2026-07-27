@@ -74,29 +74,27 @@ function hbm_play() {
 	return '<svg class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="25" fill="white" fill-opacity="0.7"/><path d="M37.4331 24.1265C38.1172 24.5079 38.1172 25.4921 37.4331 25.8735L18.7369 36.2955C18.0703 36.6671 17.25 36.1852 17.25 35.422L17.25 14.578C17.25 13.8148 18.0703 13.3329 18.7369 13.7045L37.4331 24.1265Z" fill="#35B1C9"/></svg>';
 }
 
-/* a resource card — the theme's own card markup (mirrors resources_fn) */
+/* a resource card — image-led: tall media, type badge overlay, title only */
 function hbm_card( $pid, $eyebrow = '' ) {
 	$type  = hbm_type( $pid );
 	$sub   = $type === 'PDF' ? hbm_subtype( $pid ) : $type;
-	$aud   = hbm_audience( $pid );
-	list( $url, $label ) = hbm_link( $pid );
+	list( $url, ) = hbm_link( $pid );
 	$thumb = get_the_post_thumbnail_url( $pid, 'medium' );
 	ob_start(); ?>
 	<a class="no-underline hbm-item" data-sub="<?php echo esc_attr( $sub ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener">
 		<div class="card h-full overflow-hidden">
-			<div class="bg-secondary p-md h-48 rounded-t relative flex items-center justify-center">
+			<div class="bg-secondary p-md h-56 rounded-t relative flex items-center justify-center">
 				<?php if ( $type === 'Video' ) echo hbm_play(); ?>
 				<?php if ( $thumb ) : ?>
 					<img src="<?php echo esc_url( $thumb ); ?>" class="h-full object-contain mx-auto" alt="">
 				<?php endif; ?>
+				<span class="absolute top-3 left-3 bg-primary rounded-full px-3 py-1 text-xs font-semibold text-accent"><?php echo esc_html( $sub ); ?></span>
 			</div>
 			<div class="card-body">
 				<div>
 					<?php if ( $eyebrow ) : ?><p class="text-xs uppercase tracking-wide text-accent font-semibold mb-2"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
-					<p class="text-sm"><span class="text-accent font-semibold"><?php echo esc_html( $sub ); ?></span> · <?php echo esc_html( $aud ); ?></p>
-					<h5 class="min-h-14"><?php echo esc_html( get_the_title( $pid ) ); ?></h5>
+					<h5 class="m-0"><?php echo esc_html( get_the_title( $pid ) ); ?></h5>
 				</div>
-				<span class="underline text-accent font-semibold"><?php echo esc_html( $label ); ?> →</span>
 			</div>
 		</div>
 	</a>
@@ -133,9 +131,8 @@ function hbm_landing( $atts ) {
 	$atts = shortcode_atts( array( 'columns' => '3' ), $atts );
 	$two  = ( $atts['columns'] === '2' );
 	$grid = $two ? 'grid lg:grid-cols-2 md:grid-cols-2 gap-lg' : 'grid lg:grid-cols-3 md:grid-cols-2 gap-base';
-	$imgh = $two ? '260px' : '160px';
+	$imgh = $two ? '300px' : '220px';
 	$htag = $two ? 'h4' : 'h5';
-	$dcls = $two ? 'mb-base' : 'text-sm mb-base';
 	$out  = '<div class="hbm"><div class="' . $grid . '">';
 	foreach ( hbm_areas() as $slug => $a ) {
 		$term = get_term_by( 'slug', $slug, 'therapy_area' );
@@ -145,15 +142,15 @@ function hbm_landing( $atts ) {
 		$vid = count( array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'Video' ) );
 		$tool= count( array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'Tool' ) );
 		$img = home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' );
+		$counts = array( $pdf . ' resources' );
+		if ( $vid )  $counts[] = $vid . ' video' . ( $vid > 1 ? 's' : '' );
+		if ( $tool ) $counts[] = $tool . ' tool' . ( $tool > 1 ? 's' : '' );
 		$out .= '<a class="no-underline" href="' . esc_url( home_url( HBM_HUB . '?area=' . $slug ) ) . '">';
 		$out .= '<div class="card h-full overflow-hidden">';
 		$out .= '<img src="' . esc_url( $img ) . '" alt="" style="width:100%;height:' . $imgh . ';object-fit:cover;display:block">';
-		$out .= '<div class="card-body"><' . $htag . ' class="mb-2">' . esc_html( html_entity_decode( $term->name ) ) . '</' . $htag . '><p class="' . $dcls . '">' . esc_html( $a[1] ) . '</p>';
-		$out .= '<div class="flex flex-wrap gap-2 mb-base">';
-		$out .= '<span class="bg-secondary rounded-full px-3 py-1 text-xs font-semibold">' . $pdf . ' resources</span>';
-		if ( $vid )  $out .= '<span class="bg-secondary rounded-full px-3 py-1 text-xs font-semibold">' . $vid . ' videos</span>';
-		if ( $tool ) $out .= '<span class="bg-secondary rounded-full px-3 py-1 text-xs font-semibold">' . $tool . ' tool' . ( $tool > 1 ? 's' : '' ) . '</span>';
-		$out .= '</div><span class="text-accent font-semibold">Explore hub →</span></div></div></a>';
+		$out .= '<div class="card-body"><' . $htag . ' class="mb-2">' . esc_html( html_entity_decode( $term->name ) ) . '</' . $htag . '>';
+		$out .= '<p class="text-sm mb-base">' . esc_html( implode( ' · ', $counts ) ) . '</p>';
+		$out .= '<span class="text-accent font-semibold">Explore hub →</span></div></div></a>';
 	}
 	$out .= '</div></div>';
 	return $out;
@@ -176,7 +173,7 @@ function hbm_area( $atts ) {
 	/* BANNER — full-width dark, matches Resources page */
 	$out  = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image:url(\'' . esc_url( hbm_banner_img( $slug ) ) . '\')">';
 	$out .= '<div class="container"><div class="column"><div class="content-block max-w-3xl">';
-	$out .= '<p class="text-sm mb-base"><a href="' . esc_url( home_url( HBM_LANDING ) ) . '">Therapy Areas</a> / ' . esc_html( $name ) . '</p>';
+	$out .= '<p class="text-sm mb-base"><a href="' . esc_url( home_url( HBM_LANDING ) ) . '">Resource Hub</a> / ' . esc_html( $name ) . '</p>';
 	$out .= '<h1>' . esc_html( $name ) . '</h1>';
 	$out .= '<p>' . esc_html( $areas[ $slug ][1] ) . '</p>';
 	$out .= '<div class="mt-lg" style="max-width:520px"><input type="search" class="hbm-search" placeholder="Search this hub…" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #cfdcde;background:#fff;color:#0f262e;font-size:15px"></div>';
@@ -268,7 +265,7 @@ function hbm_product() {
 	$out .= '<div class="container"><div class="column"><div class="content-block">';
 	$out .= '<div class="grid lg:grid-cols-3 gap-base items-center">';
 	$out .= '<div class="lg:col-span-2">';
-	$out .= '<p class="text-sm mb-base"><a href="' . esc_url( home_url( HBM_LANDING ) ) . '">Therapy Areas</a> / <a href="' . esc_url( home_url( HBM_HUB . '?area=nasal-health' ) ) . '">Nasal &amp; Sinus Health</a> / Saline Nasal Spray</p>';
+	$out .= '<p class="text-sm mb-base"><a href="' . esc_url( home_url( HBM_LANDING ) ) . '">Resource Hub</a> / <a href="' . esc_url( home_url( HBM_HUB . '?area=nasal-health' ) ) . '">Nasal &amp; Sinus Health</a> / Saline Nasal Spray</p>';
 	$out .= '<h1 class="mb-2">Saline Nasal Spray</h1><p class="font-semibold mb-base">FESS · Nasal &amp; Sinus Health</p>';
 	$out .= '<p class="text-lg mb-lg">Non-medicated isotonic saline to thin mucus and clear congestion — a first-line recommendation for colds, allergy and post-operative care, suitable for all ages.</p>';
 	$out .= '<div class="flex flex-wrap gap-4"><a class="btn cta" href="#">Order samples</a><a class="btn ghost" href="#">Visit product site ↗</a></div>';
@@ -319,11 +316,11 @@ add_shortcode( 'hub_product', 'hbm_product' );
  */
 function hbm_install() {
 	$base   = home_url( '' );
-	$banner = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/Resources.jpg\');"> <div class="container"> <div class="column"> <div class="content-block max-w-3xl"> <h1>Therapy Areas</h1> <p>Everything for each therapy area in one place — resources, videos, tools, articles and product information. Choose an area to explore its hub.</p> </div> </div> </div> </div>' . "\n";
+	$banner = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image: url(\'' . $base . '/wp-content/uploads/2025/02/Resources.jpg\');"> <div class="container"> <div class="column"> <div class="content-block max-w-3xl"> <h1>Resource Hub</h1> <p>Everything in one place — resources, videos, tools, articles and product information. Choose an area to explore its hub.</p> </div> </div> </div> </div>' . "\n";
 
 	$pages = array(
-		'therapy-areas'    => array( 'Mockup Therapy Areas', $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
-		'therapy-areas-v2' => array( 'Therapy Areas v2',     $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing columns="2"] </div> </div> </div> </div>' ),
+		'therapy-areas'    => array( 'Mockup Resource Hub', $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing] </div> </div> </div> </div>' ),
+		'therapy-areas-v2' => array( 'Resource Hub v2',     $banner . '<div class="section"> <div class="container"> <div class="column"> <div class="content-block"> [hub_landing columns="2"] </div> </div> </div> </div>' ),
 		'therapy-hub'      => array( 'Mockup Hub',           '[hub_area slug="nasal-health"]' ),
 		'therapy-product'  => array( 'Mockup Product',       '[hub_product]' ),
 	);
@@ -365,7 +362,7 @@ function hbm_install() {
 		}
 		if ( ! $have_therapy ) {
 			wp_update_nav_menu_item( 258, 0, array(
-				'menu-item-title'    => 'Therapy Areas',
+				'menu-item-title'    => 'Resource Hub',
 				'menu-item-url'      => trailingslashit( $base ) . 'therapy-areas/',
 				'menu-item-status'   => 'publish',
 				'menu-item-type'     => 'custom',
