@@ -159,6 +159,20 @@ function hbm_landing( $atts ) {
 
 	switch ( $atts['style'] ) {
 
+		/* full photo, no overlay — text carried by drop shadow */
+		case 'shadow':
+			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
+			foreach ( $rows as $r ) {
+				$out .= '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:290px">';
+				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">';
+				$out .= '<div style="position:absolute;left:0;right:0;bottom:0;padding:1.25rem;color:#fff">';
+				$out .= '<h5 class="m-0" style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65)">' . esc_html( $r['name'] ) . '</h5>';
+				$out .= '<p class="text-sm m-0" style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 8px rgba(0,0,0,.65)">' . esc_html( $r['counts'] ) . '</p>';
+				$out .= '</div></a>';
+			}
+			$out .= '</div></div>';
+			break;
+
 		/* horizontal cards — photo left, text right */
 		case 'split':
 			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 gap-base">';
@@ -175,12 +189,12 @@ function hbm_landing( $atts ) {
 
 		/* default: photo with white footer (card B) */
 		default:
-			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
+			$out .= '<div class="hbm"><div class="grid lg:grid-cols-3 md:grid-cols-2" style="gap:2.5rem">';
 			foreach ( $rows as $r ) {
 				$out .= '<a class="no-underline hbm-tile card overflow-hidden block h-full" href="' . esc_url( $r['url'] ) . '">';
 				$out .= '<span class="block overflow-hidden"><img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:230px;object-fit:cover;display:block"></span>';
-				$out .= '<div style="padding:.8rem 1.25rem 1rem"><h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
-				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p></div></a>';
+				$out .= '<div style="padding:.55rem 1.25rem .7rem"><h5 class="m-0" style="line-height:1.3">' . esc_html( $r['name'] ) . '</h5>';
+				$out .= '<p class="text-xs m-0" style="line-height:1.4">' . esc_html( $r['counts'] ) . '</p></div></a>';
 			}
 			$out .= '</div></div>';
 	}
