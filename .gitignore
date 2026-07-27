@@ -184,3 +184,8 @@ site/wp-content/signup-debug.log
 
 # Infra — prod SSH credentials (never commit; see infra/prod-backup.sh)
 infra/.prod-secrets
+
+# Claude Code local permission allow-list. Per-machine, and its rules are
+# verbatim command strings, so any secret typed inline in an approved command
+# gets persisted here. Was tracked until 2026-07-27 and leaked prod credentials.
+.claude/settings.local.json
