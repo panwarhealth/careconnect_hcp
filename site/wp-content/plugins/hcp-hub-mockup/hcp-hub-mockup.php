@@ -101,11 +101,6 @@ function hbm_card( $pid, $eyebrow = '' ) {
 	<?php return ob_get_clean();
 }
 
-/* small count chip */
-function hbm_chip( $text ) {
-	return '<span class="bg-secondary rounded-full px-4 py-2 text-sm font-semibold" style="border:1px solid #cfdcde">' . esc_html( $text ) . '</span>';
-}
-
 /* full-width section wrappers — alternate white / light-blue (white first),
    using the site's own bg-secondary section colour */
 function hbm_sec_open( &$i ) {
@@ -117,23 +112,21 @@ function hbm_sec_close() {
 	return '</div></div></div></div>';
 }
 
-/* per-area banner background image (defaults to the shared clinical banner) */
+/* per-area banner background image — the area's own landing-card image when
+   present, else the shared clinical banner */
 function hbm_banner_img( $slug ) {
-	$map = array(
-		// 'nasal-health' => '2025/xx/some-nasal-banner.jpg',
-	);
-	$file = isset( $map[ $slug ] ) ? $map[ $slug ] : '2025/02/Resources.jpg';
-	return home_url( '/wp-content/uploads/' . $file );
+	$rel = '/wp-content/uploads/hub-mockup/' . $slug . '.jpg';
+	if ( file_exists( untrailingslashit( ABSPATH ) . $rel ) ) {
+		return home_url( $rel );
+	}
+	return home_url( '/wp-content/uploads/2025/02/Resources.jpg' );
 }
 
 /* ================= [hub_landing] ================= */
-function hbm_landing( $atts ) {
-	$atts = shortcode_atts( array( 'columns' => '3' ), $atts );
-	$two  = ( $atts['columns'] === '2' );
-	$grid = $two ? 'grid lg:grid-cols-2 md:grid-cols-2 gap-lg' : 'grid lg:grid-cols-3 md:grid-cols-2 gap-base';
-	$imgh = $two ? '300px' : '220px';
-	$htag = $two ? 'h4' : 'h5';
-	$out  = '<div class="hbm"><div class="' . $grid . '">';
+
+/* collect render data once per area */
+function hbm_landing_data() {
+	$rows = array();
 	foreach ( hbm_areas() as $slug => $a ) {
 		$term = get_term_by( 'slug', $slug, 'therapy_area' );
 		if ( ! $term ) continue;
@@ -141,18 +134,129 @@ function hbm_landing( $atts ) {
 		$pdf = count( array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'PDF' ) );
 		$vid = count( array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'Video' ) );
 		$tool= count( array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'Tool' ) );
-		$img = home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' );
 		$counts = array( $pdf . ' resources' );
 		if ( $vid )  $counts[] = $vid . ' video' . ( $vid > 1 ? 's' : '' );
 		if ( $tool ) $counts[] = $tool . ' tool' . ( $tool > 1 ? 's' : '' );
-		$out .= '<a class="no-underline" href="' . esc_url( home_url( HBM_HUB . '?area=' . $slug ) ) . '">';
-		$out .= '<div class="card h-full overflow-hidden">';
-		$out .= '<img src="' . esc_url( $img ) . '" alt="" style="width:100%;height:' . $imgh . ';object-fit:cover;display:block">';
-		$out .= '<div class="card-body"><' . $htag . ' class="mb-2">' . esc_html( html_entity_decode( $term->name ) ) . '</' . $htag . '>';
-		$out .= '<p class="text-sm mb-base">' . esc_html( implode( ' · ', $counts ) ) . '</p>';
-		$out .= '<span class="text-accent font-semibold">Explore hub →</span></div></div></a>';
+		$rows[] = array(
+			'name'   => html_entity_decode( $term->name ),
+			'img'    => home_url( '/wp-content/uploads/hub-mockup/' . $slug . '.jpg' ),
+			'url'    => home_url( HBM_HUB . '?area=' . $slug ),
+			'counts' => implode( ' · ', $counts ),
+		);
 	}
-	$out .= '</div></div>';
+	return $rows;
+}
+
+/* a photo tile with name + counts on a bottom gradient */
+function hbm_tile( $r, $h, $htag = 'h5' ) {
+	return '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:' . $h . '">'
+		. '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">'
+		. '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,38,46,.85) 0%,rgba(15,38,46,.25) 45%,rgba(15,38,46,0) 70%)"></div>'
+		. '<div style="position:absolute;left:0;right:0;bottom:0;padding:1.25rem;color:#fff">'
+		. '<' . $htag . ' class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</' . $htag . '>'
+		. '<p class="text-sm m-0" style="color:rgba(255,255,255,.85)">' . esc_html( $r['counts'] ) . '</p>'
+		. '</div></a>';
+}
+
+function hbm_landing( $atts ) {
+	$atts  = shortcode_atts( array( 'columns' => '3', 'style' => 'tile' ), $atts );
+	$rows  = hbm_landing_data();
+	$out   = '<style>.hbm-tile img,.hbm-icon img{transition:transform .35s ease}.hbm-tile:hover img,.hbm-icon:hover img{transform:scale(1.05)}</style>';
+
+	switch ( $atts['style'] ) {
+
+		/* feature tile + smaller tiles around it */
+		case 'mosaic':
+			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-base">';
+			foreach ( $rows as $i => $r ) {
+				if ( $i === 0 ) {
+					$out .= '<div class="md:col-span-2 lg:col-span-2" style="grid-row:span 2">' . hbm_tile( $r, '100%', 'h3' ) . '</div>';
+				} else {
+					$out .= hbm_tile( $r, '240px' );
+				}
+			}
+			$out .= '</div></div>';
+			break;
+
+		/* horizontal cards — photo left, text right */
+		case 'split':
+			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 gap-base">';
+			foreach ( $rows as $r ) {
+				$out .= '<a class="no-underline card overflow-hidden flex" href="' . esc_url( $r['url'] ) . '" style="min-height:140px">';
+				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="width:42%;object-fit:cover;flex-shrink:0">';
+				$out .= '<div class="card-body" style="justify-content:center"><div>';
+				$out .= '<h5 class="mb-2">' . esc_html( $r['name'] ) . '</h5>';
+				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p>';
+				$out .= '</div></div></a>';
+			}
+			$out .= '</div></div>';
+			break;
+
+		/* circular photo medallions, name under */
+		case 'icon':
+			$out .= '<div class="hbm"><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg text-center">';
+			foreach ( $rows as $r ) {
+				$out .= '<a class="no-underline hbm-icon block" href="' . esc_url( $r['url'] ) . '">';
+				$out .= '<span class="block mx-auto rounded-full overflow-hidden mb-base" style="width:160px;height:160px;box-shadow:0 6px 18px rgba(15,38,46,.15)">';
+				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">';
+				$out .= '</span>';
+				$out .= '<h5 class="mb-1">' . esc_html( $r['name'] ) . '</h5>';
+				$out .= '<p class="text-sm m-0">' . esc_html( $r['counts'] ) . '</p>';
+				$out .= '</a>';
+			}
+			$out .= '</div></div>';
+			break;
+
+		/* full-width photo bands stacked down the page */
+		case 'strips':
+			$out .= '<div class="hbm flex flex-col gap-base">';
+			foreach ( $rows as $r ) {
+				$out .= '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:150px">';
+				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">';
+				$out .= '<div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(15,38,46,.82) 0%,rgba(15,38,46,.45) 45%,rgba(15,38,46,0) 75%)"></div>';
+				$out .= '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 2rem;color:#fff">';
+				$out .= '<h3 class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</h3>';
+				$out .= '<p class="text-sm m-0" style="color:rgba(255,255,255,.85)">' . esc_html( $r['counts'] ) . '</p>';
+				$out .= '</div></a>';
+			}
+			$out .= '</div>';
+			break;
+
+		/* horizontal scroll-snap of tall portrait tiles */
+		case 'carousel':
+			$out .= '<style>.hbm-rail{display:flex;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.75rem}.hbm-rail>*{flex:0 0 240px;scroll-snap-align:start}.hbm-rail::-webkit-scrollbar{height:8px}.hbm-rail::-webkit-scrollbar-thumb{background:#cfdcde;border-radius:4px}</style>';
+			$out .= '<div class="hbm"><div class="hbm-rail">';
+			foreach ( $rows as $r ) {
+				$out .= hbm_tile( $r, '360px' );
+			}
+			$out .= '</div></div>';
+			break;
+
+		/* duotone brand-teal tiles, name centered */
+		case 'accent':
+			$out .= '<div class="hbm"><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-base">';
+			foreach ( $rows as $r ) {
+				$out .= '<a class="no-underline hbm-tile rounded-lg overflow-hidden relative block" href="' . esc_url( $r['url'] ) . '" style="height:200px">';
+				$out .= '<img src="' . esc_url( $r['img'] ) . '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1)">';
+				$out .= '<div style="position:absolute;inset:0;background:rgba(53,177,201,.78);mix-blend-mode:multiply"></div>';
+				$out .= '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem;color:#fff">';
+				$out .= '<h4 class="m-0" style="color:#fff">' . esc_html( $r['name'] ) . '</h4>';
+				$out .= '<p class="text-sm m-0" style="color:rgba(255,255,255,.9)">' . esc_html( $r['counts'] ) . '</p>';
+				$out .= '</div></a>';
+			}
+			$out .= '</div></div>';
+			break;
+
+		/* default: uniform photo tiles */
+		default:
+			$two  = ( $atts['columns'] === '2' );
+			$grid = $two ? 'grid lg:grid-cols-2 md:grid-cols-2 gap-lg' : 'grid lg:grid-cols-3 md:grid-cols-2 gap-base';
+			$out .= '<div class="hbm"><div class="' . $grid . '">';
+			foreach ( $rows as $r ) {
+				$out .= hbm_tile( $r, $two ? '340px' : '260px', $two ? 'h4' : 'h5' );
+			}
+			$out .= '</div></div>';
+	}
 	return $out;
 }
 add_shortcode( 'hub_landing', 'hbm_landing' );
@@ -171,24 +275,17 @@ function hbm_area( $atts ) {
 	$tools = array_filter( $res, fn( $p ) => hbm_type( $p->ID ) === 'Tool' );
 
 	/* BANNER — full-width dark, matches Resources page */
-	$out  = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image:url(\'' . esc_url( hbm_banner_img( $slug ) ) . '\')">';
+	$out  = '<div class="bg-center bg-cover flex items-center section theme-dark md:h-4xl tbst-bg-image" style="background-image:linear-gradient(rgba(15,38,46,.55),rgba(15,38,46,.55)),url(\'' . esc_url( hbm_banner_img( $slug ) ) . '\')">';
 	$out .= '<div class="container"><div class="column"><div class="content-block max-w-3xl">';
 	$out .= '<p class="text-sm mb-base"><a href="' . esc_url( home_url( HBM_LANDING ) ) . '">Resource Hub</a> / ' . esc_html( $name ) . '</p>';
 	$out .= '<h1>' . esc_html( $name ) . '</h1>';
-	$out .= '<p>' . esc_html( $areas[ $slug ][1] ) . '</p>';
 	$out .= '<div class="mt-lg" style="max-width:520px"><input type="search" class="hbm-search" placeholder="Search this hub…" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #cfdcde;background:#fff;color:#0f262e;font-size:15px"></div>';
 	$out .= '</div></div></div></div>';
 
 	$i = 0;
 
-	/* SECTION 1 (light blue) — counts + featured */
+	/* SECTION 1 (light blue) — featured */
 	$out .= hbm_sec_open( $i );
-	$out .= '<div class="flex flex-wrap gap-4 mb-2xl">';
-	$out .= hbm_chip( 'Resources · ' . count( $pdfs ) );
-	if ( $vids )  $out .= hbm_chip( 'Videos · ' . count( $vids ) );
-	if ( $tools ) $out .= hbm_chip( 'Tools · ' . count( $tools ) );
-	$out .= hbm_chip( 'Products · 1' );
-	$out .= '</div>';
 	$out .= '<p class="text-sm uppercase tracking-wide text-accent font-semibold mb-base">Featured in this hub</p>';
 	$out .= '<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">';
 	if ( $vids ) $out .= hbm_card( reset( $vids )->ID, 'Latest video' );
