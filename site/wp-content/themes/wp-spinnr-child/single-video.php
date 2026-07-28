@@ -124,7 +124,7 @@ get_header(); ?>
 										<div class="bg-secondary rounded relative flex-shrink-0 overflow-hidden" style="width:140px;height:80px;">
 											<?php echo function_exists( 'hcp_videos_play_icon' ) ? hcp_videos_play_icon() : ''; ?>
 											<?php if ( $rthumb ) : ?>
-												<img src="<?php echo esc_url( $rthumb ); ?>" class="w-full h-full object-cover" alt="" />
+												<img src="<?php echo esc_url( $rthumb ); ?>" class="h-full object-contain mx-auto" alt="" />
 											<?php endif; ?>
 											<?php if ( function_exists( 'hcp_videos_duration_badge' ) ) : ?>
 												<?php echo hcp_videos_duration_badge( $rid ); ?>
