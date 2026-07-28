@@ -172,6 +172,7 @@ docker-compose.override.yml
 # Infra — staging secrets generated at spin-up
 # =======================================================================
 infra/.staging-secrets
+infra/.staging-netrc
 infra/.prod-secrets
 .secrets/
 
