@@ -189,3 +189,4 @@ infra/.prod-secrets
 # verbatim command strings, so any secret typed inline in an approved command
 # gets persisted here. Was tracked until 2026-07-27 and leaked prod credentials.
 .claude/settings.local.json
+infra/.staging-netrc
