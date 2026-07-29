@@ -60,7 +60,9 @@ function hcp_mca_login_as_rescue_redirect( WP_User $old, string $redirect_to ): 
  * be the admin again" and switch back, continuing to the requested URL.
  */
 add_action( 'admin_init', function (): void {
-	if ( wp_doing_ajax() || current_user_can( 'edit_users' ) ) {
+	// admin-post.php serves front-end form handlers; hijacking a POST there
+	// would eat the submission of whoever we're switched into.
+	if ( wp_doing_ajax() || 'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' ) || current_user_can( 'edit_users' ) ) {
 		return;
 	}
 	$old = hcp_mca_login_as_rescue_old_admin();
