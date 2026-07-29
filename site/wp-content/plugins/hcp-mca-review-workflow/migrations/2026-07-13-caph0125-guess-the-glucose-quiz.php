@@ -2,8 +2,8 @@
 /**
  * Create CAPH0125 "Guess the Glucose Challenge" interactive quiz article.
  *
- * A mythbusting quiz: over 8 rounds the reader compares an ORS (1.35 g glucose / 100 mL)
- * against an everyday food/drink and picks the LOWER-sugar item — ORS is always lower,
+ * A mythbusting quiz: over 8 rounds the reader compares Hydralyte Powder (2.9 g glucose / 200 mL)
+ * against an everyday food/drink and picks the LOWER-sugar item — Hydralyte is always lower,
  * reinforcing that WHO-aligned ORS like Hydralyte are suitable for people with diabetes.
  *
  * Self-contained: the interactive quiz (markup + scoped CSS + JS) is inline in post_content,
@@ -18,8 +18,9 @@
  * Files required at wp-content/uploads/ on each environment BEFORE running:
  *   - 2026/07/ggq-hero.png  (header banner + /blog/ featured-card thumbnail: title + food/ORS coins)
  *   - 2026/07/ggq/<key>.png tile images: 8 foods (latte, apple, blueberries, oat-milk, almonds,
- *     coconut-water, apple-juice, banana) as circular transparent PNGs + ors-generic.png
- *     (approved generic ORS glass, used for every round — MD asked to drop the branded packs).
+ *     coconut-water, apple-juice, banana) as circular transparent PNGs + the three Hydralyte
+ *     Powder pack shots (hydralyte-orange, hydralyte-apple-blackcurrant, hydralyte-lemonade)
+ *     cycled across the rounds per KM review — watermelon and fruity bliss excluded.
  * Media already on the site (no upload needed): Vimeo MOA video 1122083239,
  *   Hydralyte Patient Leaflet PDF (2025/11/CAPH0051...), leaflet thumbnail (2025/12/...),
  *   Sick Days leaflet PDF + thumb (2026/03/CAPH0089..., 2026/03/hydra-sick-days.png),
@@ -64,8 +65,8 @@ return [
 
 		/* ---- data: ORS (fixed lower-sugar side) + the 8 comparators ---- */
 		$img_base = $base . '/wp-content/uploads/2026/07/ggq/';
-		$ors         = [ 'Oral rehydration solution', '1.35 g / 100 mL', 1.35 ];
-		$ors_img_url = $img_base . 'ors-generic.png'; // one approved generic ORS glass for every round
+		$ors      = [ 'Hydralyte Powder', '2.9 g / 200 mL', 2.9 ];
+		$ors_imgs = [ 'hydralyte-orange.png', 'hydralyte-apple-blackcurrant.png', 'hydralyte-lemonade.png' ];
 
 		// Keep a value's unit with its number ("100 mL" never splits) and compound food names together,
 		// so the glucose list wraps sensibly ("1.35 g /" then "100 mL"; "Unsweetened" then "oat milk").
@@ -76,8 +77,8 @@ return [
 			[ 'Unsweetened oat milk',      '3 g / 200 mL',  3,  'oat-milk' ],
 			[ 'Unsweetened coconut water', '6 g / 200 mL',  6,  'coconut-water' ],
 			[ 'Almonds',                   '9 g / 1 cup',   9,  'almonds' ],
-			[ 'Small latte',               '9 g / 230 mL',  9,  'latte' ],
-			[ 'Unsweetened apple juice',   '10 g / 100 mL', 10, 'apple-juice' ],
+			[ 'Small latte',               '8 g / 200 mL',  8,  'latte' ],
+			[ 'Unsweetened apple juice',   '20 g / 200 mL', 20, 'apple-juice' ],
 			[ 'Blueberries',               '14 g / 1 cup',  14, 'blueberries' ],
 			[ 'Whole banana',              '17 g',          17, 'banana' ],
 			[ 'Whole apple',               '17 g',          17, 'apple' ],
@@ -96,7 +97,7 @@ return [
 		$rounds = '';
 		foreach ( $foods as $i => $f ) {
 			$n        = $i + 1;
-			$ors_img  = $ors_img_url;
+			$ors_img  = $img_base . $ors_imgs[ $i % count( $ors_imgs ) ];
 			$food_img = $img_base . $f[3] . '.png';
 			$rounds .= '<div class="ggq-round" data-round="' . $n . '">'
 				. '<p class="ggq-eyebrow">Round ' . $n . ' of 8</p>'
@@ -112,11 +113,11 @@ return [
 		/* ---- ranked hierarchy (all 9 items, ascending) for the results reveal ---- */
 		$ranked = array_merge( [ $ors ], $foods );
 		usort( $ranked, function ( $a, $b ) { return $a[2] <=> $b[2]; } );
-		$max  = 17;
+		$max  = 20;
 		$bars = '';
 		foreach ( $ranked as $r ) {
 			$pct    = max( 9, round( $r[2] / $max * 100 ) );
-			$is_ors = ( abs( $r[2] - 1.35 ) < 0.01 );
+			$is_ors = ( abs( $r[2] - 2.9 ) < 0.01 );
 			$bars  .= '<div class="ggq-bar-row' . ( $is_ors ? ' is-ors' : '' ) . '">'
 				. '<span class="ggq-bar-label">' . esc_html( $grp_label( $r[0] ) ) . '</span>'
 				. '<span class="ggq-bar-track"><span class="ggq-bar-fill" style="width:' . $pct . '%"></span></span>'
@@ -145,7 +146,7 @@ return [
 #ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
 #ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
 #ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
-#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:cover}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:10px}
 #ggq .ggq-name{font-weight:800;font-size:1.35rem;line-height:1.25}
 #ggq .ggq-grams{font-weight:700;font-size:1.05rem;color:#5b6b72;opacity:0;max-height:0;transition:opacity .3s}
 #ggq .ggq-badge{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
@@ -243,7 +244,7 @@ CSS;
 JS;
 
 		/* ---- copy blocks ---- */
-		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low&#8209;sugar diets (e.g., people with diabetes).<sup>2</sup> But how much glucose is really in ORS?';
+		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low&#8209;sugar diets (e.g., people with diabetes).<sup>2</sup> But how much glucose is really in an ORS such as Hydralyte?';
 
 		/* ---- assemble post_content ---- */
 		$content = ''
@@ -283,9 +284,10 @@ JS;
 		. '<h2 class="text-center" style="color:#FF6B00;margin-bottom:2rem;font-size:clamp(1.4rem,4.8vw,2rem);line-height:1.25">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
 		. '<div class="grid md:grid-cols-2 gap-lg items-start mt-0">'
 		. '<div>'
-		. '<p>ORS formulations based on World Health Organization (WHO) recommendations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>ORS can be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
+		. '<p>The World Health Organization (WHO) recommends that ORS formulations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>some ORS may be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
 		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium&#8209;glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium&#8209;glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
-		. '<p class="mb-0" style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
+		. '<p style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
+		. '<ul class="mb-0"><li>Hydralyte Powder Sachet 2.91&#160;g per 200&#160;mL</li><li>Hydralyte Effervescent Tablets 3.24&#160;g per 200&#160;mL (2&#160;tablets)</li><li>Hydralyte Ice Blocks 1.0&#160;g per ice block</li></ul>'
 		. '</div>'
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative rounded-xl overflow-hidden mx-auto" style="aspect-ratio:228/426;width:100%;max-width:300px"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'

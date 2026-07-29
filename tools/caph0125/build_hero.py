@@ -59,7 +59,7 @@ def paste_with_shadow(base, tile, pos):
     base.alpha_composite(tile, pos)
 
 canvas = img.convert("RGBA")
-ors = circle_tile(GGQ + "ors-generic.png", 300 * S, 0)
+ors = circle_tile("/home/doobz/projects/careconnect_hcp/tools/caph0125/watermelon-hero-src.jpg", 300 * S, 0)
 food = circle_tile(GGQ + "apple.png", 300 * S, 0)
 paste_with_shadow(canvas, ors, (760 * S, 70 * S))
 paste_with_shadow(canvas, food, (870 * S, 290 * S))
