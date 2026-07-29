@@ -146,7 +146,7 @@ return [
 #ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
 #ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
 #ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
-#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:26px}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:20px}
 #ggq .ggq-name{font-weight:800;font-size:1.35rem;line-height:1.25}
 #ggq .ggq-grams{font-weight:700;font-size:1.05rem;color:#5b6b72;opacity:0;max-height:0;transition:opacity .3s}
 #ggq .ggq-badge{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
