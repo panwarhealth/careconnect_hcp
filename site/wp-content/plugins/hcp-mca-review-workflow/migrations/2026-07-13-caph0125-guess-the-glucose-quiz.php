@@ -84,10 +84,10 @@ return [
 			[ 'Whole apple',               '17 g',          17, 'apple' ],
 		];
 
-		$tile = function ( $role, $name, $serving, $img ) use ( $fmt_unit, $grp_label ) {
+		$tile = function ( $role, $name, $serving, $img, $thumb_class = '' ) use ( $fmt_unit, $grp_label ) {
 			return '<button type="button" class="ggq-tile" data-role="' . esc_attr( $role ) . '">'
 				. '<span class="ggq-badge" aria-hidden="true"></span>'
-				. '<span class="ggq-thumb"><img src="' . esc_url( $img ) . '" alt="" loading="lazy" /></span>'
+				. '<span class="ggq-thumb ' . esc_attr( $thumb_class ) . '"><img src="' . esc_url( $img ) . '" alt="" loading="lazy" /></span>'
 				. '<span class="ggq-name">' . esc_html( $grp_label( $name ) ) . '</span>'
 				. '<span class="ggq-grams">' . esc_html( $fmt_unit( $serving ) ) . '</span>'
 				. '</button>';
@@ -95,15 +95,20 @@ return [
 
 		/* ---- rounds ---- */
 		$rounds = '';
+		// Pack flavour + matching pale circle tint, cycled orange -> purple -> lemon.
+		// JS re-assigns these by on-screen order after the shuffle (first shown is always orange);
+		// this baked assignment is the no-JS fallback.
+		$ors_tints = [ 'ggq-ors-orange', 'ggq-ors-purple', 'ggq-ors-lemon' ];
 		foreach ( $foods as $i => $f ) {
-			$n        = $i + 1;
-			$ors_img  = $img_base . $ors_imgs[ $i % count( $ors_imgs ) ];
-			$food_img = $img_base . $f[3] . '.png';
+			$n         = $i + 1;
+			$ors_img   = $img_base . $ors_imgs[ $i % count( $ors_imgs ) ];
+			$ors_tint  = $ors_tints[ $i % count( $ors_tints ) ];
+			$food_img  = $img_base . $f[3] . '.png';
 			$rounds .= '<div class="ggq-round" data-round="' . $n . '">'
 				. '<p class="ggq-eyebrow">Round ' . $n . ' of 8</p>'
 				. '<h3 class="ggq-q">Which contains <em>less</em> sugar?</h3>'
 				. '<div class="ggq-tiles">'
-				. $tile( 'ors', $ors[0], $ors[1], $ors_img )
+				. $tile( 'ors', $ors[0], $ors[1], $ors_img, $ors_tint )
 				. $tile( 'food', $f[0], $f[1], $food_img )
 				. '</div>'
 				. '<p class="ggq-cue" aria-hidden="true">Next ↓</p>'
@@ -145,7 +150,10 @@ return [
 #ggq .ggq-tile:hover{border-color:var(--ggq-orange);box-shadow:0 8px 24px rgba(255,107,0,.14);transform:translateY(-2px)}
 #ggq .ggq-thumb{display:flex;align-items:center;justify-content:center;width:168px;height:168px;border-radius:50%;overflow:hidden;background:transparent}
 #ggq .ggq-thumb img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
-#ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#fff}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb{background:#FFE7D2}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb.ggq-ors-orange{background:#FFE7D2}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb.ggq-ors-purple{background:#ECE1F3}
+#ggq .ggq-tile[data-role="ors"] .ggq-thumb.ggq-ors-lemon{background:#FBF3CC}
 #ggq .ggq-tile[data-role="ors"] .ggq-thumb img{object-fit:contain;padding:20px}
 #ggq .ggq-name{font-weight:800;font-size:1.35rem;line-height:1.25}
 #ggq .ggq-grams{font-weight:700;font-size:1.05rem;color:#5b6b72;opacity:0;max-height:0;transition:opacity .3s}
@@ -195,8 +203,17 @@ CSS;
   if(wrap){shuffle(rounds.slice()).forEach(function(r){wrap.appendChild(r);});}
   // randomise left/right within each round
   rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(Math.random()<0.5){t.appendChild(t.firstElementChild);}}});
+  // pack flavour + matching pale circle tint by on-screen order: orange, purple, lemon, repeating
+  var obase=root.getAttribute('data-ors-base')||'';
+  var flav=[{f:'hydralyte-orange.png',c:'ggq-ors-orange'},{f:'hydralyte-apple-blackcurrant.png',c:'ggq-ors-purple'},{f:'hydralyte-lemonade.png',c:'ggq-ors-lemon'}];
   Array.prototype.slice.call(root.querySelectorAll('.ggq-round')).forEach(function(r,i){
     var e=r.querySelector('.ggq-eyebrow');if(e){e.textContent='Round '+(i+1)+' of 8';}
+    var ors=r.querySelector('.ggq-tile[data-role="ors"]');
+    if(ors){
+      var fl=flav[i%flav.length];
+      var img=ors.querySelector('.ggq-thumb img');if(img&&obase){img.src=obase+fl.f;}
+      var th=ors.querySelector('.ggq-thumb');if(th){th.classList.remove('ggq-ors-orange','ggq-ors-purple','ggq-ors-lemon');th.classList.add(fl.c);}
+    }
   });
   var total=rounds.length,answered=0,score=0,done=false;
   var bar=root.querySelector('.ggq-progress');
@@ -244,7 +261,7 @@ CSS;
 JS;
 
 		/* ---- copy blocks ---- */
-		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low&#8209;sugar diets (e.g., people with diabetes).<sup>2</sup> But how much glucose is really in an ORS such as Hydralyte?';
+		$intro = 'Oral rehydration solutions (ORS) can play an important and effective role in managing dehydration.<sup>1</sup> However, because ORS contain glucose, some clinicians may worry whether they are suitable for their patients on low&#8209;sugar diets (e.g., people with diabetes).<sup>2</sup>';
 
 		/* ---- assemble post_content ---- */
 		$content = ''
@@ -260,12 +277,13 @@ JS;
 		/* intro (wider container so it sits on ~3 lines, not 4) */
 		. '<div class="pt-lg section pb-0" data-pb-label="Section"><div class="mx-auto max-w-4xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block text-center py-0 section" data-pb-label="Content Block">'
 		. '<p>' . $intro . '</p>'
+		. '<p style="font-style:italic;margin-top:1rem">But how much glucose is really in an ORS such as Hydralyte?</p>'
 		. '<h2 style="margin-top:2.75rem;margin-bottom:.75rem">Can you correctly pick which item contains <em>less</em> sugar per serving?</h2>'
 		. '</div></div></div></div>'
 		/* quiz (HCP-gated, like CAPH0111) */
 		. '<div class="pt-0 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block" data-pb-label="Content Block">'
 		. $css
-		. '<div id="ggq">'
+		. '<div id="ggq" data-ors-base="' . esc_attr( $img_base ) . '">'
 		. '<div class="ggq-progress"><span class="ggq-progress-count">0 of 8 answered</span><span class="ggq-progress-track"><span class="ggq-progress-fill"></span></span></div>'
 		. '<div class="ggq-rounds">' . $rounds . '</div>'
 		/* results */
@@ -280,17 +298,28 @@ JS;
 		. '</div></div></div></div>'
 		/* clinical explainer — light-orange panel; subhead centred dark-orange; body + bold callout sit left of the MOA video */
 		. '<div class="pt-8 section pb-0 logged_in_users_only" data-pb-label="Section"><div class="mx-auto max-w-5xl w-full px-4 md:px-6" data-pb-label="Container"><div class="column" data-pb-label="Column"><div class="content-block py-0 section" data-pb-label="Content Block">'
-		. '<div class="rounded-xl" style="background-color:#FFE8D6;padding:1.9rem clamp(1.5rem,4vw,2.5rem);margin-bottom:2rem">'
-		. '<h2 class="text-center" style="color:#FF6B00;margin-bottom:2rem;font-size:clamp(1.4rem,4.8vw,2rem);line-height:1.25">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
+		. '<div class="rounded-xl" style="background-color:#FFE8D6;padding:clamp(1.5rem,4vw,2.25rem);margin-bottom:2rem;overflow:hidden">'
+		/* top: subhead + body copy left, MOA video right */
 		. '<div class="grid md:grid-cols-2 gap-lg items-start mt-0">'
 		. '<div>'
+		. '<h2 style="color:#FF6B00;margin-top:0;margin-bottom:1.25rem;font-size:clamp(1.4rem,4.8vw,2rem);line-height:1.25">ORS have less sugar than you may think and are suitable for people with diabetes<sup>1,2</sup></h2>'
 		. '<p>The World Health Organization (WHO) recommends that ORS formulations contain only 1.35 g of glucose per 100 mL, which is less than many everyday foods.<sup>1,3</sup> With this small amount of glucose, <strong>some ORS may be considered carbohydrate-free, depending on the specific product.</strong>*<sup>2</sup></p>'
-		. '<p>Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium&#8209;glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These sodium&#8209;glucose pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
-		. '<p style="font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes and other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p>'
-		. '<ul class="mb-0" style="list-style-position:outside;padding-left:1.3em"><li>Hydralyte Powder Sachet 2.91&#160;g per 200&#160;mL</li><li>Hydralyte Effervescent Tablets 3.24&#160;g per 200&#160;mL (2&#160;tablets)</li><li>Hydralyte Ice Blocks 1.0&#160;g per ice block</li></ul>'
+		. '<p class="mb-0">Unlike other electrolyte or sports drinks that may contain sugar for energy intake or taste, <strong>the small and precise amount of glucose present in true ORS formulations is designed to activate the sodium&#8209;glucose cotransporter (SGLT1).</strong><sup>1,4</sup> These SGLT1 pumps create an osmotic gradient to facilitate rapid rehydration that&#8217;s faster than water alone.<sup>4-6</sup></p>'
 		. '</div>'
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative rounded-xl overflow-hidden mx-auto" style="aspect-ratio:228/426;width:100%;max-width:300px"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
+		. '</div>'
+		/* orange banner: confidence callout left, glucose content centred (below the video) right */
+		. '<div class="rounded-lg" style="background-color:#FF6B00;color:#fff;padding:clamp(1.5rem,4vw,2rem);margin-top:clamp(1.5rem,4vw,2rem)">'
+		. '<div class="grid md:grid-cols-2 gap-lg items-center">'
+		. '<div><p class="mb-0" style="color:#fff;font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes, as well as other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
+		. '<div class="text-center">'
+		. '<p style="color:#fff;font-weight:700;margin-bottom:.75rem">Glucose content in Hydralyte products:</p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Hydralyte Powder Sachets 2.9&#160;g per 200&#160;mL</p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Hydralyte Effervescent Tablets (2&#160;tablets) 3.2&#160;g per 200&#160;mL</p>'
+		. '<p class="mb-0" style="color:#fff">Hydralyte Ice Blocks 1.0&#160;g per ice block</p>'
+		. '</div>'
+		. '</div>'
 		. '</div>'
 		. '</div>'
 		. '</div></div></div></div>'
