@@ -309,15 +309,17 @@ JS;
 		/* MOA video (Vimeo 1122083239) */
 		. '<div class="relative rounded-xl overflow-hidden mx-auto" style="aspect-ratio:228/426;width:100%;max-width:300px"><iframe class="absolute inset-0 w-full h-full" src="https://player.vimeo.com/video/1122083239" title="How Hydralyte rehydrates faster than water alone" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>'
 		. '</div>'
-		/* orange banner: confidence callout left, glucose content centred (below the video) right */
-		. '<div class="rounded-lg" style="background-color:#FF6B00;color:#fff;padding:clamp(1.5rem,4vw,2rem);margin-top:clamp(1.5rem,4vw,2rem)">'
+		/* orange banner: full-bleed to the panel edges (v4 MD feedback — avoid box-in-box);
+		   negative margins cancel the panel padding, panel overflow:hidden clips the bottom
+		   corners, and matching padding keeps the banner copy on the panel copy's left line */
+		. '<div style="background-color:#FF6B00;color:#fff;padding:clamp(1.5rem,4vw,2.25rem);margin-top:clamp(1.5rem,4vw,2rem);margin-left:calc(-1*clamp(1.5rem,4vw,2.25rem));margin-right:calc(-1*clamp(1.5rem,4vw,2.25rem));margin-bottom:calc(-1*clamp(1.5rem,4vw,2.25rem))">'
 		. '<div class="grid md:grid-cols-2 gap-lg items-center">'
-		. '<div><p class="mb-0" style="color:#fff;font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes, as well as other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
+		. '<div class="text-center"><p class="mb-0" style="color:#fff;font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes, as well as other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid intake.</p></div>'
 		. '<div class="text-center">'
 		. '<p style="color:#fff;font-weight:700;margin-bottom:.75rem">Glucose content in Hydralyte products:</p>'
-		. '<p style="color:#fff;margin-bottom:.45rem">Hydralyte Powder Sachets 2.9&#160;g per 200&#160;mL</p>'
-		. '<p style="color:#fff;margin-bottom:.45rem">Hydralyte Effervescent Tablets (2&#160;tablets) 3.2&#160;g per 200&#160;mL</p>'
-		. '<p class="mb-0" style="color:#fff">Hydralyte Ice Blocks 1.0&#160;g per ice block</p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Powder Sachets 2.9&#160;g per 200&#160;mL</p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Effervescent Tablets (2&#160;tablets) 3.2&#160;g per 200&#160;mL</p>'
+		. '<p class="mb-0" style="color:#fff">Ice Blocks 1.0&#160;g per ice block</p>'
 		. '</div>'
 		. '</div>'
 		. '</div>'
