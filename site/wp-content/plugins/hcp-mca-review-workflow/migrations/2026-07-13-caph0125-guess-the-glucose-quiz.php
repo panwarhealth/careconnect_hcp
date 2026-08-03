@@ -202,7 +202,9 @@ CSS;
   // randomise round order
   if(wrap){shuffle(rounds.slice()).forEach(function(r){wrap.appendChild(r);});}
   // randomise left/right within each round
-  rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(Math.random()<0.5){t.appendChild(t.firstElementChild);}}});
+  // NB: no literal "<" anywhere in this inline script — wptexturize's tag tokenizer
+  // desyncs on it and then entity-encodes "&&" further down, killing the whole block.
+  rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(0.5>Math.random()){t.appendChild(t.firstElementChild);}}});
   // pack flavour + matching pale circle tint by on-screen order: orange, purple, lemon, repeating
   var obase=root.getAttribute('data-ors-base')||'';
   var flav=[{f:'hydralyte-orange.png',c:'ggq-ors-orange'},{f:'hydralyte-apple-blackcurrant.png',c:'ggq-ors-purple'},{f:'hydralyte-lemonade.png',c:'ggq-ors-lemon'}];
