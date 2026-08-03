@@ -202,8 +202,9 @@ CSS;
   // randomise round order
   if(wrap){shuffle(rounds.slice()).forEach(function(r){wrap.appendChild(r);});}
   // randomise left/right within each round
-  // NB: no literal "<" anywhere in this inline script — wptexturize's tag tokenizer
-  // desyncs on it and then entity-encodes "&&" further down, killing the whole block.
+  // NB: keep this inline script free of less-than signs and double-ampersands, in code
+  // AND comments: wptexturize desyncs on the former, then entity-encodes the latter,
+  // and the whole block dies with a SyntaxError.
   rounds.forEach(function(r){var t=r.querySelector('.ggq-tiles');if(t){if(0.5>Math.random()){t.appendChild(t.firstElementChild);}}});
   // pack flavour + matching pale circle tint by on-screen order: orange, purple, lemon, repeating
   var obase=root.getAttribute('data-ors-base')||'';
@@ -213,7 +214,7 @@ CSS;
     var ors=r.querySelector('.ggq-tile[data-role="ors"]');
     if(ors){
       var fl=flav[i%flav.length];
-      var img=ors.querySelector('.ggq-thumb img');if(img&&obase){img.src=obase+fl.f;}
+      if(obase){var img=ors.querySelector('.ggq-thumb img');if(img){img.src=obase+fl.f;}}
       var th=ors.querySelector('.ggq-thumb');if(th){th.classList.remove('ggq-ors-orange','ggq-ors-purple','ggq-ors-lemon');th.classList.add(fl.c);}
     }
   });
