@@ -87,6 +87,8 @@
                 });
                 
                 // --- AJAX Form Submission ---
+                var nonceRetried = false;
+
                 form.on('submit', function(e) {
                     e.preventDefault(); // Prevent default page refresh
 
@@ -105,6 +107,9 @@
                         },
                         success: function(response) {
                             if (response.success) {
+                                if (nonceRetried && typeof Sentry !== 'undefined') {
+                                    Sentry.captureMessage('popup login recovered via nonce refresh', 'info');
+                                }
                                 messageDiv.text(response.data.message).removeClass('text-error').addClass('text-green');
                                 if (window.location.pathname === "/fess-demonstration/" || window.location.pathname === "/fess-demonstration") {
                                     window.location.href = "/tools-and-videos#fess-children-nasal-spray";
@@ -117,8 +122,25 @@
                                 messageDiv.text(response.data.message).removeClass('text-green').addClass('text-error');
                             }
                         },
-                        error: function() {
-                            messageDiv.text('An error occurred. Please try again.').addClass('text-error');
+                        error: function(jqXHR) {
+                            // Expired nonce (403): fetch a fresh one and resubmit once.
+                            if (jqXHR.status === 403 && !nonceRetried) {
+                                nonceRetried = true;
+                                $.post(login_popup_obj.ajax_url, { action: 'popup_login_nonce' })
+                                    .done(function(res) {
+                                        if (res && res.success && res.data.nonce) {
+                                            login_popup_obj.nonce = res.data.nonce;
+                                            form.trigger('submit');
+                                        } else {
+                                            messageDiv.text('An error occurred. Please refresh the page and try again.').addClass('text-error');
+                                        }
+                                    })
+                                    .fail(function() {
+                                        messageDiv.text('An error occurred. Please refresh the page and try again.').addClass('text-error');
+                                    });
+                                return;
+                            }
+                            messageDiv.text('An error occurred. Please refresh the page and try again.').addClass('text-error');
                         }
                     });
                 });

@@ -2624,6 +2624,21 @@ function ajax_login_handler() {
 }
 add_action('wp_ajax_nopriv_popup_login', 'ajax_login_handler');
 
+// Stale tab: page rendered as guest but the visitor authenticated in another
+// tab, so the request routes to the logged-in hook. Report success so the
+// popup JS reloads into the logged-in state.
+add_action('wp_ajax_popup_login', function () {
+    wp_send_json_success(array('message' => 'You are already logged in. Reloading...'));
+});
+
+// Fresh nonce for the popup's silent retry after a 403 (nonces expire in
+// tabs left open past their lifetime).
+function popup_login_fresh_nonce() {
+    wp_send_json_success(array('nonce' => wp_create_nonce('ajax-login-nonce')));
+}
+add_action('wp_ajax_nopriv_popup_login_nonce', 'popup_login_fresh_nonce');
+add_action('wp_ajax_popup_login_nonce', 'popup_login_fresh_nonce');
+
 function compute_content_shortcode( $atts, $content = null ) {
     if ( is_null( $content ) ) {
         return '';
