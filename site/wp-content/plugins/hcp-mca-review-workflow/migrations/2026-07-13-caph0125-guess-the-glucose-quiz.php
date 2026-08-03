@@ -77,7 +77,7 @@ return [
 			[ 'Unsweetened oat milk',      '3 g / 200 mL',  3,  'oat-milk' ],
 			[ 'Unsweetened coconut water', '6 g / 200 mL',  6,  'coconut-water' ],
 			[ 'Almonds',                   '9 g / 1 cup',   9,  'almonds' ],
-			[ 'Small latte',               '8 g / 200 mL',  8,  'latte' ],
+			[ 'Small latte',               '9 g / 230 mL',  9,  'latte' ],
 			[ 'Unsweetened apple juice',   '20 g / 200 mL', 20, 'apple-juice' ],
 			[ 'Blueberries',               '14 g / 1 cup',  14, 'blueberries' ],
 			[ 'Whole banana',              '17 g',          17, 'banana' ],
@@ -320,9 +320,9 @@ JS;
 		. '<div class="text-center"><p class="mb-0" style="color:#fff;font-weight:700">Clinicians can feel confident recommending true ORS formulations based on the WHO guidelines, such as Hydralyte, to patients with diabetes, as well as other at&#8209;risk groups (e.g., older patients) who may struggle with oral fluid&#160;intake.</p></div>'
 		. '<div class="text-center">'
 		. '<p style="color:#fff;font-weight:700;margin-bottom:.75rem">Glucose content in Hydralyte&#160;products:</p>'
-		. '<p style="color:#fff;margin-bottom:.45rem">Powder Sachets 2.9&#160;g&#160;per&#160;200&#160;mL</p>'
-		. '<p style="color:#fff;margin-bottom:.45rem">Effervescent Tablets (2&#160;tablets) 3.2&#160;g&#160;per&#160;200&#160;mL</p>'
-		. '<p class="mb-0" style="color:#fff">Ice Blocks 1.0&#160;g&#160;per&#160;ice&#160;block</p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Powder Sachets <strong>2.9&#160;g&#160;per&#160;200&#160;mL</strong></p>'
+		. '<p style="color:#fff;margin-bottom:.45rem">Effervescent Tablets (x2) <strong>3.2&#160;g&#160;per&#160;200&#160;mL</strong></p>'
+		. '<p class="mb-0" style="color:#fff">Ice Blocks <strong>1.0&#160;g&#160;per&#160;ice&#160;block</strong></p>'
 		. '</div>'
 		. '</div>'
 		. '</div>'
