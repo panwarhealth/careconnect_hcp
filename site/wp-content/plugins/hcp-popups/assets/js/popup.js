@@ -12,6 +12,14 @@
 	var cfg = window.hcpPopup;
 	if (!cfg) return;
 
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', start);
+	} else {
+		start();
+	}
+
+	function start() {
+
 	var root = document.getElementById('hcp-popup-' + cfg.id);
 	if (!root) return;
 
@@ -98,4 +106,6 @@
 	document.addEventListener('keydown', function (ev) {
 		if (ev.key === 'Escape' && !root.hidden && !cfg.blocking) close('dismissed');
 	});
+
+	}
 })();

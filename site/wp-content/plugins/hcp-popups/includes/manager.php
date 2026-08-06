@@ -127,7 +127,9 @@ function hcp_popups_enqueue(): void {
 
 }
 
-add_action( 'wp_footer', 'hcp_popups_render', 20 );
+// Priority 5, before core prints footer scripts at 20: the dialog has to exist
+// in the DOM by the time popup.js looks for it.
+add_action( 'wp_footer', 'hcp_popups_render', 5 );
 function hcp_popups_render(): void {
 	$popup = hcp_popups_pick();
 	if ( ! $popup ) {
