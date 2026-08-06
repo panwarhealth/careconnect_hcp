@@ -65,9 +65,14 @@
 		shown = true;
 		window.clearTimeout(timer);
 		root.hidden = false;
-		// next frame, so the transition has a start state to animate from
+		// A transition cannot start from display:none. Force a reflow so the
+		// hidden-state styles are computed, then flip the class on the next
+		// frame — one rAF alone can still be batched into the same style pass.
+		void root.offsetWidth;
 		window.requestAnimationFrame(function () {
-			root.classList.add('is-open');
+			window.requestAnimationFrame(function () {
+				root.classList.add('is-open');
+			});
 		});
 		document.body.classList.add('hcp-popup-open');
 		markSeen();

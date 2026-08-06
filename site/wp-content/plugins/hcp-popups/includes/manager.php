@@ -36,6 +36,12 @@ function hcp_popups_add( array $popup ): void {
 	);
 }
 
+function hcp_popups_asset_version( string $relative ): string {
+	$path = HCP_POPUPS_DIR . $relative;
+
+	return file_exists( $path ) ? (string) filemtime( $path ) : '0.1.0';
+}
+
 function hcp_popups_all(): array {
 	$popups = $GLOBALS['hcp_popups'] ?? array();
 
@@ -102,8 +108,10 @@ function hcp_popups_enqueue(): void {
 
 	$gtag = hcp_popups_enqueue_ga4();
 
-	wp_enqueue_style( 'hcp-popups', HCP_POPUPS_URL . 'assets/css/popup.css', array(), '0.1.0' );
-	wp_enqueue_script( 'hcp-popups', HCP_POPUPS_URL . 'assets/js/popup.js', array_filter( array( $gtag ) ), '0.1.0', true );
+	// filemtime, not a hand-bumped version: a stale cached stylesheet silently
+	// costs the entrance animation.
+	wp_enqueue_style( 'hcp-popups', HCP_POPUPS_URL . 'assets/css/popup.css', array(), hcp_popups_asset_version( 'assets/css/popup.css' ) );
+	wp_enqueue_script( 'hcp-popups', HCP_POPUPS_URL . 'assets/js/popup.js', array_filter( array( $gtag ) ), hcp_popups_asset_version( 'assets/js/popup.js' ), true );
 	// wp_localize_script casts everything to string; the JS wants real numbers
 	// and booleans, so hand it JSON instead.
 	wp_add_inline_script(
