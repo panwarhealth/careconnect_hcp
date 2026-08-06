@@ -1,9 +1,8 @@
 /**
  * Pop-up display, dismissal and event reporting.
  *
- * Never fires on first paint: the dialog waits for a dwell timer or a quarter of
- * the page scrolled, whichever comes first, so the page can be read before the
- * modal lands.
+ * Never fires on first paint: the dialog waits out a dwell timer, so the page can
+ * be read before the modal lands. Time only, nothing the reader does brings it on.
  *
  * Events go to the plugin's own endpoint and straight to GA4 via gtag, addressed
  * with send_to so they land regardless of what the site's GTM container does.
@@ -64,34 +63,27 @@
 	function show() {
 		if (shown) return;
 		shown = true;
-		teardown();
+		window.clearTimeout(timer);
 		root.hidden = false;
+		// next frame, so the transition has a start state to animate from
+		window.requestAnimationFrame(function () {
+			root.classList.add('is-open');
+		});
 		document.body.classList.add('hcp-popup-open');
 		markSeen();
 		report('shown');
 	}
 
 	function close(reason) {
-		root.hidden = true;
+		root.classList.remove('is-open');
 		document.body.classList.remove('hcp-popup-open');
+		window.setTimeout(function () {
+			root.hidden = true;
+		}, 200);
 		if (reason) report(reason);
 	}
 
-	function onScroll() {
-		var doc = document.documentElement;
-		var scrollable = doc.scrollHeight - window.innerHeight;
-		if (scrollable <= 0) return;
-		if ((window.scrollY / scrollable) * 100 >= cfg.scrollPct) show();
-	}
-
 	var timer = window.setTimeout(show, cfg.delayMs);
-
-	function teardown() {
-		window.clearTimeout(timer);
-		window.removeEventListener('scroll', onScroll);
-	}
-
-	window.addEventListener('scroll', onScroll, { passive: true });
 
 	root.addEventListener('click', function (ev) {
 		if (ev.target.closest('[data-popup-cta]')) {

@@ -16,10 +16,17 @@ body.hcp-popup-open { overflow: hidden; }
 	position: absolute;
 	inset: 0;
 	background: rgba(14, 40, 65, 0.6);
+	opacity: 0;
+	transition: opacity 0.35s ease;
 }
+
+.hcp-popup.is-open .hcp-popup__backdrop { opacity: 1; }
 
 .hcp-popup__dialog {
 	position: relative;
+	opacity: 0;
+	transform: translateY(12px) scale(0.98);
+	transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 	background: #fff;
 	border-radius: 12px;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
@@ -29,6 +36,18 @@ body.hcp-popup-open { overflow: hidden; }
 	overflow-y: auto;
 	padding: 2.25rem 1.75rem 1.5rem;
 	text-align: center;
+}
+
+.hcp-popup.is-open .hcp-popup__dialog {
+	opacity: 1;
+	transform: none;
+}
+
+/* Honour a system setting for reduced motion: fade only, no movement. */
+@media (prefers-reduced-motion: reduce) {
+	.hcp-popup__backdrop,
+	.hcp-popup__dialog { transition-duration: 0.15s; }
+	.hcp-popup__dialog { transform: none; }
 }
 
 .hcp-popup__close {

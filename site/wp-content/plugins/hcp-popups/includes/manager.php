@@ -114,7 +114,6 @@ function hcp_popups_enqueue(): void {
 				'blocking'      => (bool) $popup['blocking'],
 				'measurementId' => hcp_popups_ga4_measurement_id(),
 				'delayMs'    => 3000,
-				'scrollPct'  => 25,
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
 				'endpoint'   => rest_url( 'hcp-popups/v1/event' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
