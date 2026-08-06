@@ -3441,6 +3441,11 @@ function process_user_approval_from_url() {
     // 1. Check if we are on the approval path and have a User ID
     if ( strpos( $_SERVER['REQUEST_URI'], 'approve-user' ) !== false && isset( $_GET['uid'] ) ) {
         
+        if ( ! current_user_can( 'edit_users' )
+            || ( function_exists( 'hcp_mca_current_user_can_view' ) && ! hcp_mca_current_user_can_view() ) ) {
+            wp_die( 'You do not have permission to view this page.', 'Access denied', array( 'response' => 403 ) );
+        }
+
         $user_id = intval( $_GET['uid'] );
 
         // Basic check to ensure the user exists

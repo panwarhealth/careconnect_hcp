@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 define( 'HCP_MCA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once HCP_MCA_PLUGIN_DIR . 'includes/constants.php';
+require_once HCP_MCA_PLUGIN_DIR . 'includes/access-control.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/state.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/shortcodes.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/completion-guard.php';
@@ -23,6 +24,7 @@ require_once HCP_MCA_PLUGIN_DIR . 'includes/course-access.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/migrations.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/login-as-rescue.php';
 if ( is_admin() ) {
+	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-access-guards.php';
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-migrations-page.php';
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-user-profile.php';
 	require_once HCP_MCA_PLUGIN_DIR . 'includes/admin-tools-page.php';

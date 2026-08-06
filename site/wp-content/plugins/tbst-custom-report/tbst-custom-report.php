@@ -13,6 +13,19 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Both reports on this page are gated behind the Mini Clinical Audit access
+ * policy owned by hcp-mca-review-workflow. Open access if that plugin is not
+ * running, so this one keeps working standalone.
+ */
+function csvr_user_can_view(): bool {
+	if ( ! function_exists( 'hcp_mca_current_user_can_view' ) ) {
+		return true;
+	}
+
+	return hcp_mca_current_user_can_view();
+}
+
 /* -----------------------------------------------------------------------
  * 1.  ADMIN MENU
  * --------------------------------------------------------------------- */
@@ -46,7 +59,7 @@ function csvr_maybe_download() {
 		return;
 	}
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || ! csvr_user_can_view() ) {
 		wp_die( esc_html__( 'You do not have permission to do this.', 'tbst-custom-reports' ) );
 	}
 
@@ -273,8 +286,8 @@ function csvr_stream_csv( array $rows, string $filename ): void {
 
 function csvr_render_page(): void {
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
+	if ( ! current_user_can( 'manage_options' ) || ! csvr_user_can_view() ) {
+		wp_die( esc_html__( 'You do not have permission to do this.', 'tbst-custom-reports' ) );
 	}
 
 	// Default date range: current month

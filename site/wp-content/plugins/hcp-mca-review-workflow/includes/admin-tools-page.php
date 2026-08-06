@@ -26,7 +26,7 @@ function hcp_mca_admin_tools_menu(): void {
 }
 
 function hcp_mca_admin_tools_render(): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || ! hcp_mca_current_user_can_view() ) {
 		wp_die( 'Unauthorized' );
 	}
 	?>
@@ -128,7 +128,7 @@ function hcp_mca_admin_tools_render(): void {
 
 function hcp_mca_ajax_search_users(): void {
 	check_ajax_referer( 'hcp_mca_admin_tools' );
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || ! hcp_mca_current_user_can_view() ) {
 		wp_send_json_error( 'Unauthorized' );
 	}
 
@@ -187,7 +187,7 @@ function hcp_mca_ajax_search_users(): void {
 
 function hcp_mca_ajax_save_racgp(): void {
 	check_ajax_referer( 'hcp_mca_admin_tools' );
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || ! hcp_mca_current_user_can_view() ) {
 		wp_send_json_error( 'Unauthorized' );
 	}
 

@@ -15,7 +15,7 @@ add_action( 'personal_options_update', 'hcp_mca_save_approval_checkbox', 20 );
 add_action( 'edit_user_profile_update', 'hcp_mca_save_approval_checkbox', 20 );
 
 function hcp_mca_render_approval_checkbox( WP_User $user ): void {
-	if ( ! current_user_can( 'edit_users' ) ) {
+	if ( ! current_user_can( 'edit_users' ) || ! hcp_mca_current_user_can_view() ) {
 		return;
 	}
 
@@ -83,7 +83,7 @@ function hcp_mca_render_approval_checkbox( WP_User $user ): void {
 }
 
 function hcp_mca_save_approval_checkbox( int $user_id ): void {
-	if ( ! current_user_can( 'edit_users' ) ) {
+	if ( ! current_user_can( 'edit_users' ) || ! hcp_mca_current_user_can_view() ) {
 		return;
 	}
 	if ( empty( $_POST[ HCP_MCA_APPROVAL_NONCE ] ) ) {
