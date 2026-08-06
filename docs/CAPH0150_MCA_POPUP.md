@@ -1,13 +1,14 @@
-# CAPH0150 — MCA pop-up (home page)
+# CAPH0150 — MCA pop-up
 
-Supersedes `CPD_DRIVER_POPUP.md` (CAPH scope from May 2026). Two rules changed: the
-copy now promotes the whole activity rather than the audit alone, and the pop-up
-returns on every new visit instead of showing once ever.
+Supersedes `CPD_DRIVER_POPUP.md` (scoped May 2026). Three rules changed since that
+brief: the copy promotes the whole activity rather than the audit alone, the pop-up
+returns on every new visit instead of showing once ever, and it shows to logged-out
+visitors as well as members.
 
 ## Purpose
 
-Drive HCPs who have not touched the MCA to the Rectogesic educational activity
-(online learning module 95553 + mini clinical audit 111793).
+Drive people to the Rectogesic educational activity (online learning module 95553 +
+mini clinical audit 111793) without pestering anyone already doing it.
 
 ## Copy (client v1.1, 2026-08-06)
 
@@ -31,92 +32,116 @@ Footnote:  This educational activity is provided by Panwar Health, who are an
            sponsored by Care Pharmaceuticals.
 ```
 
-Note this copy names the condition, unlike the May draft which was brand-only.
+This copy names the condition, unlike the May draft which was brand-only.
 
 ## Who sees it
 
-Show only to users with no trace anywhere in the MCA flow. Any one of these is a
-"leave them alone" signal:
+**Logged-in users:** only those with no trace anywhere in the MCA flow. Any one of
+these is a "leave them alone" signal:
 
 - LearnDash activity against course 95553 or 111793
 - A Formidable form 161 entry (audit submitted, possibly awaiting review)
 - `course_completed_111793` user meta
 
-Checked in that order, cheapest first. A user who fails the test is never eligible
+Checked in that order, cheapest first. Someone who fails the test is never eligible
 again, so the result can be cached in user meta rather than re-queried per page load.
 
-Logged-out visitors never see it. Eligibility cannot be evaluated without a login,
-and a promotional modal in front of a stranger is the wrong first impression.
+**Logged-out visitors:** always eligible. There is no way to tell whether a stranger
+has already done the activity, so some will see it who have. Accepted trade-off: the
+eDM traffic this is meant to capture arrives logged-out, particularly on campaign
+pages that are ungated for the duration of a send.
 
 ## Where it shows
 
-Site-wide, not home page only. The home page carries 4.6 landing sessions a day
-against 34.2 site-wide (GA4, 90 days to 2026-08-05), so a home-page-only pop-up
-would reach one or two eligible people a day. The same 90 days show no dominant
-entry point: home page 12% of landings, the MCA landing page another 12%, and
-`/register` 14%, with 47% unattributed.
+Content pages only, wherever the visitor entered from. That covers the home page,
+blog index and articles, individual video pages, the Tools & Videos hub, resources,
+brand and product pages, and campaign landing pages such as `/clinical-bites/`.
 
-Everywhere on the front end, whatever the visitor's entry point: home page, blog
-index and articles, individual video pages, resources, the Tools & Videos hub,
-brand and product pages, campaign landing pages, general pages. The manager hooks
-`wp_footer`, so this is the default rather than a page list to maintain.
+Not on operational or functional pages, where someone is mid-task rather than
+reading:
 
-Only two exclusions:
-
-- Any MCA page: activity homepage, courses 95553 and 111793, their lessons and
-  quizzes, and the audit form. No point promoting the page they are already on.
+- Registration and login
+- Account and profile pages
+- Order samples and any other multi-page Formidable flow
+- Contact and search results
 - `wp-admin`
+- Any MCA page: the activity homepage, courses 95553 and 111793, their lessons and
+  quizzes, and the audit form. No point promoting the page they are on.
 
-Client decision, taken with the trade-offs on the table: a modal will sometimes
-land over a campaign landing page that traffic was paid to reach, and over a video
-someone has just started. The dwell delay below is what keeps that tolerable.
+Sizing, from GA4 over the 90 days to 2026-08-05: the site runs 34.2 sessions a day
+against 4.6 landing on the home page, and no single entry point dominates (home page
+12% of landings, MCA landing page 12%, `/register` 14%, 47% unattributed). Site-wide
+rather than home-page-only is the difference between reaching most visitors and
+reaching one or two a day.
 
 ## When it shows
 
-Every new visit. Dismissing hides it for the current visit only; the next visit
-shows it again. Tracking is a session cookie, not user meta, so there is no
-permanent "shown" flag to reset when the campaign is re-run.
+Every new visit. Dismissing hides it for that visit only; the next visit shows it
+again. Tracking is a session cookie, so there is no permanent "shown" flag to clear
+when the campaign is re-run.
 
-Never on first paint. Fire after a short dwell (3 seconds) or once the reader has
-scrolled a quarter of the page, whichever comes first, so the page has a chance to
-be read before the modal lands.
+Never on first paint. Fire after a 3 second dwell or once the reader passes a
+quarter of the page, whichever comes first.
 
-## Pop-up manager
+## Architecture
 
-The pop-up does not wire itself into `wp_footer`. A manager owns that hook:
+A new `hcp-popups` plugin, not theme code, so the manager outlives this campaign.
 
-1. Each pop-up registers an eligibility callback, a priority, and a renderer.
-2. On `wp_footer` the manager picks the highest-priority eligible pop-up.
-3. It renders that one, and nothing else.
+**Manager.** Owns the `wp_footer` hook. Each pop-up registers an ID, a priority, an
+eligibility callback, a renderer, and a blocking flag. On each page load the manager
+walks the queue in priority order, takes the first eligible pop-up, renders it, and
+stops. One pop-up per page load, never two.
 
-Today only this pop-up is registered, so it always wins. The consent modal, when
-it is built, registers at a higher priority and this one stands down automatically
-with no change on its side. Registration carries a blocking flag: the consent modal
-blocks the page (no dismiss, no ESC), this one does not.
+**Queue.** Priority ordering is what makes deferral automatic. The consent modal,
+when built, registers above this one and blocks the page (no dismiss, no ESC); this
+one stands down and becomes eligible again on a later load, with no change to its own
+code. Nothing needs to be re-queued or parked.
+
+## Analytics
+
+Two independent records, because GA4 alone cannot be trusted for a count.
+
+**Server-side**, in a plugin table. One row per impression: pop-up ID, user ID (null
+when logged out), session ID, page path, timestamp, and the outcome once known
+(dismissed or CTA clicked). This is the answer to "how many times did it appear,
+where, and when", queryable directly and unaffected by ad blockers or consent tools.
+
+**GA4 events**, for funnel analysis alongside the rest of the site:
+
+| Event | Fires on |
+|---|---|
+| `popup_shown` | render |
+| `popup_dismissed` | dismiss or close |
+| `popup_cta_click` | CTA |
+
+Each carries `popup_id` and `page_path`. Register `popup_id` as a custom dimension in
+GA4 before launch, or the events land but cannot be broken down by pop-up later.
+
+Expect the server-side count to exceed the GA4 count. The gap is blocked or dropped
+beacons, and it is normal.
 
 ## CTA target
 
-The activity homepage, which covers both parts, not the audit course on its own.
+The activity homepage, which covers both parts, not the audit course alone.
 
-The activity homepage has two URLs and the site redirects by login state: members
-land on `/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/`
-and logged-out visitors are sent to `/anal-fissures-breaking-the-cycle-and-the-stigma-landing/`.
-The pop-up is logged-in only, so link the member URL and let the redirect handle
-any edge case.
+That page has two URLs and the site redirects by login state: members land on
+`/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/`,
+logged-out visitors are sent to `/anal-fissures-breaking-the-cycle-and-the-stigma-landing/`.
+Link the member URL and let the redirect sort out the rest.
 
 ## Assets
 
-The RACGP logo already exists in uploads from December 2025, no client supply
-needed: `/wp-content/uploads/2025/12/RACGP-logo-for-Total-Activity.png` (768x512
-and 150x150 variants, plus .webp). The set also holds Learning-Module-Only and
-Clinical-Audit-Only versions; this pop-up promotes both parts, so Total Activity is
-the right one. Confirm it carries the 8.5 hours figure the copy quotes, as the set
-was produced when the activity was split.
+The RACGP logo already exists in uploads from December 2025, no client supply needed:
+`/wp-content/uploads/2025/12/RACGP-logo-for-Total-Activity.png` (768x512 and 150x150
+variants, plus .webp). The set also holds Learning-Module-Only and Clinical-Audit-Only
+versions; this pop-up promotes both parts, so Total Activity is the right one. Confirm
+it carries the 8.5 hours figure the copy quotes, as the set was produced when the
+activity was split.
 
-Still outstanding: the two `<<icon>>` marks for module and audit. The only image in
-the supplied document is the Panwar Health logo from its header.
+Still outstanding: the two `<<icon>>` marks for module and audit. The only image in the
+supplied document is the Panwar Health logo from its header.
 
 ## Open questions
 
-- What counts as a "new visit": browser session, or a fixed idle window such as the
-  30 minutes GA4 uses.
+- What counts as a "new visit": browser session, or a fixed idle window such as the 30
+  minutes GA4 uses.
