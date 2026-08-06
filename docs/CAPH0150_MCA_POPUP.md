@@ -56,20 +56,20 @@ would reach one or two eligible people a day. The same 90 days show no dominant
 entry point: home page 12% of landings, the MCA landing page another 12%, and
 `/register` 14%, with 47% unattributed.
 
-Excluded:
+Everywhere on the front end, whatever the visitor's entry point: home page, blog
+index and articles, individual video pages, resources, the Tools & Videos hub,
+brand and product pages, campaign landing pages, general pages. The manager hooks
+`wp_footer`, so this is the default rather than a page list to maintain.
+
+Only two exclusions:
 
 - Any MCA page: activity homepage, courses 95553 and 111793, their lessons and
-  quizzes, and the audit form
-- Mid-task flows: order samples, edit profile, any multi-page Formidable form
+  quizzes, and the audit form. No point promoting the page they are already on.
 - `wp-admin`
-- Campaign landing pages while a send is live, e.g. `/clinical-bites/`. Traffic
-  was paid for to reach that offer; do not cover it with a different one.
-- Video pages, where a modal over a playing video is at its most irritating
 
-That leaves the home page, blog index and articles, the resources hub and its
-pages, the Tools & Videos hub, brand and product pages, and general pages such as
-contact and search. Roughly 20-25 sessions a day pass through those before the
-logged-in and no-MCA-activity filters are applied.
+Client decision, taken with the trade-offs on the table: a modal will sometimes
+land over a campaign landing page that traffic was paid to reach, and over a video
+someone has just started. The dwell delay below is what keeps that tolerable.
 
 ## When it shows
 
