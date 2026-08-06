@@ -11,6 +11,8 @@
  * the footer login/register overlay covers the entire page. The Vimeo embed URL
  * and all authenticated content (description, related videos, ad) are only
  * rendered for logged-in users. Registration is AHPRA-gated so logged-in == HCP.
+ * A campaign ungate window (see inc/ungate.php) drops the gate for everyone
+ * while it runs, which is what makes an eDM series publicly watchable.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,7 +23,7 @@ get_header(); ?>
 	<main id="main" class="site-main" role="main">
 		<?php while ( have_posts() ) : the_post();
 			$post_id = get_the_ID();
-			$gated   = ! is_user_logged_in();
+			$gated   = ! is_user_logged_in() && ! hcp_ungate_is_open( $post_id );
 
 			if ( ! $gated ) {
 				$vimeo_id = function_exists( 'hcp_videos_vimeo_id' ) ? hcp_videos_vimeo_id( get_field( 'vimeo' ) ) : '';
