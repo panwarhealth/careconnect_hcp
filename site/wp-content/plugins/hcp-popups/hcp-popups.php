@@ -16,6 +16,7 @@ define( 'HCP_POPUPS_URL', plugin_dir_url( __FILE__ ) );
 require_once HCP_POPUPS_DIR . 'includes/manager.php';
 require_once HCP_POPUPS_DIR . 'includes/context.php';
 require_once HCP_POPUPS_DIR . 'includes/tracking.php';
+require_once HCP_POPUPS_DIR . 'includes/analytics.php';
 require_once HCP_POPUPS_DIR . 'includes/popup-mca.php';
 
 register_activation_hook( __FILE__, 'hcp_popups_install' );

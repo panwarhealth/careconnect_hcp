@@ -5,8 +5,8 @@
  * the page scrolled, whichever comes first, so the page can be read before the
  * modal lands.
  *
- * Events go to the plugin's own endpoint and to the dataLayer. The site runs GTM
- * rather than a raw gtag snippet, so a GTM tag forwards these to GA4.
+ * Events go to the plugin's own endpoint and straight to GA4 via gtag, addressed
+ * with send_to so they land regardless of what the site's GTM container does.
  */
 (function () {
 	var cfg = window.hcpPopup;
@@ -18,16 +18,16 @@
 	var shown = false;
 
 	function report(event) {
-		window.dataLayer = window.dataLayer || [];
-		window.dataLayer.push({
-			event: 'popup_' + event,
-			popup_id: cfg.id,
-			page_path: cfg.pagePath
-		});
+		var params = { popup_id: cfg.id, page_path: cfg.pagePath };
 
-		if (typeof window.gtag === 'function') {
-			window.gtag('event', 'popup_' + event, { popup_id: cfg.id, page_path: cfg.pagePath });
+		if (typeof window.gtag === 'function' && cfg.measurementId) {
+			params.send_to = cfg.measurementId;
+			window.gtag('event', 'popup_' + event, params);
 		}
+
+		// also on the dataLayer, in case a container tag is ever pointed at these
+		window.dataLayer = window.dataLayer || [];
+		window.dataLayer.push({ event: 'popup_' + event, popup_id: cfg.id, page_path: cfg.pagePath });
 
 		var body = JSON.stringify({
 			popup_id: cfg.id,

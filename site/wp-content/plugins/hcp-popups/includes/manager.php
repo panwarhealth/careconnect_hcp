@@ -100,16 +100,19 @@ function hcp_popups_enqueue(): void {
 		return;
 	}
 
+	$gtag = hcp_popups_enqueue_ga4();
+
 	wp_enqueue_style( 'hcp-popups', HCP_POPUPS_URL . 'assets/css/popup.css', array(), '0.1.0' );
-	wp_enqueue_script( 'hcp-popups', HCP_POPUPS_URL . 'assets/js/popup.js', array(), '0.1.0', true );
+	wp_enqueue_script( 'hcp-popups', HCP_POPUPS_URL . 'assets/js/popup.js', array_filter( array( $gtag ) ), '0.1.0', true );
 	// wp_localize_script casts everything to string; the JS wants real numbers
 	// and booleans, so hand it JSON instead.
 	wp_add_inline_script(
 		'hcp-popups',
 		'window.hcpPopup = ' . wp_json_encode(
 			array(
-				'id'         => $popup['id'],
-				'blocking'   => (bool) $popup['blocking'],
+				'id'            => $popup['id'],
+				'blocking'      => (bool) $popup['blocking'],
+				'measurementId' => hcp_popups_ga4_measurement_id(),
 				'delayMs'    => 3000,
 				'scrollPct'  => 25,
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
