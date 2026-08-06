@@ -257,7 +257,7 @@ CSS;
       }else if(next){
         next.scrollIntoView({behavior:'smooth',block:'center'});
       }
-    },600);
+    },1600);
   });
 })();
 </script>
