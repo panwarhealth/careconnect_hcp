@@ -83,11 +83,9 @@ function hcp_popups_mca_user_has_activity( int $user_id ): bool {
 function hcp_popups_mca_render(): void {
 	$img = HCP_POPUPS_URL . 'assets/img/';
 	?>
-	<p class="hcp-popup__eyebrow">GPs: EARN UP TO 8.5 CPD HOURS</p>
+	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO 8.5 CPD HOURS</h2>
 
-	<h2 class="hcp-popup__title" id="hcp-popup-title">Live Now</h2>
-
-	<p class="hcp-popup__lede">A free, RACGP-accredited, two-part educational activity to improve the identification and management of anal fissures in general practice:</p>
+	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and management of anal fissures in general practice:</p>
 
 	<ul class="hcp-popup__parts">
 		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /> Online Learning Module</li>
