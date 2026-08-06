@@ -45,13 +45,41 @@ Show only to users with no trace anywhere in the MCA flow. Any one of these is a
 Checked in that order, cheapest first. A user who fails the test is never eligible
 again, so the result can be cached in user meta rather than re-queried per page load.
 
-Never fires on the MCA pages themselves.
+Logged-out visitors never see it. Eligibility cannot be evaluated without a login,
+and a promotional modal in front of a stranger is the wrong first impression.
+
+## Where it shows
+
+Site-wide, not home page only. The home page carries 4.6 landing sessions a day
+against 34.2 site-wide (GA4, 90 days to 2026-08-05), so a home-page-only pop-up
+would reach one or two eligible people a day. The same 90 days show no dominant
+entry point: home page 12% of landings, the MCA landing page another 12%, and
+`/register` 14%, with 47% unattributed.
+
+Excluded:
+
+- Any MCA page: activity homepage, courses 95553 and 111793, their lessons and
+  quizzes, and the audit form
+- Mid-task flows: order samples, edit profile, any multi-page Formidable form
+- `wp-admin`
+- Campaign landing pages while a send is live, e.g. `/clinical-bites/`. Traffic
+  was paid for to reach that offer; do not cover it with a different one.
+- Video pages, where a modal over a playing video is at its most irritating
+
+That leaves the home page, blog index and articles, the resources hub and its
+pages, the Tools & Videos hub, brand and product pages, and general pages such as
+contact and search. Roughly 20-25 sessions a day pass through those before the
+logged-in and no-MCA-activity filters are applied.
 
 ## When it shows
 
 Every new visit. Dismissing hides it for the current visit only; the next visit
 shows it again. Tracking is a session cookie, not user meta, so there is no
 permanent "shown" flag to reset when the campaign is re-run.
+
+Never on first paint. Fire after a short dwell (3 seconds) or once the reader has
+scrolled a quarter of the page, whichever comes first, so the page has a chance to
+be read before the modal lands.
 
 ## Pop-up manager
 
@@ -66,19 +94,29 @@ it is built, registers at a higher priority and this one stands down automatical
 with no change on its side. Registration carries a blocking flag: the consent modal
 blocks the page (no dismiss, no ESC), this one does not.
 
-## Assets still needed from the client
+## CTA target
 
-- RACGP accreditation logo with hours
-- The two `<<icon>>` marks for module and audit
+The activity homepage, which covers both parts, not the audit course on its own.
 
-The only image in the supplied document is the Panwar Health logo from the header.
+The activity homepage has two URLs and the site redirects by login state: members
+land on `/anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage/`
+and logged-out visitors are sent to `/anal-fissures-breaking-the-cycle-and-the-stigma-landing/`.
+The pop-up is logged-in only, so link the member URL and let the redirect handle
+any edge case.
+
+## Assets
+
+The RACGP logo already exists in uploads from December 2025, no client supply
+needed: `/wp-content/uploads/2025/12/RACGP-logo-for-Total-Activity.png` (768x512
+and 150x150 variants, plus .webp). The set also holds Learning-Module-Only and
+Clinical-Audit-Only versions; this pop-up promotes both parts, so Total Activity is
+the right one. Confirm it carries the 8.5 hours figure the copy quotes, as the set
+was produced when the activity was split.
+
+Still outstanding: the two `<<icon>>` marks for module and audit. The only image in
+the supplied document is the Panwar Health logo from its header.
 
 ## Open questions
 
-- CTA target. Course 111793 is `/courses/mini-clinical-audit/`, but "SEE FULL
-  ACTIVITY" reads like the activity homepage (111281) which covers both parts.
-- Logged-out visitors. Eligibility cannot be evaluated without a login, so either
-  they all see it or none do.
-- Home page only, as the document title implies, or site-wide.
 - What counts as a "new visit": browser session, or a fixed idle window such as the
   30 minutes GA4 uses.
