@@ -109,13 +109,20 @@ body.hcp-popup-open { overflow: hidden; }
 	align-items: center;
 	gap: 0.4rem;
 	margin: 0;
+	line-height: 1.2;
 	text-align: left;
 }
 
+/* The theme rounds every image by 6px, which visibly shaves the corners off a
+   20px icon, and gives images a bottom margin that pushes them off the text
+   baseline. Reset both here rather than site-wide. */
 .hcp-popup__parts img {
+	display: block;
 	width: auto;
 	height: 1.15rem;
 	flex: none;
+	margin: 0;
+	border-radius: 0;
 }
 
 .hcp-popup__plus { font-weight: 400; color: #9aa3a8; }

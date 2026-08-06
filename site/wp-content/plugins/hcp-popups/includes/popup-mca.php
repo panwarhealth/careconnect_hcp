@@ -88,9 +88,9 @@ function hcp_popups_mca_render(): void {
 	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and management of anal fissures in general practice:</p>
 
 	<ul class="hcp-popup__parts">
-		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /> Online Learning Module</li>
+		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /><span>Online Learning Module</span></li>
 		<li class="hcp-popup__plus" aria-hidden="true">+</li>
-		<li><img src="<?php echo esc_url( $img . 'icon-checklist.png' ); ?>" alt="" width="20" height="23" /> Mini Clinical Audit</li>
+		<li><img src="<?php echo esc_url( $img . 'icon-checklist.png' ); ?>" alt="" width="20" height="23" /><span>Mini Clinical Audit</span></li>
 	</ul>
 
 	<p class="hcp-popup__lede">Progress at your own pace and maximise hours across all CPD categories</p>
