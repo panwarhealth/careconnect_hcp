@@ -83,9 +83,9 @@ function hcp_popups_mca_user_has_activity( int $user_id ): bool {
 function hcp_popups_mca_render(): void {
 	$img = HCP_POPUPS_URL . 'assets/img/';
 	?>
-	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO 8.5 CPD HOURS</h2>
+	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO 8.5 CPD&nbsp;HOURS</h2>
 
-	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and management of anal fissures in general practice:</p>
+	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and management of anal fissures in general&nbsp;practice:</p>
 
 	<ul class="hcp-popup__parts">
 		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /><span>Online Learning Module</span></li>
@@ -93,13 +93,13 @@ function hcp_popups_mca_render(): void {
 		<li><img src="<?php echo esc_url( $img . 'icon-checklist.png' ); ?>" alt="" width="20" height="23" /><span>Mini Clinical Audit</span></li>
 	</ul>
 
-	<p class="hcp-popup__lede">Progress at your own pace and maximise hours across all CPD categories</p>
+	<p class="hcp-popup__lede">Progress at your own pace and maximise hours across all CPD&nbsp;categories</p>
 
 	<img class="hcp-popup__accreditation" src="<?php echo esc_url( $img . 'racgp-logo.png' ); ?>" width="400" height="267"
 		alt="RACGP CPD Approved Activity: 1.0 hours Educational Activities, 1.0 hours Reviewing Performance, 6.5 hours Measuring Outcomes" />
 
 	<a class="hcp-popup__cta" href="<?php echo esc_url( home_url( HCP_POPUPS_MCA_CTA_URL ) ); ?>" data-popup-cta>SEE FULL ACTIVITY</a>
 
-	<p class="hcp-popup__footnote">This educational activity is provided by Panwar Health, who are an authorised Provider of education under the RACGP CPD program, and sponsored by Care Pharmaceuticals.</p>
+	<p class="hcp-popup__footnote">This educational activity is provided by Panwar&nbsp;Health, who are an authorised Provider of education under the RACGP CPD&nbsp;program, and sponsored by Care&nbsp;Pharmaceuticals.</p>
 	<?php
 }

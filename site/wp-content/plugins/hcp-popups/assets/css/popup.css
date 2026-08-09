@@ -67,9 +67,11 @@ body.hcp-popup-open { overflow: hidden; }
 
 /* The document's header line is the headline; "Live Now:" opens the body
    sentence there, so it leads the paragraph rather than becoming a heading. */
+/* Padding both sides, not just right: the close button needs the clearance, but
+   clearing it on one side alone shifts centred text off the dialog's axis. */
 .hcp-popup__title {
 	margin: 0 0 0.7rem;
-	padding-right: 1.5rem;
+	padding: 0 1.5rem;
 	font-size: 1.2rem;
 	font-weight: 700;
 	letter-spacing: 0.3px;
@@ -78,6 +80,13 @@ body.hcp-popup-open { overflow: hidden; }
 }
 
 .hcp-popup__live { color: #00a2c4; }
+
+/* Widow control. The copy binds its own last two words with non-breaking spaces,
+   which holds everywhere; this pulls an earlier word down as well on browsers
+   that support it, and is ignored by those that do not. */
+.hcp-popup__title,
+.hcp-popup__lede,
+.hcp-popup__footnote { text-wrap: pretty; }
 
 .hcp-popup__lede {
 	margin: 0 0 0.9rem;
@@ -113,6 +122,10 @@ body.hcp-popup-open { overflow: hidden; }
 	text-align: left;
 }
 
+/* Each part label stays on one line — a label broken across two reads as a
+   widow in a block this short. */
+.hcp-popup__parts span { white-space: nowrap; }
+
 /* The theme rounds every image by 6px, which visibly shaves the corners off a
    20px icon, and gives images a bottom margin that pushes them off the text
    baseline. Reset both here rather than site-wide. */
@@ -125,7 +138,7 @@ body.hcp-popup-open { overflow: hidden; }
 	border-radius: 0;
 }
 
-.hcp-popup__plus { font-weight: 400; color: #9aa3a8; }
+.hcp-popup__plus { font-weight: 400; color: #0e2841; }
 
 .hcp-popup__accreditation {
 	display: block;
@@ -186,7 +199,7 @@ body.hcp-popup-open { overflow: hidden; }
 @media (max-width: 480px) {
 	.hcp-popup { padding: 0.75rem; }
 	.hcp-popup__dialog { padding: 1.5rem 1.15rem 1.15rem; }
-	.hcp-popup__title { font-size: 1.02rem; padding-right: 1.75rem; }
+	.hcp-popup__title { font-size: 1.02rem; padding: 0 1.75rem; }
 	.hcp-popup__lede { font-size: 0.88rem; }
 	.hcp-popup__accreditation { max-width: 230px; }
 

@@ -53,11 +53,14 @@
 		}).catch(function () {});
 	}
 
+	// Max-Age rather than a session cookie: browsers with session restore keep
+	// session cookies alive for days, which suppresses the pop-up indefinitely.
 	function markSeen() {
 		var seen = (document.cookie.match(/(?:^|;\s*)hcp_popup_seen=([^;]*)/) || [])[1] || '';
 		var ids = seen ? decodeURIComponent(seen).split(',') : [];
 		if (ids.indexOf(cfg.id) === -1) ids.push(cfg.id);
-		document.cookie = cfg.seenCookie + '=' + encodeURIComponent(ids.join(',')) + '; path=/; SameSite=Lax';
+		document.cookie = cfg.seenCookie + '=' + encodeURIComponent(ids.join(','))
+			+ '; path=/; Max-Age=' + cfg.seenMaxAge + '; SameSite=Lax';
 	}
 
 	function show() {

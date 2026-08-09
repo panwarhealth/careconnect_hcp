@@ -17,6 +17,11 @@ defined( 'ABSPATH' ) || exit;
 const HCP_POPUPS_SEEN_COOKIE    = 'hcp_popup_seen';
 const HCP_POPUPS_SESSION_COOKIE = 'hcp_popup_sid';
 
+// How long a dismissal suppresses a pop-up. A session cookie is not a reliable
+// visit boundary: session restore carries one across browser restarts, so a
+// reader can be suppressed for days. 24 hours reads as "once a day".
+const HCP_POPUPS_SEEN_TTL = DAY_IN_SECONDS;
+
 /**
  * @param array $popup {
  *     @type string   $id       Stable slug, also the GA4 popup_id.
@@ -123,6 +128,7 @@ function hcp_popups_enqueue(): void {
 				'measurementId' => hcp_popups_ga4_measurement_id(),
 				'delayMs'    => 3000,
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
+				'seenMaxAge' => HCP_POPUPS_SEEN_TTL,
 				'endpoint'   => rest_url( 'hcp-popups/v1/event' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
 				'sessionId'  => hcp_popups_session_id(),

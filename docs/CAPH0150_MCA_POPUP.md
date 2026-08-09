@@ -76,9 +76,13 @@ reaching one or two a day.
 
 ## When it shows
 
-Every new visit. Dismissing hides it for that visit only; the next visit shows it
-again. Tracking is a session cookie, so there is no permanent "shown" flag to clear
-when the campaign is re-run.
+Once a day. Dismissing hides it for 24 hours; the next visit after that shows it
+again. Tracking is a cookie with a 24 hour lifetime, so there is no permanent
+"shown" flag to clear when the campaign is re-run.
+
+A session cookie was the first implementation and was wrong: browsers with session
+restore carry session cookies across restarts, which suppressed the pop-up for days
+at a time. A fixed window is the only boundary that behaves predictably.
 
 Never on first paint. Fire after a 3 second dwell or once the reader passes a
 quarter of the page, whichever comes first.
@@ -143,5 +147,6 @@ supplied document is the Panwar Health logo from its header.
 
 ## Open questions
 
-- What counts as a "new visit": browser session, or a fixed idle window such as the 30
-  minutes GA4 uses.
+- ~~What counts as a "new visit"~~ — resolved 2026-08-10: a fixed 24 hour window.
+  GA4's 30 minute session was the alternative; rejected because it can show the
+  pop-up twice to one reader in a single sitting.
