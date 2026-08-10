@@ -154,10 +154,13 @@ function hcp_videos_anchor_script(): void {
 			runway();
 			target.scrollIntoView();
 		}
-		window.addEventListener("load", function(){
-			settle();
-			setTimeout(settle, 350);
-		});
+		// Not gated on window.load: with slow assets (Vimeo thumbnails, ads) the
+		// load event can arrive many seconds late or after a promo modal has
+		// locked body scrolling, by which point the jump is impossible. Retry on
+		// a schedule instead, ending once the layout has stopped moving the
+		// target — each retry is a no-op scroll when it is already in place.
+		var attempts = [0, 300, 700, 1200, 1800, 2600];
+		attempts.forEach(function(ms){ setTimeout(settle, ms); });
 	})();
 	</script>';
 }
