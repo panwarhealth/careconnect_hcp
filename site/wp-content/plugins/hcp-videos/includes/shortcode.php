@@ -7,7 +7,8 @@
  * Attributes:
  *   audience="slug"       — optional, filter by an audience term slug
  *   topic="slug"          — optional, filter by a video_topic term slug
- *   exclude_topic="slug"  — optional, omit videos in a video_topic term slug
+ *   exclude_topic="slug"  — optional, omit videos in these video_topic term
+ *                           slugs (comma-separated)
  *   series_total="4"      — optional, label cards "Episode N" and show a
  *                           "coming soon" note until N episodes exist (0 = off)
  *   layout="grid"         — optional, "grid" (default) or "carousel" (Owl)
@@ -64,7 +65,8 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		$tax_query[] = array( 'taxonomy' => 'video_topic', 'field' => 'slug', 'terms' => $atts['topic'] );
 	}
 	if ( $atts['exclude_topic'] !== '' ) {
-		$tax_query[] = array( 'taxonomy' => 'video_topic', 'field' => 'slug', 'terms' => $atts['exclude_topic'], 'operator' => 'NOT IN' );
+		$excluded    = array_filter( array_map( 'trim', explode( ',', $atts['exclude_topic'] ) ) );
+		$tax_query[] = array( 'taxonomy' => 'video_topic', 'field' => 'slug', 'terms' => $excluded, 'operator' => 'NOT IN' );
 	}
 	if ( $tax_query ) {
 		$args['tax_query'] = $tax_query;

@@ -57,12 +57,15 @@ function hcp_videos_related_ids( int $post_id, int $limit = 50 ): array {
 	}
 
 	// 2. Series episodes, continuing from this one and wrapping to the start.
-	// The computed run replaces manual picks rather than following them: a
-	// curated list on one episode would break the sequence for that episode
-	// alone, which is the inconsistency this ordering exists to remove.
+	// The computed run comes first regardless of manual picks: a curated list
+	// ahead of it would break the sequence for that episode alone. Manual picks
+	// follow the run as series-wide extras (e.g. a related standalone video),
+	// so a short series can still fill its sidebar.
 	$following = hcp_videos_series_following_ids( $post_id );
 	if ( null !== $following ) {
-		return array_slice( $following, 0, $limit );
+		$extras  = array_values( array_diff( $ordered, $following ) );
+		$ordered = array_merge( $following, $extras );
+		return array_slice( $ordered, 0, $limit );
 	}
 
 	// 3. Everything else (listed), most recent first — only for videos with no topic.
