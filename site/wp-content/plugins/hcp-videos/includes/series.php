@@ -50,7 +50,7 @@ function hcp_videos_series_topics(): array {
 function hcp_videos_series_term( int $post_id ): ?WP_Term {
 	$terms = get_the_terms( $post_id, HCP_VIDEOS_SERIES_TAXONOMY );
 
-	if ( ! is_array( $terms ) || ! $terms ) {
+	if ( ! is_array( $terms ) ) {
 		return null;
 	}
 
