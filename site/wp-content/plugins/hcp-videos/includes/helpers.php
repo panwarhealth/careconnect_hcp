@@ -94,6 +94,12 @@ function hcp_videos_play_styles(): void {
 		@media(max-width:899px){.hcp-cb-hero .grid.items-center{grid-template-columns:1fr!important;}.hcp-cb-hero .grid.items-center>.column{grid-column:auto!important;}}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 		[id^="clinicalbites"],.hcp-anchor-target{scroll-margin-top:110px;}
+		.hcp-jump-nav{display:flex;gap:2rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%;}
+		/* Grid/flex ancestors default to min-width:auto, so instead of the nav
+		   scrolling internally it widens its column and the whole page pans. */
+		:is(.column,.content-block):has(.hcp-jump-nav){min-width:0;max-width:100%;}
+		.hcp-jump-nav::-webkit-scrollbar{display:none;}
+		.hcp-jump-nav a{white-space:nowrap;flex:none;padding-bottom:.5rem;}
 	</style>';
 
 	hcp_videos_anchor_script();
