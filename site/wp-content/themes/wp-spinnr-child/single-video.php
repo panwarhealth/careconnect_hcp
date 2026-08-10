@@ -25,6 +25,12 @@ get_header(); ?>
 			$post_id = get_the_ID();
 			$gated   = ! is_user_logged_in() && ! hcp_ungate_is_open( $post_id );
 
+			// Episode numbering is derived from the series, so titles stay clean in
+			// the database and re-ordering a series never means re-titling it.
+			$episode_title = function_exists( 'hcp_videos_episode_title' )
+				? hcp_videos_episode_title( $post_id )
+				: get_the_title();
+
 			if ( ! $gated ) {
 				$vimeo_id = function_exists( 'hcp_videos_vimeo_id' ) ? hcp_videos_vimeo_id( get_field( 'vimeo' ) ) : '';
 				$player   = function_exists( 'hcp_videos_player_url' ) ? hcp_videos_player_url( $vimeo_id ) : '';
@@ -49,7 +55,7 @@ get_header(); ?>
 								<img src="<?php echo esc_url( $poster ); ?>" class="absolute inset-0 w-full h-full object-cover" alt="<?php echo esc_attr( get_the_title() ); ?>" />
 							<?php endif; ?>
 						</div>
-						<h1 class="text-2xl mt-base" style="max-width:860px;margin-left:auto;margin-right:auto;"><?php echo esc_html( get_the_title() ); ?></h1>
+						<h1 class="text-2xl mt-base" style="max-width:860px;margin-left:auto;margin-right:auto;"><?php echo esc_html( $episode_title ); ?></h1>
 					</div>
 
 				<?php else : ?>
@@ -75,11 +81,19 @@ get_header(); ?>
 							</p>
 						<?php endif; ?>
 
-						<h1 class="text-2xl mt-1"><?php echo esc_html( get_the_title() ); ?></h1>
+						<h1 class="text-2xl mt-1"><?php echo esc_html( $episode_title ); ?></h1>
 
 						<div class="content-block">
 							<div class="hcp-video-desc hcp-clamp hcp-collapsed">
-								<?php the_content(); ?>
+								<?php
+								// "Video N of M:" opens the description and links back to the
+								// series, so an episode reached directly from an eDM or a
+								// search result still shows where it sits in the run.
+								$description = apply_filters( 'the_content', get_the_content() );
+								echo function_exists( 'hcp_videos_prepend_episode_intro' )
+									? hcp_videos_prepend_episode_intro( $description, $post_id )
+									: $description;
+								?>
 							</div>
 							<button type="button" class="hcp-desc-toggle">Read more</button>
 						</div>
@@ -134,7 +148,9 @@ get_header(); ?>
 										</div>
 										<div>
 											<?php if ( $raud ) : ?><p class="text-xs text-black mb-0"><?php echo esc_html( $raud ); ?></p><?php endif; ?>
-											<p class="font-semibold text-paragraph text-sm mb-0"><?php echo esc_html( get_the_title( $rid ) ); ?></p>
+											<p class="font-semibold text-paragraph text-sm mb-0"><?php
+												echo esc_html( function_exists( 'hcp_videos_episode_title' ) ? hcp_videos_episode_title( $rid ) : get_the_title( $rid ) );
+											?></p>
 										</div>
 									</a>
 								<?php endforeach; ?>

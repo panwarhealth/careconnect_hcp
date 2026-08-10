@@ -240,7 +240,7 @@ function hcp_videos_resource_link( int $rid ): array {
  * Render a single resource as a house-style card (matches [video_grid] and the
  * /resources page). Returns '' if the resource is unpublished or has no target.
  */
-function hcp_videos_resource_card( int $rid ): string {
+function hcp_videos_resource_card( int $rid, bool $gated = false ): string {
 	if ( get_post_status( $rid ) !== 'publish' ) {
 		return '';
 	}
@@ -255,7 +255,11 @@ function hcp_videos_resource_card( int $rid ): string {
 
 	ob_start();
 	?>
-	<a class="no-underline" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener">
+	<?php if ( $gated ) : ?>
+		<div class="hcp-video-card-gated">
+	<?php else : ?>
+		<a class="no-underline" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener">
+	<?php endif; ?>
 		<div class="card h-full overflow-hidden">
 			<div class="bg-secondary p-md h-48 rounded-t relative">
 				<?php echo $icon; ?>
@@ -268,10 +272,14 @@ function hcp_videos_resource_card( int $rid ): string {
 					<?php if ( $audience ) : ?><p class="text-sm text-black"><?php echo esc_html( $audience ); ?></p><?php endif; ?>
 					<h5 class="min-h-14"><?php echo esc_html( get_the_title( $rid ) ); ?></h5>
 				</div>
-				<span class="underline text-accent font-semibold"><?php echo esc_html( $link['label'] ); ?></span>
+				<?php if ( $gated ) : ?>
+					<?php echo hcp_videos_gate_cta(); ?>
+				<?php else : ?>
+					<span class="underline text-accent font-semibold"><?php echo esc_html( $link['label'] ); ?></span>
+				<?php endif; ?>
 			</div>
 		</div>
-	</a>
+	<?php echo $gated ? '</div>' : '</a>'; ?>
 	<?php
 	return ob_get_clean();
 }

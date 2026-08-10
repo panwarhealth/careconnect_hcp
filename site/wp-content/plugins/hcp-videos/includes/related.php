@@ -10,6 +10,12 @@
  * Clinical Bites) relates ONLY within that series — step 3 is skipped so the
  * sidebar doesn't top up with unrelated videos. Videos with no topic keep the
  * full-library fallback.
+ *
+ * Within a series the order also wraps: an episode suggests the ones that come
+ * after it and then returns to the start, so the last episode points back at
+ * the first instead of running out of suggestions. That ordering is computed,
+ * not curated — a new series needs no per-episode picks, and re-ordering one
+ * cannot leave a stale hand-made list behind.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -44,31 +50,19 @@ function hcp_videos_related_ids( int $post_id, int $limit = 50 ): array {
 	}
 
 	// Auto-fill is opt-out: '0' turns it off; missing/'' keeps it on (back-compat).
+	// This is also the escape hatch for an episode that must show a hand-picked
+	// list rather than its place in the run.
 	if ( get_post_meta( $post_id, 'related_autofill', true ) === '0' ) {
 		return array_slice( $ordered, 0, $limit );
 	}
 
-	// 2. Same-topic listed videos.
-	$terms = get_the_terms( $post_id, 'video_topic' );
-	if ( $terms && ! is_wp_error( $terms ) ) {
-		$add( get_posts( array(
-			'post_type'      => 'video',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'post__not_in'   => array( $post_id ),
-			'fields'         => 'ids',
-			'orderby'        => 'menu_order date',
-			'order'          => 'ASC',
-			'meta_query'     => hcp_videos_listed_meta_query(),
-			'tax_query'      => array( array(
-				'taxonomy' => 'video_topic',
-				'field'    => 'term_id',
-				'terms'    => wp_list_pluck( $terms, 'term_id' ),
-			) ),
-		) ) );
-
-		// Series video: relate only within the series — skip the full-library fill.
-		return array_slice( $ordered, 0, $limit );
+	// 2. Series episodes, continuing from this one and wrapping to the start.
+	// The computed run replaces manual picks rather than following them: a
+	// curated list on one episode would break the sequence for that episode
+	// alone, which is the inconsistency this ordering exists to remove.
+	$following = hcp_videos_series_following_ids( $post_id );
+	if ( null !== $following ) {
+		return array_slice( $following, 0, $limit );
 	}
 
 	// 3. Everything else (listed), most recent first — only for videos with no topic.
