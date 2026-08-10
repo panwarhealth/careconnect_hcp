@@ -129,8 +129,29 @@ function hcp_videos_anchor_script(): void {
 		window.addEventListener("wheel", cancel, {passive:true, once:true});
 		window.addEventListener("touchmove", cancel, {passive:true, once:true});
 		window.addEventListener("keydown", cancel, {once:true});
+		// The target is the last section before the footer, so on a tall window
+		// there is not enough page beneath it to bring it to the top — the scroll
+		// clamps early and leaves the section stranded mid-page. Extend the page
+		// by the shortfall so it can reach.
+		function runway(){
+			var margin = parseInt(getComputedStyle(target).scrollMarginTop, 10) || 0;
+			var needed = target.getBoundingClientRect().top + window.scrollY - margin;
+			var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+			var shortfall = Math.ceil(needed - maxScroll);
+			if(shortfall > 0){
+				var spacer = document.getElementById("hcp-anchor-runway") || (function(){
+					var el = document.createElement("div");
+					el.id = "hcp-anchor-runway";
+					el.setAttribute("aria-hidden", "true");
+					document.body.appendChild(el);
+					return el;
+				})();
+				spacer.style.height = shortfall + "px";
+			}
+		}
 		function settle(){
 			if(cancelled) return;
+			runway();
 			target.scrollIntoView();
 		}
 		window.addEventListener("load", function(){
