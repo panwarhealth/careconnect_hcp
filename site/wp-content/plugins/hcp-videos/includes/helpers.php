@@ -76,7 +76,16 @@ function hcp_videos_play_styles(): void {
 		.hcp-clamp.hcp-collapsed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2em;background:linear-gradient(rgba(255,255,255,0),#fff);pointer-events:none;}
 		.hcp-desc-toggle{display:inline-block;background:none;border:0;padding:0;margin-top:.5rem;color:#35B1C9;font-weight:600;font-size:.875rem;cursor:pointer;text-decoration:underline;}
 		.hcp-video-desc .hcp-series-link{color:#35B1C9;font-weight:600;font-size:.875rem;text-decoration:underline;}
-		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
+		.hcp-cards-row .card-body,#postgrid .card-body{display:flex;flex-direction:column;}
+		.hcp-cards-row .card-body>:last-child,#postgrid .card-body>:last-child{margin-top:auto;padding-top:.5rem;align-self:flex-start;}
+		.hcp-series-row{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:1rem;margin:2.5rem 0 1.5rem;}
+		.hcp-series-row h3{margin:0;}
+		@media(max-width:767px){
+			.hcp-series-row{flex-direction:column;align-items:flex-start;margin:1.25rem 0 1.25rem;}
+			.hcp-cb-hero .hcp-hero-cta{margin:.5rem 0 1rem;}
+			#episodes h2{margin:.75rem 0 1rem;}
+			.hcp-cards-row .card-body{padding-left:1rem;padding-right:1rem;}
+		}		.hcp-soon-note{margin-top:1rem;font-size:.9rem;color:#8a94a0;}
 		.hcp-video-carousel{position:relative;}
 		.hcp-video-carousel.owl-loaded{margin-top:1.5rem;}
 		.hcp-video-carousel .owl-nav{margin:0;}

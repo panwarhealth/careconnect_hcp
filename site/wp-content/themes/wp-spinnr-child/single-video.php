@@ -171,7 +171,7 @@ get_header(); ?>
 					<?php if ( ! empty( $resources ) ) : ?>
 					<div class="column lg:col-span-12 mt-lg">
 						<h5 class="mb-base">Related Resources</h5>
-						<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">
+						<div class="hcp-cards-row grid lg:grid-cols-3 md:grid-cols-2 gap-base">
 							<?php foreach ( $resources as $rid ) { echo hcp_videos_resource_card( (int) $rid ); } ?>
 						</div>
 					</div>

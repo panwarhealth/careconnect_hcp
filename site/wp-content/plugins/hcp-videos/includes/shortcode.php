@@ -194,11 +194,13 @@ function hcp_videos_gate_cta( string $style = 'buttons', string $target = '' ): 
 			. '</span>';
 	}
 
+	// Anchors, not <button>s: the theme sizes a.btn like the Watch now CTA,
+	// while buttons render smaller (client feedback). Hrefs are the no-JS
+	// fallback; the modal handler intercepts.
 	return '<span class="hcp-gate-cta">'
-		. '<button type="button" class="btn cta m-0" data-hcp-login' . $data . '>Login</button>'
+		. '<a class="btn cta m-0" href="' . esc_url( home_url( '/login' ) ) . '" data-hcp-login' . $data . '>Login</a>'
 		. '<span class="hcp-gate-or">or</span>'
-		. '<button type="button" class="btn cta m-0" data-hcp-register' . $data . '>Register</button>'
-		. '<span class="hcp-gate-tail">to view</span>'
+		. '<a class="btn cta m-0" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register' . $data . '>Register</a>'		. '<span class="hcp-gate-tail">to view</span>'
 		. '</span>';
 }
 
@@ -366,6 +368,6 @@ function hcp_videos_resources_shortcode( $atts ): string {
 
 	return $cards === ''
 		? ''
-		: '<div class="grid lg:grid-cols-3 md:grid-cols-2 gap-base">' . $cards . '</div>';
+		: '<div class="hcp-cards-row grid lg:grid-cols-3 md:grid-cols-2 gap-base">' . $cards . '</div>';
 }
 add_shortcode( 'video_resources', 'hcp_videos_resources_shortcode' );
