@@ -50,6 +50,13 @@ function hcp_videos_migrations_pending(): array {
  * @return array Log entries [ 'slug', 'status' => 'ok'|'error', 'message' ].
  */
 function hcp_videos_migrations_run_pending(): array {
+	// Migrations run from CLI or a front-end runner, where no user holds
+	// unfiltered_html — KSES then silently strips <script>/<style> from any
+	// content a migration saves, leaving inline code as visible page text.
+	// Migrations are trusted code shipping trusted content; drop the filters
+	// for the run and restore them after.
+	kses_remove_filters();
+
 	$log = array();
 	foreach ( hcp_videos_migrations_pending() as $slug => $m ) {
 		try {
@@ -70,5 +77,8 @@ function hcp_videos_migrations_run_pending(): array {
 			$log[] = array( 'slug' => $slug, 'status' => 'error', 'message' => $e->getMessage() );
 		}
 	}
+
+	kses_init();
+
 	return $log;
 }
