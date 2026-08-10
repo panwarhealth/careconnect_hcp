@@ -85,7 +85,7 @@ function hcp_popups_mca_render(): void {
 	?>
 	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO 8.5 CPD&nbsp;HOURS</h2>
 
-	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and <strong class="hcp-popup__highlight">management of anal fissures in general&nbsp;practice</strong>:</p>
+	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and <strong class="hcp-popup__highlight">management of anal fissures in general&nbsp;practice:</strong></p>
 
 	<ul class="hcp-popup__parts">
 		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /><span>Online Learning Module</span></li>
