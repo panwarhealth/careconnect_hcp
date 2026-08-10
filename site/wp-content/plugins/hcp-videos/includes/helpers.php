@@ -93,7 +93,52 @@ function hcp_videos_play_styles(): void {
 		@media(min-width:600px) and (max-width:991px){.hcp-video-carousel:not(.owl-loaded){grid-template-columns:1fr 1fr;}}
 		@media(max-width:899px){.hcp-cb-hero .grid.items-center{grid-template-columns:1fr!important;}.hcp-cb-hero .grid.items-center>.column{grid-column:auto!important;}}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
+		[id^="clinicalbites"],.hcp-anchor-target{scroll-margin-top:110px;}
 	</style>';
+
+	hcp_videos_anchor_script();
+}
+
+/**
+ * Re-apply a #hash jump once the page has settled.
+ *
+ * The browser scrolls to an anchor as soon as it parses the target, but the
+ * carousel initialises after that and changes height, so anything below it has
+ * moved by the time the page is stable — a link to a section under the carousel
+ * lands short. Re-running the jump on load, and once more after the carousel has
+ * had a frame to lay out, puts it where the reader expects.
+ *
+ * Abandoned the moment the reader scrolls themselves: yanking the page out from
+ * under someone who has started reading is worse than landing in the wrong spot.
+ */
+function hcp_videos_anchor_script(): void {
+	static $done = false;
+	if ( $done ) {
+		return;
+	}
+	$done = true;
+
+	echo '<script id="hcp-video-anchor-js">
+	(function(){
+		if(!window.location.hash) return;
+		var target;
+		try { target = document.querySelector(window.location.hash); } catch(e) { return; }
+		if(!target) return;
+		var cancelled = false;
+		function cancel(){ cancelled = true; }
+		window.addEventListener("wheel", cancel, {passive:true, once:true});
+		window.addEventListener("touchmove", cancel, {passive:true, once:true});
+		window.addEventListener("keydown", cancel, {once:true});
+		function settle(){
+			if(cancelled) return;
+			target.scrollIntoView();
+		}
+		window.addEventListener("load", function(){
+			settle();
+			setTimeout(settle, 350);
+		});
+	})();
+	</script>';
 }
 
 /**
