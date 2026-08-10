@@ -200,7 +200,8 @@ function hcp_videos_gate_cta( string $style = 'buttons', string $target = '' ): 
 	return '<span class="hcp-gate-cta">'
 		. '<a class="btn cta m-0" href="' . esc_url( home_url( '/login' ) ) . '" data-hcp-login' . $data . '>Login</a>'
 		. '<span class="hcp-gate-or">or</span>'
-		. '<a class="btn cta m-0" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register' . $data . '>Register</a>'		. '<span class="hcp-gate-tail">to view</span>'
+		. '<a class="btn cta m-0" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register' . $data . '>Register</a>'
+		. '<span class="hcp-gate-tail">to view</span>'
 		. '</span>';
 }
 
