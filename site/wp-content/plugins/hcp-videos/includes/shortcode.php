@@ -112,7 +112,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 						<h5 class="min-h-14"><?php echo esc_html( get_the_title( $id ) ); ?></h5>
 					</div>
 					<?php if ( $gated ) : ?>
-						<?php echo hcp_videos_gate_cta(); ?>
+						<?php echo hcp_videos_gate_cta( 'links' ); ?>
 					<?php else : ?>
 						<span class="underline text-accent font-semibold">Watch Video</span>
 					<?php endif; ?>
@@ -150,12 +150,27 @@ function hcp_videos_is_gated( int $post_id ): bool {
 }
 
 /**
- * The call to action on a gated card. Buttons rather than a link to the video:
- * the theme's login/register modals open in place, so the visitor keeps their
- * spot on the listing instead of bouncing through a login page and back.
+ * The call to action on a gated card or hero. The theme's login/register
+ * modals open in place, so the visitor keeps their spot on the listing
+ * instead of bouncing through a login page and back.
+ *
+ * Two styles: 'buttons' for a hero, where the CTA is the section's one
+ * primary action, and 'links' for cards — a row of buttons on every episode
+ * reads as clutter (client feedback), so cards get text links styled like
+ * their usual "Watch Video" line. The links carry real login/register hrefs
+ * as the no-JS fallback; the modal handler intercepts them.
  */
-function hcp_videos_gate_cta(): string {
+function hcp_videos_gate_cta( string $style = 'buttons' ): string {
 	hcp_videos_gate_scripts();
+
+	if ( 'links' === $style ) {
+		return '<span class="hcp-gate-cta hcp-gate-cta--links">'
+			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/login' ) ) . '" data-hcp-login>Login</a>'
+			. '<span class="hcp-gate-or">or</span>'
+			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register>Register</a>'
+			. '<span class="hcp-gate-tail">to view</span>'
+			. '</span>';
+	}
 
 	return '<span class="hcp-gate-cta">'
 		. '<button type="button" class="btn cta m-0" data-hcp-login>Login</button>'
@@ -184,6 +199,8 @@ function hcp_videos_gate_scripts(): void {
 		.hcp-gate-cta{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;font-weight:600;}
 		.hcp-gate-cta .btn{padding:.35rem 1rem;font-size:.85rem;}
 		.hcp-gate-or,.hcp-gate-tail{color:#485055;font-weight:400;font-size:.85rem;}
+		.hcp-gate-cta--links{gap:.3rem;align-items:baseline;}
+		.hcp-gate-cta--links .hcp-gate-or,.hcp-gate-cta--links .hcp-gate-tail{font-size:inherit;}
 		.hcp-video-card-gated .card{cursor:default;}
 	</style>';
 

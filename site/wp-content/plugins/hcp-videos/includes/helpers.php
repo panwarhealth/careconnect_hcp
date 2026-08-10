@@ -359,7 +359,7 @@ function hcp_videos_resource_card( int $rid, bool $gated = false ): string {
 					<h5 class="min-h-14"><?php echo esc_html( get_the_title( $rid ) ); ?></h5>
 				</div>
 				<?php if ( $gated ) : ?>
-					<?php echo hcp_videos_gate_cta(); ?>
+					<?php echo hcp_videos_gate_cta( 'links' ); ?>
 				<?php else : ?>
 					<span class="underline text-accent font-semibold"><?php echo esc_html( $link['label'] ); ?></span>
 				<?php endif; ?>
