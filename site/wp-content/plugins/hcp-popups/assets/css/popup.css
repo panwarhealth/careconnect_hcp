@@ -81,6 +81,8 @@ body.hcp-popup-open { overflow: hidden; }
 
 .hcp-popup__live { color: #00a2c4; }
 
+.hcp-popup__highlight { color: #00a2c4; }
+
 /* Widow control. The copy binds its own last two words with non-breaking spaces,
    which holds everywhere; this pulls an earlier word down as well on browsers
    that support it, and is ignored by those that do not. */
