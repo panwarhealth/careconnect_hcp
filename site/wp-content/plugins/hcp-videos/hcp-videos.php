@@ -18,6 +18,7 @@ require_once HCP_VIDEOS_DIR . 'includes/fields.php';
 require_once HCP_VIDEOS_DIR . 'includes/helpers.php';
 require_once HCP_VIDEOS_DIR . 'includes/related.php';
 require_once HCP_VIDEOS_DIR . 'includes/series.php';
+require_once HCP_VIDEOS_DIR . 'includes/redirects.php';
 require_once HCP_VIDEOS_DIR . 'includes/shortcode.php';
 require_once HCP_VIDEOS_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
