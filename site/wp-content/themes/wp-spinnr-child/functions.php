@@ -2189,7 +2189,15 @@ if (! function_exists('resources_fn')) :
 								$tool = get_field('tool');
 								//audience
 								$term_obj_list = get_the_terms($query->post->ID, 'audience');
-								$audience = join(', ', wp_list_pluck($term_obj_list, 'name'));
+								$audience_names = is_array($term_obj_list) ? wp_list_pluck($term_obj_list, 'name') : [];
+
+								// Profession terms stay on the post so the filters still match;
+								// the card leads with the umbrella label instead of listing them.
+								if (in_array('Healthcare Professional', $audience_names, true)) {
+									$audience_names = ['Healthcare Professional'];
+								}
+
+								$audience = join(', ', $audience_names);
 								if ($vid) {
 									$lity = 'data-lity ';
 									$vidIcon = '<svg class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
