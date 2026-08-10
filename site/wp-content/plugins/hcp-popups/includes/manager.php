@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
 const HCP_POPUPS_SEEN_COOKIE    = 'hcp_popup_seen';
 const HCP_POPUPS_SESSION_COOKIE = 'hcp_popup_sid';
 
-// How long a dismissal suppresses a pop-up. A session cookie is not a reliable
-// visit boundary: session restore carries one across browser restarts, so a
-// reader can be suppressed for days. 24 hours reads as "once a day".
+// How long a dismissal suppresses a pop-up. The seen cookie is a session
+// cookie whose entries carry a dismissal timestamp; entries older than this
+// are ignored, so session restore can't suppress a reader for days.
 const HCP_POPUPS_SEEN_TTL = DAY_IN_SECONDS;
 
 /**
@@ -83,7 +83,15 @@ function hcp_popups_resolve(): ?array {
 		return null;
 	}
 
-	$seen = array_filter( explode( ',', (string) ( $_COOKIE[ HCP_POPUPS_SEEN_COOKIE ] ?? '' ) ) );
+	// Cookie entries are "id:unix-timestamp"; only dismissals within the TTL
+	// count. Entries in the old timestamp-less format are treated as expired.
+	$seen = array();
+	foreach ( array_filter( explode( ',', (string) ( $_COOKIE[ HCP_POPUPS_SEEN_COOKIE ] ?? '' ) ) ) as $entry ) {
+		$parts = explode( ':', $entry, 2 );
+		if ( isset( $parts[1] ) && time() - (int) $parts[1] < HCP_POPUPS_SEEN_TTL ) {
+			$seen[] = $parts[0];
+		}
+	}
 
 	foreach ( hcp_popups_all() as $popup ) {
 		if ( in_array( $popup['id'], $seen, true ) ) {
@@ -128,7 +136,6 @@ function hcp_popups_enqueue(): void {
 				'measurementId' => hcp_popups_ga4_measurement_id(),
 				'delayMs'    => 3000,
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
-				'seenMaxAge' => HCP_POPUPS_SEEN_TTL,
 				'endpoint'   => rest_url( 'hcp-popups/v1/event' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
 				'sessionId'  => hcp_popups_session_id(),

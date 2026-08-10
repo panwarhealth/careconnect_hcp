@@ -53,14 +53,16 @@
 		}).catch(function () {});
 	}
 
-	// Max-Age rather than a session cookie: browsers with session restore keep
-	// session cookies alive for days, which suppresses the pop-up indefinitely.
+	// Session cookie holding id:timestamp entries. The server ignores entries
+	// older than the TTL, so session restore can't suppress the pop-up for more
+	// than 24 hours — and clearing session cookies resets it immediately.
 	function markSeen() {
 		var seen = (document.cookie.match(/(?:^|;\s*)hcp_popup_seen=([^;]*)/) || [])[1] || '';
-		var ids = seen ? decodeURIComponent(seen).split(',') : [];
-		if (ids.indexOf(cfg.id) === -1) ids.push(cfg.id);
-		document.cookie = cfg.seenCookie + '=' + encodeURIComponent(ids.join(','))
-			+ '; path=/; Max-Age=' + cfg.seenMaxAge + '; SameSite=Lax';
+		var entries = seen ? decodeURIComponent(seen).split(',') : [];
+		entries = entries.filter(function (e) { return e.split(':')[0] !== cfg.id; });
+		entries.push(cfg.id + ':' + Math.floor(Date.now() / 1000));
+		document.cookie = cfg.seenCookie + '=' + encodeURIComponent(entries.join(','))
+			+ '; path=/; SameSite=Lax';
 	}
 
 	function show() {
