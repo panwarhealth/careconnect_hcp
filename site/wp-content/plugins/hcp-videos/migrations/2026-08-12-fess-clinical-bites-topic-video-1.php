@@ -17,7 +17,7 @@ return array(
 	'up'          => function () {
 		$topic_name = 'Clinical Bites: Allergic Rhinitis Rounds';
 		$topic_slug = 'clinical-bites-allergic-rhinitis';
-		$vimeo      = 'FESS_EP1_VIMEO_ID'; // TODO: real ID once the upload lands
+		$vimeo      = '1216901419';
 
 		$term = term_exists( $topic_slug, 'video_topic' );
 		if ( ! $term ) {
