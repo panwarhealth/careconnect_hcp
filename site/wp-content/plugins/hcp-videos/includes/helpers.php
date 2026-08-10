@@ -121,9 +121,11 @@ function hcp_videos_anchor_script(): void {
 	echo '<script id="hcp-video-anchor-js">
 	(function(){
 		if(!window.location.hash) return;
-		var target;
-		try { target = document.querySelector(window.location.hash); } catch(e) { return; }
-		if(!target) return;
+		// Resolved per attempt, not once: this script is printed mid-page, above
+		// the sections it targets, so at parse time the target does not exist yet.
+		function findTarget(){
+			try { return document.querySelector(window.location.hash); } catch(e) { return null; }
+		}
 		var cancelled = false;
 		function cancel(){ cancelled = true; }
 		window.addEventListener("wheel", cancel, {passive:true, once:true});
@@ -133,7 +135,7 @@ function hcp_videos_anchor_script(): void {
 		// there is not enough page beneath it to bring it to the top — the scroll
 		// clamps early and leaves the section stranded mid-page. Extend the page
 		// by the shortfall so it can reach.
-		function runway(){
+		function runway(target){
 			var margin = parseInt(getComputedStyle(target).scrollMarginTop, 10) || 0;
 			var needed = target.getBoundingClientRect().top + window.scrollY - margin;
 			var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -151,7 +153,9 @@ function hcp_videos_anchor_script(): void {
 		}
 		function settle(){
 			if(cancelled) return;
-			runway();
+			var target = findTarget();
+			if(!target) return;
+			runway(target);
 			target.scrollIntoView();
 		}
 		// Not gated on window.load: with slow assets (Vimeo thumbnails, ads) the
