@@ -94,6 +94,13 @@ function hcp_videos_play_styles(): void {
 		@media(max-width:899px){.hcp-cb-hero .grid.items-center{grid-template-columns:1fr!important;}.hcp-cb-hero .grid.items-center>.column{grid-column:auto!important;}}
 		@media(min-width:1024px){.hcp-related-scroll{max-height:640px;overflow-y:auto;padding-right:10px;}}
 		[id^="clinicalbites"],.hcp-anchor-target{scroll-margin-top:110px;}
+		/* The series landing page was built on bare Tailwind containers (16px/24px
+		   gutters); a flat 20px keeps its sections off the screen edge at every
+		   width. Scoped by the max-w-7xl pattern, which the theme .container
+		   pages do not use. #app prefix because the theme scopes every Tailwind
+		   utility under it — a class-only rule loses to that ID specificity. */
+		#app .mx-auto.max-w-7xl.w-full{padding-left:40px;padding-right:40px;}
+		@media(max-width:767px){#app .mx-auto.max-w-7xl.w-full{padding-left:20px;padding-right:20px;}}
 		.hcp-jump-nav{display:flex;gap:2rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%;}
 		/* Grid/flex ancestors default to min-width:auto, so instead of the nav
 		   scrolling internally it widens its column and the whole page pans. */
