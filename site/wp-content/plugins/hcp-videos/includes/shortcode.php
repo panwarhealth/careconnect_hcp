@@ -14,6 +14,8 @@
  *   layout="grid"         — optional, "grid" (default) or "carousel" (Owl)
  *   columns="3"           — optional, grid columns: 1, 2, or 3 (default 3)
  *   limit="-1"            — optional, max videos (default all)
+ *   offset="0"            — optional, skip the first N videos (episode numbers
+ *                           and the coming-soon note still count them)
  *   new_tab="1"           — optional, open video pages in a new tab (default on,
  *                           so a listing page is never navigated away from)
  *   title_prefix=""       — optional, text prepended to each card title. Used by
@@ -39,14 +41,22 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		'layout'        => 'grid',
 		'columns'       => 3,
 		'limit'         => -1,
+		'offset'        => 0,
 		'new_tab'       => 1,
 		'title_prefix'  => '',
 	), $atts, 'video_grid' );
+
+	// WP_Query ignores offset while posts_per_page is -1.
+	$offset = max( 0, (int) $atts['offset'] );
+	if ( $offset && -1 === (int) $atts['limit'] ) {
+		$atts['limit'] = 100;
+	}
 
 	$args = array(
 		'post_type'      => 'video',
 		'post_status'    => 'publish',
 		'posts_per_page' => (int) $atts['limit'],
+		'offset'         => $offset,
 		'orderby'        => 'menu_order date',
 		'order'          => 'ASC',
 		// Listed only: video_listed truthy. Treat missing meta as listed.
@@ -95,7 +105,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		$n++;
 		$id      = get_the_ID();
 		$thumb   = hcp_videos_thumb_url( $id, 'medium' );
-		$eyebrow = $is_series ? 'Episode ' . $n : hcp_videos_audience_label( $id );
+		$eyebrow = $is_series ? 'Episode ' . ( $n + $offset ) : hcp_videos_audience_label( $id );
 		$gated   = hcp_videos_is_gated( $id );
 
 		ob_start();
@@ -131,8 +141,8 @@ function hcp_videos_grid_shortcode( $atts ): string {
 	}
 	wp_reset_postdata();
 
-	$soon = ( $is_series && $n < $series_total )
-		? '<p class="hcp-soon-note">Stay tuned &mdash; Episode ' . (int) ( $n + 1 ) . ' of ' . (int) $series_total . ' coming soon.</p>'
+	$soon = ( $is_series && $n + $offset < $series_total )
+		? '<p class="hcp-soon-note">Stay tuned &mdash; Episode ' . (int) ( $n + $offset + 1 ) . ' of ' . (int) $series_total . ' coming soon.</p>'
 		: '';
 
 	if ( $is_carousel ) {
