@@ -136,7 +136,7 @@ function hcp_videos_add_landing_resources( string $slug ): string {
 	$section = '<div class="section pt-0" data-pb-label="Section" id="clinicalbitesresources">'
 		. ' <div class="mx-auto max-w-7xl w-full px-4 md:px-6" data-pb-label="Container">'
 		. ' <div class="column" data-pb-label="Column">'
-		. ' <div class="content-block" data-pb-label="Content Block"> <h2 class="">Related Resources</h2> </div>'
+		. ' <div class="content-block" data-pb-label="Content Block"> <h2 class="">Related Resources:</h2> </div>'
 		. ' <div class="content-block" data-pb-label="Content Block">[video_resources ids="' . implode( ',', $ids ) . '"]</div>'
 		. ' </div> </div> </div>';
 
