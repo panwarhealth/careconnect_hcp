@@ -224,6 +224,9 @@ function hcp_videos_gate_scripts(): void {
 		.hcp-gate-cta{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;font-weight:600;}
 		.hcp-gate-cta .btn{padding:.35rem 1rem;font-size:.85rem;}
 		.hcp-gate-or,.hcp-gate-tail{color:#485055;font-weight:400;font-size:.85rem;}
+		/* Landing hero only: gate CTA matches the Watch now button (theme .btn metrics). */
+		.hcp-hero-cta .hcp-gate-cta .btn{padding:.75rem 1.25rem;font-size:1rem;}
+		.hcp-hero-cta .hcp-gate-or,.hcp-hero-cta .hcp-gate-tail{font-size:1rem;}
 		.hcp-gate-cta--links{gap:.3rem;align-items:baseline;}
 		.hcp-gate-cta--links .hcp-gate-or,.hcp-gate-cta--links .hcp-gate-tail{font-size:inherit;}
 		.hcp-video-card-gated .card{cursor:default;}
