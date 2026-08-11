@@ -81,7 +81,7 @@ function hcp_videos_play_styles(): void {
 		.hcp-cards-row .card,#postgrid .card{display:flex;flex-direction:column;}
 		.hcp-cards-row .card-body,#postgrid .card-body{display:flex;flex-direction:column;flex:1 1 auto;height:auto;}
 		.hcp-cards-row .card-body>:last-child,#postgrid .card-body>:last-child{margin-top:auto;padding-top:.5rem;align-self:flex-start;}
-		.hcp-series-row{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:1rem;margin:3rem 0 2.25rem;}
+		.hcp-series-row{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:1rem;margin:3rem 0;}
 		.hcp-series-row h3{margin:0;}
 		.hcp-series-row-cta{display:flex;align-items:center;}
 		.hcp-series-row-cta .btn{margin:0;}
