@@ -1,7 +1,7 @@
 <?php
 /**
- * Client markup (10.08.26): episode 4's Related videos are curated — Ep 5,
- * then the Hydralyte MOA video; the third tile is removed. Manual picks with
+ * Client markup (10.08.26, amended 11.08): episode 4's Related videos are
+ * curated — Ep 5, the Hydralyte MOA video, then Ep 1. Manual picks with
  * auto-fill off, the escape hatch built for exactly this case.
  *
  * Keyed by Vimeo ID (ep 4 = 1213464339); MOA video resolved by slug.
@@ -21,6 +21,7 @@ return array(
 
 		$ep5 = null;
 		$ep4 = null;
+		$ep1 = null;
 		foreach ( get_posts( array(
 			'post_type'      => 'video',
 			'post_status'    => 'any',
@@ -32,15 +33,17 @@ return array(
 				$ep4 = $vid;
 			} elseif ( '1213464687' === $vimeo ) {
 				$ep5 = $vid;
+			} elseif ( '1207250947' === $vimeo ) {
+				$ep1 = $vid;
 			}
 		}
-		if ( ! $ep4 || ! $ep5 ) {
-			throw new RuntimeException( 'Episode 4 or 5 not found by Vimeo ID.' );
+		if ( ! $ep4 || ! $ep5 || ! $ep1 ) {
+			throw new RuntimeException( 'Episode 1, 4 or 5 not found by Vimeo ID.' );
 		}
 
-		update_field( 'related_videos', array( $ep5, $moa->ID ), $ep4 );
+		update_field( 'related_videos', array( $ep5, $moa->ID, $ep1 ), $ep4 );
 		update_post_meta( $ep4, 'related_autofill', '0' );
 
-		return "Episode 4 ({$ep4}) related set to Ep 5 ({$ep5}) + MOA ({$moa->ID}), auto-fill off.";
+		return "Episode 4 ({$ep4}) related set to Ep 5 ({$ep5}) + MOA ({$moa->ID}) + Ep 1 ({$ep1}), auto-fill off.";
 	},
 );
