@@ -115,6 +115,10 @@
                                     window.location.href = "/tools-and-videos#fess-children-nasal-spray";
                                     return;
                                 }
+                                if (window.hcpGateTarget) {
+                                    window.location.href = window.hcpGateTarget;
+                                    return;
+                                }
                                 setTimeout(function() {
                                     window.location.reload();
                                 }, 1000);

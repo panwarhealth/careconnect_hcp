@@ -112,7 +112,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 						<h5 class="min-h-14"><?php echo esc_html( get_the_title( $id ) ); ?></h5>
 					</div>
 					<?php if ( $gated ) : ?>
-						<?php echo hcp_videos_gate_cta( 'links' ); ?>
+						<?php echo hcp_videos_gate_cta( 'links', get_permalink( $id ) ); ?>
 					<?php else : ?>
 						<span class="underline text-accent font-semibold">Watch Video</span>
 					<?php endif; ?>
@@ -160,22 +160,27 @@ function hcp_videos_is_gated( int $post_id ): bool {
  * their usual "Watch Video" line. The links carry real login/register hrefs
  * as the no-JS fallback; the modal handler intercepts them.
  */
-function hcp_videos_gate_cta( string $style = 'buttons' ): string {
+function hcp_videos_gate_cta( string $style = 'buttons', string $target = '' ): string {
 	hcp_videos_gate_scripts();
+
+	// Deep-link: the modal JS copies this into the login form's redirect_to and
+	// the registration form's hcp_reg_target, so the visitor lands on the video
+	// or resource they clicked rather than back on the listing.
+	$data = $target ? ' data-hcp-target="' . esc_url( $target ) . '"' : '';
 
 	if ( 'links' === $style ) {
 		return '<span class="hcp-gate-cta hcp-gate-cta--links">'
-			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/login' ) ) . '" data-hcp-login>Login</a>'
+			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/login' ) ) . '" data-hcp-login' . $data . '>Login</a>'
 			. '<span class="hcp-gate-or">or</span>'
-			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register>Register</a>'
+			. '<a class="underline text-accent font-semibold" href="' . esc_url( home_url( '/register' ) ) . '" data-hcp-register' . $data . '>Register</a>'
 			. '<span class="hcp-gate-tail">to view</span>'
 			. '</span>';
 	}
 
 	return '<span class="hcp-gate-cta">'
-		. '<button type="button" class="btn cta m-0" data-hcp-login>Login</button>'
+		. '<button type="button" class="btn cta m-0" data-hcp-login' . $data . '>Login</button>'
 		. '<span class="hcp-gate-or">or</span>'
-		. '<button type="button" class="btn cta m-0" data-hcp-register>Register</button>'
+		. '<button type="button" class="btn cta m-0" data-hcp-register' . $data . '>Register</button>'
 		. '<span class="hcp-gate-tail">to view</span>'
 		. '</span>';
 }
@@ -217,9 +222,29 @@ function hcp_videos_gate_scripts(): void {
 				window.location.href = wantsLogin ? "/login" : "/register";
 				return;
 			}
+			var target = this.getAttribute("data-hcp-target") || "";
+			window.hcpGateTarget = target || null;
+			if(target){
+				login.find("input[name=redirect_to]").val(target);
+				var regForm = register.find("form");
+				if(regForm.length){
+					var field = regForm.find("input[name=hcp_reg_target]");
+					if(!field.length){ field = $("<input>",{type:"hidden",name:"hcp_reg_target"}).appendTo(regForm); }
+					field.val(target);
+				}
+			}
 			login.toggleClass("hidden", !wantsLogin);
 			register.toggleClass("hidden", wantsLogin);
 			modal.removeClass("hidden").hide().fadeIn(400);
+		});
+		// The theme popup never runs Formidable\'s post-registration redirect,
+		// so follow it here: the server has already applied the deep-link
+		// filter to response.redirect. Fall back to a reload, which at least
+		// swaps the page to its logged-in state.
+		$(document).on("frmFormComplete", function(ev, form, response){
+			if(!form || !$(form).is("#form_registration")) return;
+			var t = (response && response.redirect) || window.hcpGateTarget || "";
+			if(t){ window.location.href = t; } else { window.location.reload(); }
 		});
 	})(jQuery);
 	</script>';
@@ -287,7 +312,7 @@ function hcp_videos_series_cta_shortcode( $atts ): string {
 	), $atts, 'video_series_cta' );
 
 	if ( hcp_videos_is_gated( (int) get_the_ID() ) ) {
-		return hcp_videos_gate_cta();
+		return hcp_videos_gate_cta( 'buttons', home_url( (string) $atts['url'] ) );
 	}
 
 	if ( '' === trim( (string) $atts['url'] ) ) {
