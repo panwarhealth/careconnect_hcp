@@ -154,9 +154,11 @@ function hcp_videos_episode_intro( int $post_id ): string {
 	$label   = sprintf( 'Video %d of %d:', $n, hcp_videos_series_total( $term->term_id ) );
 	$landing = hcp_videos_series_landing_url( $term->term_id );
 
+	// Styled to match the Read more toggle below the description, so the
+	// description doesn't mix a third font treatment (client feedback).
 	return $landing
-		? '<strong><a href="' . esc_url( $landing ) . '">' . esc_html( $label ) . '</a></strong> '
-		: '<strong>' . esc_html( $label ) . '</strong> ';
+		? '<a class="hcp-series-link" href="' . esc_url( $landing ) . '">' . esc_html( $label ) . '</a> '
+		: '<span class="hcp-series-link">' . esc_html( $label ) . '</span> ';
 }
 
 /**
