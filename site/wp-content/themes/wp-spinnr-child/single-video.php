@@ -45,7 +45,16 @@ get_header(); ?>
 				$poster = function_exists( 'hcp_videos_thumb_url' ) ? hcp_videos_thumb_url( $post_id, 'large' ) : '';
 			}
 		?>
-		<div class="section <?php echo $gated ? 'logged_in_users_only' : ''; ?>" style="padding-bottom:12rem;">
+		<?php // Sits outside the gated wrapper so a logged-out visitor can still leave. ?>
+		<div class="section" style="padding-top:1.25rem;padding-bottom:1.25rem;">
+			<div class="container">
+				<div class="content-block mb-0">
+					<a class="no-underline text-accent font-semibold" href="<?php echo esc_url( home_url( '/tools-and-videos/' ) ); ?>">&#8249;&nbsp;Back to Tools &amp; Videos</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="section pt-0 <?php echo $gated ? 'logged_in_users_only' : ''; ?>" style="padding-bottom:12rem;">
 			<div class="container <?php echo $gated ? '' : 'grid lg:grid-cols-12 gap-4xl'; ?>">
 
 				<?php if ( $gated ) : ?>
