@@ -15,6 +15,9 @@
  *   limit="-1"            — optional, max videos (default all)
  *   new_tab="1"           — optional, open video pages in a new tab (default on,
  *                           so a listing page is never navigated away from)
+ *   title_prefix=""       — optional, text prepended to each card title. Used by
+ *                           the featured single-card blocks to label the episode
+ *                           without touching the video's own title.
  *
  * Gated cards: a logged-out visitor (outside any ungate window) sees the card in
  * full — thumbnail, episode number and title — with the "Watch Video" link
@@ -36,6 +39,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 		'columns'       => 3,
 		'limit'         => -1,
 		'new_tab'       => 1,
+		'title_prefix'  => '',
 	), $atts, 'video_grid' );
 
 	$args = array(
@@ -81,6 +85,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 
 	// Build the cards once; the wrapper (grid vs carousel) is chosen below.
 	$target = (int) $atts['new_tab'] ? ' target="_blank" rel="noopener"' : '';
+	$prefix = (string) $atts['title_prefix'];
 	$cards  = array();
 	$n      = 0;
 	while ( $q->have_posts() ) {
@@ -109,7 +114,7 @@ function hcp_videos_grid_shortcode( $atts ): string {
 				<div class="card-body">
 					<div>
 						<?php if ( $eyebrow ) : ?><p class="text-sm text-black"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
-						<h5 class="min-h-14"><?php echo esc_html( get_the_title( $id ) ); ?></h5>
+						<h5 class="min-h-14"><?php echo esc_html( $prefix . get_the_title( $id ) ); ?></h5>
 					</div>
 					<?php if ( $gated ) : ?>
 						<?php echo hcp_videos_gate_cta( 'links', get_permalink( $id ) ); ?>
