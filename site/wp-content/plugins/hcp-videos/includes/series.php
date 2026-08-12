@@ -2,12 +2,17 @@
 /**
  * Series/episode helpers.
  *
- * A "series" is a `video_topic` term holding an ordered run of videos (Clinical
- * Bites: Diabetes Sick Day Management, and the Allergic Rhinitis series to
- * follow). Episode order is the same order the listing shortcode uses, so the
- * number a reader sees on a card matches the number on the video page.
+ * A "series" is a `video_topic` term holding an ordered run of videos. Episode
+ * order is the same order the listing shortcode uses, so the number a reader
+ * sees on a card matches the number on the video page.
  *
- * Two optional term meta values configure a series:
+ * `video_topic` does double duty: most terms are plain subject/brand groupings
+ * (Hydralyte, FESS, Sleep) that must never be numbered, and a few are ordered
+ * runs. Only the slugs declared in HCP_VIDEOS_SERIES_TOPICS get episode numbers
+ * and the "Video N of M" lead-in — add a slug there to turn a topic into a
+ * series, and nothing else needs changing.
+ *
+ * Two optional term meta values tune a declared series:
  *   _series_total   — episode count to advertise before every episode is live,
  *                     so "Video 1 of 5" is honest during a staggered release.
  *                     Falls back to the number of published episodes.
@@ -20,8 +25,27 @@ defined( 'ABSPATH' ) || exit;
 const HCP_VIDEOS_SERIES_TAXONOMY = 'video_topic';
 
 /**
- * The series term a video belongs to, or null. A video in more than one topic
- * takes the first: topics are series here, and a video belongs to one run.
+ * The video_topic slugs that are ordered series.
+ */
+const HCP_VIDEOS_SERIES_TOPICS = array(
+	'clinical-bites-diabetes',
+	'clinical-bites-allergic-rhinitis',
+);
+
+/**
+ * Slugs treated as series. Filterable so a series can be added without a code
+ * change if one is ever needed mid-campaign.
+ *
+ * @return string[]
+ */
+function hcp_videos_series_topics(): array {
+	return (array) apply_filters( 'hcp_videos_series_topics', HCP_VIDEOS_SERIES_TOPICS );
+}
+
+/**
+ * The series term a video belongs to, or null when it is in none. A video may
+ * carry several topics; the declared series wins over any plain grouping, so
+ * tagging an episode with a brand topic never costs it its episode number.
  */
 function hcp_videos_series_term( int $post_id ): ?WP_Term {
 	$terms = get_the_terms( $post_id, HCP_VIDEOS_SERIES_TAXONOMY );
@@ -30,7 +54,15 @@ function hcp_videos_series_term( int $post_id ): ?WP_Term {
 		return null;
 	}
 
-	return $terms[0] instanceof WP_Term ? $terms[0] : null;
+	$series = hcp_videos_series_topics();
+
+	foreach ( $terms as $term ) {
+		if ( $term instanceof WP_Term && in_array( $term->slug, $series, true ) ) {
+			return $term;
+		}
+	}
+
+	return null;
 }
 
 /**
