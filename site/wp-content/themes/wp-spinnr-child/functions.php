@@ -3856,3 +3856,15 @@ add_filter('wp_sentry_options', function(\Sentry\Options $options): \Sentry\Opti
     $options->setSendDefaultPii(false);
     return $options;
 });
+
+// Per-post CTA text for SPINNR wp-post-list card templates ({{card_cta}}).
+// Set the _hcp_card_cta post meta to override; defaults to "Read more".
+add_action('rest_api_init', function(): void {
+    register_rest_field('post', 'card_cta', array(
+        'get_callback' => function(array $post): string {
+            $cta = get_post_meta($post['id'], '_hcp_card_cta', true);
+            return is_string($cta) && $cta !== '' ? $cta : 'Read more';
+        },
+        'schema' => null,
+    ));
+});
