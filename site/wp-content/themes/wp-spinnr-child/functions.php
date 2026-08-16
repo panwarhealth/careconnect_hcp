@@ -2584,19 +2584,17 @@ add_action( 'wp_enqueue_scripts', function () {
     }
 } );
 
+require_once get_stylesheet_directory() . '/inc/ungate.php';
+
 // Priority 20 so parent theme has already registered wp-spinnr-custom-js-body (priority 10, loads after child)
 add_action( 'wp_enqueue_scripts', 'hcp_output_ungate_data', 20 );
 function hcp_output_ungate_data() {
     if ( ! is_singular() ) {
         return;
     }
-    $ungated_until = (int) get_post_meta( get_the_ID(), '_ungated_until', true );
-    $ungated_from  = (int) get_post_meta( get_the_ID(), '_ungated_from', true );
-    if ( $ungated_until > 0 ) {
-        wp_localize_script( 'wp-spinnr-custom-js-body', 'hcpUngate', array(
-            'from'  => $ungated_from,
-            'until' => $ungated_until,
-        ) );
+    $window = hcp_ungate_window( get_the_ID() );
+    if ( $window ) {
+        wp_localize_script( 'wp-spinnr-custom-js-body', 'hcpUngate', $window );
     }
 }
 
