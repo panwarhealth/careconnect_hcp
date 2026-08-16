@@ -48,6 +48,8 @@ site/wp-content/plugins/**
 !site/wp-content/plugins/tbst-custom-report/**
 !site/wp-content/plugins/hcp-mca-review-workflow/**
 !site/wp-content/plugins/hcp-seo/**
+!site/wp-content/plugins/hcp-popups/**
+!site/wp-content/plugins/hcp-videos/**
 
 # --- Themes (both ours since the 2026-07 spinnr fork) -------------------
 # wp-spinnr is our in-house fork (v4.0.0, SPINNR service stripped);
