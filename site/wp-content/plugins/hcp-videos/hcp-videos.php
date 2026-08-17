@@ -21,6 +21,7 @@ require_once HCP_VIDEOS_DIR . 'includes/series.php';
 require_once HCP_VIDEOS_DIR . 'includes/redirects.php';
 require_once HCP_VIDEOS_DIR . 'includes/register-redirect.php';
 require_once HCP_VIDEOS_DIR . 'includes/shortcode.php';
+require_once HCP_VIDEOS_DIR . 'includes/analytics.php';
 require_once HCP_VIDEOS_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
 	require_once HCP_VIDEOS_DIR . 'includes/admin-migrations-page.php';
