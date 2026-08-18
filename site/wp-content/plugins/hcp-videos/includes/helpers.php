@@ -354,6 +354,9 @@ function hcp_videos_resource_card( int $rid, bool $gated = false ): string {
 	$thumb    = get_the_post_thumbnail_url( $rid, 'medium' );
 	$audience = hcp_videos_audience_label( $rid );
 	$icon     = $link['is_video'] ? hcp_videos_play_icon() : '';
+	// Optional card-only display title, so a long real post title (e.g. a blog
+	// article's) can be shortened here without renaming the post itself.
+	$title    = get_post_meta( $rid, '_hcpvid_card_title', true ) ?: get_the_title( $rid );
 
 	ob_start();
 	?>
@@ -366,13 +369,13 @@ function hcp_videos_resource_card( int $rid, bool $gated = false ): string {
 			<div class="bg-secondary p-md h-48 rounded-t relative">
 				<?php echo $icon; ?>
 				<?php if ( $thumb ) : ?>
-					<img src="<?php echo esc_url( $thumb ); ?>" class="h-full object-contain mx-auto" alt="<?php echo esc_attr( get_the_title( $rid ) ); ?>" />
+					<img src="<?php echo esc_url( $thumb ); ?>" class="h-full object-contain mx-auto" alt="<?php echo esc_attr( $title ); ?>" />
 				<?php endif; ?>
 			</div>
 			<div class="card-body">
 				<div>
 					<?php if ( $audience ) : ?><p class="text-sm text-black"><?php echo esc_html( $audience ); ?></p><?php endif; ?>
-					<h5 class="min-h-14"><?php echo esc_html( get_the_title( $rid ) ); ?></h5>
+					<h5 class="min-h-14"><?php echo esc_html( $title ); ?></h5>
 				</div>
 				<?php if ( $gated ) : ?>
 					<?php echo hcp_videos_gate_cta( 'links', $link['url'] ); ?>
