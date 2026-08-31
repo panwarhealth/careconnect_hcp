@@ -99,3 +99,24 @@ function hcp_ungate_is_open( $post_id ) {
 
 	return $now >= $window['from'] && $now < $window['until'];
 }
+
+/**
+ * Third consumer: grant Restrict Content Pro access inside an open window.
+ *
+ * Pages gated by RCP rather than `logged_in_users_only` are enforced by
+ * `rcp_redirect_from_premium_post()` and `rcp_filter_restricted_content()`,
+ * both of which resolve through `rcp_user_can_access()`. That applies this
+ * filter for visitors with no customer record, so one hook covers the
+ * redirect and the content swap.
+ *
+ * Grant-only: access RCP has already allowed is never withdrawn here, and a
+ * post with no window is left entirely to RCP.
+ */
+function hcp_ungate_rcp_access( $can_access, $user_id, $post_id ) {
+	if ( $can_access ) {
+		return $can_access;
+	}
+
+	return hcp_ungate_is_open( $post_id );
+}
+add_filter( 'rcp_member_can_access', 'hcp_ungate_rcp_access', 10, 3 );
