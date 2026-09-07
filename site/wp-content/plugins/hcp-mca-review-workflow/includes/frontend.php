@@ -1,9 +1,19 @@
 <?php
 /**
- * Frontend tweaks for MCA course pages.
+ * Frontend tweaks for the audit lesson and form, for every variant.
  */
 
 defined( 'ABSPATH' ) || exit;
+
+/**
+ * The audit variant whose lesson is being viewed, or null.
+ */
+function hcp_mca_current_lesson_variant(): ?array {
+	if ( ! is_singular( 'sfwd-lessons' ) ) {
+		return null;
+	}
+	return hcp_mca_variant_for_lesson( (int) get_the_ID() );
+}
 
 add_action( 'wp_head', 'hcp_mca_hide_start_survey_button' );
 
@@ -12,7 +22,7 @@ add_action( 'wp_head', 'hcp_mca_hide_start_survey_button' );
  * The button is irrelevant while the user is filling in the multi-page audit form.
  */
 function hcp_mca_hide_start_survey_button(): void {
-	if ( ! is_singular( 'sfwd-lessons' ) || get_the_ID() !== HCP_MCA_LESSON_ID ) {
+	if ( null === hcp_mca_current_lesson_variant() ) {
 		return;
 	}
 	echo '<style>.ld-content-actions { display: none !important; }</style>';
@@ -21,10 +31,11 @@ function hcp_mca_hide_start_survey_button(): void {
 add_filter( 'frm_submit_button_html', 'hcp_mca_resubmit_button_label', 10, 2 );
 
 /**
- * Change the submit button to "Resubmit" on form 161 when the user already has an entry.
+ * Change the submit button to "Resubmit" on the audit form when the user already has an entry.
  */
 function hcp_mca_resubmit_button_label( $html, $args ): string {
-	if ( (int) $args['form']->id !== HCP_MCA_AUDIT_FORM_ID ) {
+	$variant = hcp_mca_variant_for_audit_form( (int) $args['form']->id );
+	if ( null === $variant ) {
 		return $html;
 	}
 
@@ -33,13 +44,13 @@ function hcp_mca_resubmit_button_label( $html, $args ): string {
 		return $html;
 	}
 
-	if ( hcp_mca_has_approval( $user_id ) ) {
+	if ( hcp_mca_has_approval( $user_id, $variant ) ) {
 		$html = str_replace( '>Save and continue later<', '>Save<', $html );
 		$html = preg_replace( '/<button[^>]*frm_final_submit[^>]*>.*?<\/button>/s', '', $html );
 		return $html;
 	}
 
-	$state = hcp_mca_get_state( $user_id );
+	$state = hcp_mca_get_state( $user_id, $variant );
 
 	if ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
 		$html = str_replace( '>Submit<', '>Resubmit<', $html );
@@ -53,7 +64,8 @@ add_filter( 'frm_setup_new_fields_vars', 'hcp_mca_audit_banner_copy', 10, 2 );
 add_filter( 'frm_setup_edit_fields_vars', 'hcp_mca_audit_banner_copy', 10, 2 );
 
 function hcp_mca_audit_banner_copy( $field_array, $field ) {
-	if ( (int) $field_array['id'] !== 12465 ) {
+	$variant = hcp_mca_variant_by( 'banner_field', (int) $field_array['id'] );
+	if ( null === $variant ) {
 		return $field_array;
 	}
 
@@ -62,9 +74,9 @@ function hcp_mca_audit_banner_copy( $field_array, $field ) {
 		return $field_array;
 	}
 
-	$state = hcp_mca_get_state( $user_id );
+	$state = hcp_mca_get_state( $user_id, $variant );
 
-	if ( hcp_mca_has_approval( $user_id ) ) {
+	if ( hcp_mca_has_approval( $user_id, $variant ) ) {
 		$field_array['description'] = hcp_mca_approved_banner_html( 'center' );
 	} elseif ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
 		$field_array['description'] = '<blockquote class="p-base bg-recto-green text-white rounded-lg">'
@@ -105,10 +117,8 @@ function hcp_mca_approved_banner_html( string $align = 'left' ): string {
 add_action( 'wp_footer', 'hcp_mca_approved_buttons_js' );
 
 function hcp_mca_approved_buttons_js(): void {
-	if ( ! is_singular( 'sfwd-lessons' ) || get_the_ID() !== HCP_MCA_LESSON_ID ) {
-		return;
-	}
-	if ( ! hcp_mca_has_approval( get_current_user_id() ) ) {
+	$variant = hcp_mca_current_lesson_variant();
+	if ( null === $variant || ! hcp_mca_has_approval( get_current_user_id(), $variant ) ) {
 		return;
 	}
 	?>
@@ -132,10 +142,8 @@ function hcp_mca_prepend_approved_banner_to_lesson( $content ): string {
 	if ( $done ) {
 		return $content;
 	}
-	if ( ! is_singular( 'sfwd-lessons' ) || get_the_ID() !== HCP_MCA_LESSON_ID ) {
-		return $content;
-	}
-	if ( ! hcp_mca_has_approval( get_current_user_id() ) ) {
+	$variant = hcp_mca_current_lesson_variant();
+	if ( null === $variant || ! hcp_mca_has_approval( get_current_user_id(), $variant ) ) {
 		return $content;
 	}
 	$done = true;

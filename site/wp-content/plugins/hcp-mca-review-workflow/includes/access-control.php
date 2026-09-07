@@ -51,13 +51,15 @@ function hcp_mca_restricted_form_ids(): array {
 
 	global $wpdb;
 
-	$parents = [
-		HCP_MCA_CONTACT_FORM_ID,
-		HCP_MCA_PRE_SURVEY_FORM_ID,
-		HCP_MCA_POST_SURVEY_FORM_ID,
-		HCP_MCA_AUDIT_FORM_ID,
-		HCP_MCA_EVAL_FORM_ID,
-	];
+	$parents = array_values( array_unique( array_merge(
+		[
+			HCP_MCA_CONTACT_FORM_ID,
+			HCP_MCA_PRE_SURVEY_FORM_ID,
+			HCP_MCA_POST_SURVEY_FORM_ID,
+		],
+		hcp_mca_variant_ids( 'audit_form' ),
+		hcp_mca_variant_ids( 'eval_form' )
+	) ) );
 
 	$children = $wpdb->get_col(
 		$wpdb->prepare(

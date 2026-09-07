@@ -2667,7 +2667,7 @@ add_shortcode( 'compute', 'compute_content_shortcode' );
 
 function courses_gate( $content ) {
     
-    $course_id_to_gates = array(95553, 111793, 123191);
+    $course_id_to_gates = array_merge( array(95553, 123191), hcp_audit_course_ids() );
 	$presurvey_page_id = 98001;
 	$form_id = 81;
 	$post = get_post( $presurvey_page_id );	
@@ -2682,7 +2682,7 @@ function courses_gate( $content ) {
     }
 	
 	// Clinical Audit Course
-	if(get_the_ID() == 111793 || get_the_ID() == 95553 || get_the_ID() == 123191){
+	if( in_array( get_the_ID(), $course_id_to_gates ) ){
 		
 		if(current_user_can( 'administrator' )){
 			return $content;
@@ -2867,11 +2867,48 @@ add_filter( 'the_content', 'courses_gate', 100 );
  * bypass Maria's compliance review — she must remain the recovery path.
  */
 function hcp_mca_step_map(): array {
-    return [
-        97  => ['course' => 95553,  'step' => 100865, 'type' => 'quiz',   'submit' => true,  'recover' => true],  // post-learning survey
-        209 => ['course' => 111793, 'step' => 116865, 'type' => 'quiz',   'submit' => true,  'recover' => true],  // activity evaluation
-        161 => ['course' => 111793, 'step' => 112353, 'type' => 'lesson', 'submit' => true,  'recover' => false], // audit — Maria reviews; no auto-recovery
+    $map = [
+        97 => ['course' => 95553, 'step' => 100865, 'type' => 'quiz', 'submit' => true, 'recover' => true], // post-learning survey
     ];
+    foreach (hcp_audit_variants() as $variant) {
+        $map[(int) $variant['eval_form']]  = ['course' => (int) $variant['course'], 'step' => (int) $variant['quiz'],   'type' => 'quiz',   'submit' => true, 'recover' => true];  // activity evaluation
+        $map[(int) $variant['audit_form']] = ['course' => (int) $variant['course'], 'step' => (int) $variant['lesson'], 'type' => 'lesson', 'submit' => true, 'recover' => false]; // audit — Maria reviews; no auto-recovery
+    }
+    return $map;
+}
+
+/**
+ * Audit variants from the review-workflow plugin (legacy + 2026). Falls back
+ * to the legacy ids alone if the plugin is inactive.
+ */
+function hcp_audit_variants(): array {
+    if (function_exists('hcp_mca_variants')) {
+        return hcp_mca_variants();
+    }
+    return [
+        'legacy' => ['key' => 'legacy', 'course' => 111793, 'lesson' => 112353, 'quiz' => 116865, 'audit_form' => 161, 'eval_form' => 209],
+    ];
+}
+
+function hcp_audit_course_ids(): array {
+    return array_map(fn($v) => (int) $v['course'], array_values(hcp_audit_variants()));
+}
+
+function hcp_audit_form_ids(string $field): array {
+    return array_map(fn($v) => (int) $v[$field], array_values(hcp_audit_variants()));
+}
+
+function hcp_audit_variant_for(string $field, int $id): ?array {
+    foreach (hcp_audit_variants() as $variant) {
+        if ((int) $variant[$field] === $id) {
+            return $variant;
+        }
+    }
+    return null;
+}
+
+function hcp_audit_form_ids_sql(string $field): string {
+    return implode(',', array_map('intval', hcp_audit_form_ids($field)));
 }
 
 // Whether the LearnDash step has actually been marked complete. We check the
@@ -2971,7 +3008,7 @@ add_action('wp', 'hcp_mca_recover_on_view');
 
 /**
  * Skip the 6-week idle-reminder notification for users who have already
- * submitted the clinical audit (form 161, non-draft) — their next step is
+ * submitted a clinical audit (any variant, non-draft) — their next step is
  * Panwar's review, not a login, so "continue your CPD activity" is wrong.
  */
 function hcp_mca_skip_idle_reminder_after_audit_submit($send, $shortcode_data) {
@@ -2985,7 +3022,7 @@ function hcp_mca_skip_idle_reminder_after_audit_submit($send, $shortcode_data) {
     }
     global $wpdb;
     $submitted = (int) $wpdb->get_var($wpdb->prepare(
-        "SELECT COUNT(*) FROM {$wpdb->prefix}frm_items WHERE form_id = 161 AND user_id = %d AND is_draft = 0",
+        "SELECT COUNT(*) FROM {$wpdb->prefix}frm_items WHERE form_id IN (" . hcp_audit_form_ids_sql('audit_form') . ") AND user_id = %d AND is_draft = 0",
         $user_id
     ));
     return $submitted > 0 ? false : $send;
@@ -3272,7 +3309,7 @@ add_filter( 'learndash_get_label_course_step_next', function( $label, $post_type
     $quiz_slug = learndash_get_post_type_slug( 'quiz' );
 
     if ( $post_type === $quiz_slug ) {
-	if(112353 == get_the_ID()){
+	if(hcp_audit_variant_for('lesson', (int) get_the_ID())){
 		return 'Start Survey';
 	}
         return 'Start Quiz';
@@ -3508,11 +3545,13 @@ function custom_alert_message($message, $type, $icon) {
 add_action( 'template_redirect', 'custom_learndash_processing', 5 );
 
 function custom_learndash_processing() {
-    // 1. Only run if we are on the specific Course page
-    // Using is_single() ensures this only triggers on that specific post ID
-    $course_id = 111793;
+    // Only run on an audit course page (legacy or 2026 variant).
+    if ( ! is_singular( 'sfwd-courses' ) ) {
+        return;
+    }
+    $course_id = (int) get_the_ID();
 
-    if ( is_single( $course_id ) ) {
+    if ( in_array( $course_id, hcp_audit_course_ids(), true ) ) {
         
         // 2. Only run for logged-in users
         if ( is_user_logged_in() ) {
@@ -3551,7 +3590,7 @@ add_shortcode( 'current_user_id', function() {
 
 add_filter('frm_success_message', 'custom_message_specific_form', 10, 3);
 function custom_message_specific_form($message, $form, $entry) { 
-    if ($form->id == 209) {
+    if (hcp_audit_variant_for('eval_form', (int) $form->id)) {
         return 'Thank you for completing the Mini Clinical Audit and the Activity Evaluation survey.<br/><br/>Your audit responses will now be evaluated by the education providers. Provided there are no issues with your responses, you will receive an email within the next four weeks with your Statement of Completion.';
     }
     
@@ -3560,9 +3599,7 @@ function custom_message_specific_form($message, $form, $entry) {
 add_filter('frm_validate_entry', 'change_already_submitted_message', 20, 2);
 function change_already_submitted_message($errors, $values){
     
-    $target_form_id = 209; 
-
-    if ( (int)$values['form_id'] === $target_form_id ) {
+    if ( hcp_audit_variant_for('eval_form', (int) $values['form_id']) ) {
         if ( isset($errors['already_submitted']) ) {
             $errors['already_submitted'] = 'Sorry, you have already submitted this form. Please check your email for confirmation.';
         }
@@ -3573,12 +3610,15 @@ function change_already_submitted_message($errors, $values){
 
 add_filter('frm_main_feedback', 'custom_message_specific_form_main_feedback', 10, 3);
 function custom_message_specific_form_main_feedback($message, $form, $entry) {
-    if ($form->id != 161) {
+    $variant = hcp_audit_variant_for('audit_form', (int) $form->id);
+    if (!$variant) {
         return $message;
     }
 
-    $entry_id = is_object($entry) ? $entry->id : (int) $entry;
-    $user_id  = get_current_user_id();
+    $entry_id  = is_object($entry) ? $entry->id : (int) $entry;
+    $user_id   = get_current_user_id();
+    $quiz_url  = get_permalink((int) $variant['quiz']);
+    $course_url = get_permalink((int) $variant['course']);
 
     // Draft saves (Save and Continue Later) get the default Formidable draft message.
     global $wpdb;
@@ -3593,8 +3633,8 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
     }
 
     $has_eval = (bool) $wpdb->get_var($wpdb->prepare(
-        "SELECT 1 FROM {$wpdb->prefix}frm_items WHERE user_id=%d AND form_id=209 AND is_draft=0 LIMIT 1",
-        $user_id
+        "SELECT 1 FROM {$wpdb->prefix}frm_items WHERE user_id=%d AND form_id=%d AND is_draft=0 LIMIT 1",
+        $user_id, (int) $variant['eval_form']
     ));
 
     $js_hide_script = "
@@ -3611,14 +3651,14 @@ function custom_message_specific_form_main_feedback($message, $form, $entry) {
     if (!$has_eval) {
         return '
             <div class="frm_message" role="status">Thanks for submitting your audit. Redirecting you to the activity evaluation...</div>
-            <div class="mt-10"><a class="btn cta mt-0" href="/courses/mini-clinical-audit/quizzes/activity-evaluation/">Continue to Activity Evaluation</a></div>
-            <script>setTimeout(function(){window.location.href="/courses/mini-clinical-audit/quizzes/activity-evaluation/";},3000);</script>
+            <div class="mt-10"><a class="btn cta mt-0" href="' . esc_url($quiz_url) . '">Continue to Activity Evaluation</a></div>
+            <script>setTimeout(function(){window.location.href="' . esc_url($quiz_url) . '";},3000);</script>
         ' . $js_hide_script;
     }
 
     return '
         <div class="frm_message" role="status">Your audit responses have been updated. Please expect to hear from the education providers soon.</div>
-        <div class="mt-10"><a href="/courses/mini-clinical-audit/">Return to the audit homepage</a></div>
+        <div class="mt-10"><a href="' . esc_url($course_url) . '">Return to the audit homepage</a></div>
     ' . $js_hide_script;
 }
 
@@ -3635,12 +3675,12 @@ function hcp_mca_entry_key($entry_id): string {
     return $key ?: '';
 }
 
-// The user's most recent audit (form 161) item_key — used when no form entry is
+// The user's most recent audit (any variant) item_key — used when no form entry is
 // in scope (e.g. the course-completed hook downstream of Maria's manual action).
 function hcp_mca_user_audit_key($user_id): string {
     global $wpdb;
     $key = $wpdb->get_var($wpdb->prepare(
-        "SELECT item_key FROM {$wpdb->prefix}frm_items WHERE user_id = %d AND form_id = 161 ORDER BY id DESC LIMIT 1",
+        "SELECT item_key FROM {$wpdb->prefix}frm_items WHERE user_id = %d AND form_id IN (" . hcp_audit_form_ids_sql('audit_form') . ") ORDER BY id DESC LIMIT 1",
         $user_id
     ));
     return $key ?: '';
@@ -3741,22 +3781,23 @@ add_filter('wp_sentry_public_context', function($context) {
     return $context;
 });
 
-// MCA (course 111793): when LearnDash fires course-completed, confirm the
-// completion usermeta was actually written. If it is missing, the cert (96129)
-// likely did not issue. Correlation is the user's audit (form 161) item_key —
-// opaque to Sentry, resolves to the user only via Panwar's own frm_items.
+// Audit courses (any variant): when LearnDash fires course-completed, confirm
+// the completion usermeta was actually written. If it is missing, the cert
+// likely did not issue. Correlation is the user's audit item_key — opaque to
+// Sentry, resolves to the user only via Panwar's own frm_items.
 add_action('learndash_course_completed', function($data) {
-    if ( ! is_array($data)
-        || empty($data['course'])
-        || ! is_object($data['course'])
-        || (int) $data['course']->ID !== 111793 ) {
+    if ( ! is_array($data) || empty($data['course']) || ! is_object($data['course']) ) {
+        return;
+    }
+    $course_id = (int) $data['course']->ID;
+    if ( ! in_array($course_id, hcp_audit_course_ids(), true) ) {
         return;
     }
     $user_id = ( isset($data['user']) && is_object($data['user']) ) ? (int) $data['user']->ID : 0;
-    if ( $user_id && ! get_user_meta($user_id, 'course_completed_111793', true) ) {
+    if ( $user_id && ! get_user_meta($user_id, 'course_completed_' . $course_id, true) ) {
         hcp_sentry_capture('MCA course_completed fired but usermeta not written — cert may not have issued', \Sentry\Severity::error(), [
             'correlation_id' => hcp_mca_user_audit_key($user_id),
-            'course_id'      => 111793,
+            'course_id'      => $course_id,
         ]);
     }
 }, 20, 1);
