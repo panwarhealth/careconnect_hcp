@@ -43,35 +43,31 @@ return [
 			}
 
 			$cards .= sprintf(
-				'<div class="card column flex flex-col" data-pb-label="Column" id="chart-%1$d">'
-				. '<div class="bg-secondary content-block h-4xl" data-pb-label="Content Block">'
-				. '<img src="%2$s" alt="%1$d Allergic Rhinitis Treatments Chart" class="mx-auto my-sm h-40 h-56" />'
+				'<div class="card column flex flex-col items-center text-center" data-pb-label="Column" id="chart-%1$d">'
+				. '<div class="content-block w-full" data-pb-label="Content Block">'
+				. '<a href="%4$s" target="_blank"><img src="%2$s" alt="%3$s" class="w-full" /></a>'
 				. '</div>'
-				. '<div class="card-body content-block pb-0 text-center" data-pb-label="Content Block">'
-				. '<h3 class=" ">%3$s  </h3>'
-				. '<hr class=" " />'
-				. '<p class="">Download the %1$d Allergic Rhinitis Treatments Chart  </p>'
-				. '</div>'
-				. '<div class="card-body content-block mt-auto pb-sm" data-pb-label="Content Block">'
-				. '<div class="flex mt-auto justify-center"><a class="btn cta my-0" href="%4$s" target="_blank">Download Chart</a>  </div>'
+				. '<div class="card-body content-block" data-pb-label="Content Block" style="padding:2rem 1.5rem 2.5rem;">'
+				. '<h3 class=" ">Download the %1$d Allergic Rhinitis Treatments Chart  </h3>'
+				. '<a class="btn cta my-0" href="%4$s" target="_blank">Download Chart</a>'
 				. '</div>'
 				. '</div>',
 				$year,
 				esc_url( $thumb ),
-				esc_html( $resource->post_title ),
+				esc_attr( $resource->post_title ),
 				esc_url( $pdf )
 			);
 		}
 
-		$content = '<div class="section pb-0" data-pb-label="Section">'
+		$content = '<div class="section pb-0" data-pb-label="Section" style="padding-top:5rem;">'
 			. '<div class="container grid lg:max-w-7xl" data-pb-label="Container">'
 			. '<div class="column" data-pb-label="Column">'
 			. '<div class="content-block text-center" data-pb-label="Content Block">'
 			. '<h1 class=" ">Allergic Rhinitis Treatments Charts  </h1>'
 			. '<p class="">National Asthma Council Australia charts summarising the intranasal treatment options for allergic rhinitis.  </p>'
 			. '</div></div></div></div>'
-			. '<div class="section pb-xl" data-pb-label="Section">'
-			. '<div class="container grid md:grid-cols-2 lg:max-w-7xl" data-pb-label="Container" style="gap:2rem;">'
+			. '<div class="section" data-pb-label="Section">'
+			. '<div class="container grid md:grid-cols-2 lg:max-w-7xl" data-pb-label="Container" style="gap:3rem;">'
 			. $cards
 			. '</div></div>';
 
