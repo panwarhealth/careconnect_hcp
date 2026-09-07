@@ -47,13 +47,13 @@ return [
 				. '<div class="bg-secondary content-block h-4xl" data-pb-label="Content Block">'
 				. '<img src="%2$s" alt="%1$d Allergic Rhinitis Treatments Chart" class="mx-auto my-sm h-40 h-56" />'
 				. '</div>'
-				. '<div class="card-body content-block pb-0" data-pb-label="Content Block">'
+				. '<div class="card-body content-block pb-0 text-center" data-pb-label="Content Block">'
 				. '<h3 class=" ">%3$s  </h3>'
 				. '<hr class=" " />'
 				. '<p class="">Download the %1$d Allergic Rhinitis Treatments Chart  </p>'
 				. '</div>'
 				. '<div class="card-body content-block mt-auto pb-sm" data-pb-label="Content Block">'
-				. '<div class="flex mt-auto"><a class="btn cta my-0" href="%4$s" target="_blank">Download Chart</a>  </div>'
+				. '<div class="flex mt-auto justify-center"><a class="btn cta my-0" href="%4$s" target="_blank">Download Chart</a>  </div>'
 				. '</div>'
 				. '</div>',
 				$year,
