@@ -63,6 +63,27 @@ return [
 			$notes[] = 'new-ribbon';
 		}
 
+		// Both thumbnails share one aspect ratio so the card titles line up
+		// regardless of a pixel or two of difference between the source images.
+		if ( false === strpos( $content, 'hcp-chart-thumb' ) ) {
+			$content = preg_replace(
+				'~<img src="([^"]*)" alt="([^"]*)" class="w-full rounded-md" style="display:block;" />~',
+				'<img src="$1" alt="$2" class="w-full rounded-md hcp-chart-thumb" style="display:block;margin:0;width:100%;aspect-ratio:793/560;object-fit:cover;" />',
+				$content,
+				-1,
+				$hits
+			);
+			if ( null === $content || 2 !== $hits ) {
+				throw new \RuntimeException( 'expected 2 chart thumbnails, found ' . (int) $hits );
+			}
+			$notes[] = 'thumb-ratio';
+		} elseif ( false === strpos( $content, 'margin:0;width:100%;aspect-ratio' ) ) {
+			// The clipped 2026 link contains the image's theme margin instead of
+			// collapsing it, which pushed that card's title down.
+			$content = str_replace( 'style="display:block;width:100%;aspect-ratio', 'style="display:block;margin:0;width:100%;aspect-ratio', $content );
+			$notes[] = 'thumb-margin';
+		}
+
 		if ( ! $notes ) {
 			return "Page {$page->ID} already amended.";
 		}
