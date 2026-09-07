@@ -87,6 +87,7 @@ function hcp_mca_v2_provision_form( int $source_id, string $form_key, string $na
 			[ 'id' => (int) $child_id ]
 		);
 	}
+	$rekeyed += hcp_mca_v2_rekey_child_fields( $source_id, (int) $new_id );
 
 	// Email actions: draft. The plugin sends the review-ready email itself.
 	$wpdb->query( $wpdb->prepare(
@@ -149,6 +150,45 @@ function hcp_mca_v2_retarget_form_urls( int $form_id, array $map, array &$notes 
 	if ( $updated ) {
 		$notes[] = "form {$form_id} urls retargeted";
 	}
+}
+}
+
+/**
+ * Fields inside repeater child forms are created through the Pro repeat-form
+ * path and miss the duplicate-id map, so key them by position against the
+ * source child form.
+ */
+if ( ! function_exists( 'hcp_mca_v2_rekey_child_fields' ) ) {
+function hcp_mca_v2_rekey_child_fields( int $source_form_id, int $new_form_id ): int {
+	global $wpdb;
+
+	$source_children = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}frm_forms WHERE parent_form_id = %d ORDER BY id", $source_form_id ) );
+	$new_children    = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}frm_forms WHERE parent_form_id = %d ORDER BY id", $new_form_id ) );
+	$n               = 0;
+
+	foreach ( $new_children as $i => $child_id ) {
+		if ( ! isset( $source_children[ $i ] ) ) {
+			break;
+		}
+		$source_fields = $wpdb->get_results( $wpdb->prepare( "SELECT id, field_key, type, name FROM {$wpdb->prefix}frm_fields WHERE form_id = %d ORDER BY field_order, id", $source_children[ $i ] ) );
+		$new_fields    = $wpdb->get_results( $wpdb->prepare( "SELECT id, field_key, type, name FROM {$wpdb->prefix}frm_fields WHERE form_id = %d ORDER BY field_order, id", $child_id ) );
+		if ( count( $source_fields ) !== count( $new_fields ) ) {
+			throw new \RuntimeException( "child form {$child_id}: field count differs from source {$source_children[ $i ]}" );
+		}
+		foreach ( $new_fields as $j => $field ) {
+			$source = $source_fields[ $j ];
+			if ( $source->type !== $field->type || $source->name !== $field->name ) {
+				throw new \RuntimeException( "child form {$child_id}: field {$field->id} does not match source {$source->id}" );
+			}
+			$wanted = HCP_MCA_V2_FIELD_KEY_PREFIX . $source->field_key;
+			if ( $field->field_key !== $wanted ) {
+				$wpdb->update( $wpdb->prefix . 'frm_fields', [ 'field_key' => $wanted ], [ 'id' => (int) $field->id ] );
+				$n++;
+			}
+		}
+	}
+
+	return $n;
 }
 }
 
