@@ -149,3 +149,72 @@ function hcp_mca_prepend_approved_banner_to_lesson( $content ): string {
 	$done = true;
 	return '<div class="mt-8 mb-0">' . hcp_mca_approved_banner_html() . '</div>' . $content;
 }
+
+add_action( 'wp_enqueue_scripts', 'hcp_mca_enqueue_audit_v2_assets' );
+
+/**
+ * Interactive behaviour for the 2026 audit form: criteria pull-through,
+ * count limits, generated statements, case study checks.
+ */
+function hcp_mca_enqueue_audit_v2_assets(): void {
+	$variant = hcp_mca_current_lesson_variant();
+	if ( null === $variant || HCP_MCA_VARIANT_V2 !== $variant['key'] ) {
+		return;
+	}
+
+	$base_url = plugins_url( '', HCP_MCA_PLUGIN_DIR . 'hcp-mca-review-workflow.php' );
+	$version  = '1.0.0';
+
+	wp_enqueue_style( 'hcp-mca-audit-v2', $base_url . '/assets/css/audit-v2.css', [], $version );
+	wp_enqueue_script( 'hcp-mca-audit-v2', $base_url . '/assets/js/audit-v2.js', [ 'jquery' ], $version, true );
+	wp_localize_script( 'hcp-mca-audit-v2', 'hcpAuditV2', hcp_mca_audit_v2_js_config( $variant ) );
+}
+
+/**
+ * Field key => id map for the audit form and its child forms, plus the
+ * groups the JS needs: counts limited by the diagnosed total (numerators of
+ * the percentage calculations) and the Step 1B improvement-area checkboxes.
+ */
+function hcp_mca_audit_v2_js_config( array $variant ): array {
+	global $wpdb;
+
+	$form_id   = (int) $variant['audit_form'];
+	$diagnosed = 0;
+	$fields    = [];
+	$rows      = $wpdb->get_results( $wpdb->prepare(
+		"SELECT f.id, f.field_key, f.type, f.field_options FROM {$wpdb->prefix}frm_fields f
+		 LEFT JOIN {$wpdb->prefix}frm_forms fr ON fr.id = f.form_id
+		 WHERE f.form_id = %d OR fr.parent_form_id = %d",
+		$form_id, $form_id
+	) );
+	foreach ( $rows as $row ) {
+		$fields[ $row->field_key ] = (int) $row->id;
+		if ( HCP_MCA_V2_FIELD_KEY_PREFIX . '9962s' === $row->field_key ) {
+			$diagnosed = (int) $row->id;
+		}
+	}
+
+	$by_id      = array_flip( $fields );
+	$numerators = [];
+	foreach ( $rows as $row ) {
+		if ( 'number' !== $row->type ) {
+			continue;
+		}
+		$opts = maybe_unserialize( $row->field_options );
+		$calc = (string) ( $opts['calc'] ?? '' );
+		if ( $diagnosed && preg_match( '~\[(\d+)\]\s*\*\s*100\)\s*/\s*\[' . $diagnosed . '\]~', $calc, $m ) && isset( $by_id[ (int) $m[1] ] ) ) {
+			$numerators[] = $by_id[ (int) $m[1] ];
+		}
+	}
+
+	$areas = array_map(
+		fn( $k ) => HCP_MCA_V2_FIELD_KEY_PREFIX . $k,
+		[ 'or0v0', 'nl84o', 'qx8vp', 'y8oa5', 'jyxn', 'pjtj2' ]
+	);
+
+	return [
+		'fields'           => $fields,
+		'diagnosedCounts'  => array_values( array_unique( $numerators ) ),
+		'improvementAreas' => $areas,
+	];
+}

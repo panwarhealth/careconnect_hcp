@@ -96,7 +96,9 @@ function hcp_mca_variant_resolve_id( array $spec ): int {
 			) );
 		case 'field':
 			return (int) $wpdb->get_var( $wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}frm_fields WHERE field_key = %s LIMIT 1",
+				"SELECT f.id FROM {$wpdb->prefix}frm_fields f
+				 JOIN {$wpdb->prefix}frm_forms fr ON fr.id = f.form_id
+				 WHERE f.field_key = %s LIMIT 1",
 				$spec[1]
 			) );
 	}
