@@ -44,11 +44,9 @@ return [
 
 			$cards .= sprintf(
 				'<div class="card column flex flex-col items-center text-center" data-pb-label="Column" id="chart-%1$d">'
-				. '<div class="content-block w-full" data-pb-label="Content Block">'
-				. '<a href="%4$s" target="_blank"><img src="%2$s" alt="%3$s" class="w-full" /></a>'
-				. '</div>'
-				. '<div class="card-body content-block" data-pb-label="Content Block" style="padding:2rem 1.5rem 2.5rem;">'
-				. '<h3 class=" ">Download the %1$d Allergic Rhinitis Treatments Chart  </h3>'
+				. '<div class="card-body content-block" data-pb-label="Content Block" style="padding:1.5rem;">'
+				. '<a href="%4$s" target="_blank" style="display:block;margin:0 0 1.5rem;"><img src="%2$s" alt="%3$s" class="w-full rounded-md" style="display:block;" /></a>'
+				. '<h3 class=" " style="font-size:1.375rem;margin:0 0 1.5rem;">Download the %1$d Allergic Rhinitis Treatments Chart  </h3>'
 				. '<a class="btn cta my-0" href="%4$s" target="_blank">Download Chart</a>'
 				. '</div>'
 				. '</div>',
