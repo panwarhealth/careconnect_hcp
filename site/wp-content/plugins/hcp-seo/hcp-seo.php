@@ -28,6 +28,8 @@ function hcp_seo_noise_slugs(): array {
 		'anal-fissures-breaking-the-cycle-and-the-stigma-completion-activity-homepage',
 		// Ungated eDM-only landing page for the NAC treatment charts.
 		'allergic-rhinitis-chart',
+		// Logged-in chooser between the legacy and 2026 clinical audit; 302s for anonymous visitors.
+		'clinical-audit',
 	];
 }
 
