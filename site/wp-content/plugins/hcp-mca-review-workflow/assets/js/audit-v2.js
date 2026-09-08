@@ -95,7 +95,8 @@
 		$input.attr('max', isNaN(max) ? null : max);
 		if (!isNaN(val) && !isNaN(max) && val > max) {
 			if (!$err.length) {
-				$err = $('<p class="frm_error hcp-limit-error" role="alert"></p>').appendTo($wrap);
+				// Not .frm_error: Formidable clears those on edit after a refused submit.
+				$err = $('<p class="hcp-limit-error" role="alert"></p>').appendTo($wrap);
 			}
 			$err.text(message);
 			$input.addClass('frm_invalid');
@@ -192,7 +193,11 @@
 	function initChecks() {
 		$('.hcp-check').each(function () {
 			var $check = $(this);
-			var keys = ($check.data('fields') || '').split(',');
+			var keys = ($check.attr('class') || '').split(/\s+/).filter(function (c) {
+				return c.indexOf('hcp-check--') === 0;
+			}).map(function (c) {
+				return c.slice('hcp-check--'.length);
+			});
 			if ($check.data('hcpInit')) {
 				return;
 			}
