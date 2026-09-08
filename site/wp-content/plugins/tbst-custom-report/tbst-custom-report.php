@@ -84,7 +84,10 @@ function csvr_maybe_download() {
 			csvr_stream_csv( csvr_build_olm_report( $date_from, $date_to ), "online-learning-module-report-{$date_from}-{$date_to}.csv" );
 			break;
 		case 'report_mca':
-			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to ), "mini-clinical-audit-report-{$date_from}-{$date_to}.csv" );
+			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to, 'legacy' ), "mini-clinical-audit-report-{$date_from}-{$date_to}.csv" );
+			break;
+		case 'report_mca_v2':
+			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to, 'v2' ), "clinical-audit-2026-report-{$date_from}-{$date_to}.csv" );
 			break;
 	}
 }
@@ -168,13 +171,47 @@ function csvr_build_olm_report( string $date_from, string $date_to ): array {
 	return $rows;
 }
 
-function csvr_build_mca_report( string $date_from, string $date_to ): array {
+/**
+ * Audit completion report for one variant of the audit ("legacy" = Mini
+ * Clinical Audit, "v2" = Clinical Audit 2026). Course, evaluation form and
+ * field ids come from the hcp-mca-review-workflow variant registry; the
+ * legacy ids are kept as a fallback so the report works if that plugin is off.
+ */
+function csvr_build_mca_report( string $date_from, string $date_to, string $variant_key = 'legacy' ): array {
 
 	global $wpdb;
 
+	$legacy_field_keys = [ 'i9mmu2', 'wyvsq2', '2g9du2', '5w5ba2', 'vk9py2', 'luktc2', 'kggs72', 'virom2', 'lb4le2', '2d22g2', 'ai2ec2', 't6a052', 'sm3dr2' ];
+	$legacy_field_ids  = [ 11425, 11457, 11473, 11537, 11553, 11569, 11585, 11601, 11617, 11649, 11665, 11681, 11697 ];
+
+	$variant = function_exists( 'hcp_mca_variant' ) ? hcp_mca_variant( $variant_key ) : null;
+	if ( $variant ) {
+		$cid       = (int) $variant['course'];
+		$eval_form = (int) $variant['eval_form'];
+		$prefix    = 'legacy' === $variant_key ? '' : HCP_MCA_V2_FIELD_KEY_PREFIX;
+		$f_array   = [];
+		foreach ( $legacy_field_keys as $key ) {
+			$f_array[] = (int) $wpdb->get_var( $wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}frm_fields WHERE form_id = %d AND field_key = %s",
+				$eval_form, $prefix . $key
+			) );
+		}
+	} else {
+		if ( 'legacy' !== $variant_key ) {
+			return [ [ 'The hcp-mca-review-workflow plugin must be active for this report.' ] ];
+		}
+		$cid       = 111793;
+		$eval_form = 209;
+		$f_array   = $legacy_field_ids;
+	}
+
+	$lo2 = 'legacy' === $variant_key
+		? 'Identify three adult patients who present with a risk of anal fissure according to the screening criteria outlined in the learning module and record the outcomes of screening, diagnosis, and management (prospective analysis)'
+		: 'Guide the screening, diagnosis, and management of three hypothetical patients who present with possible anal fissure, according to the screening criteria outlined in the learning module (case study assessments)';
+
 	$rows[] = [ 'Name', 'RACGP Number', 'Date of Completion',
         'Identify adult patients previously diagnosed with primary anal fissure and review their management against the treatment algorithm outlined in the learning module (retrospective analysis)',
-        'Identify three adult patients who present with a risk of anal fissure according to the screening criteria outlined in the learning module and record the outcomes of screening, diagnosis, and management (prospective analysis)',
+        $lo2,
         'Reflect on opportunities for improvement in your clinical practice and outline how identified changes will be implemented to enhance patient care',
         'Content – current, contemporary, evidence-based and relevant to general practice',
         'Comments (optional):',
@@ -190,10 +227,7 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
     $ts_from = strtotime( $date_from . ' 00:00:00' );
 	$ts_to   = strtotime( $date_to   . ' 23:59:59' );
 
-    $cid        = 111793;
-    $meta_key   = 'course_completed_' . $cid;
-    $course_obj = get_post( $cid );
-    $course_title = $course_obj ? $course_obj->post_title : "Course #{$cid}";
+    $meta_key = 'course_completed_' . $cid;
 
     // Fetch all users who have a completion timestamp for this course
     $results = $wpdb->get_results(
@@ -220,12 +254,11 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
 
         $racgp_number = get_user_meta(  $r['ID'], 'racgp_number', true );
 
-        $f_array = array( 11425, 11457, 11473, 11537, 11553, 11569, 11585, 11601, 11617, 11649, 11665, 11681, 11697 );
-        foreach ( $f_array as $f ) { ${"f".$f} = ""; }
+        $answers = array_fill_keys( $f_array, '' );
 
         $entries = FrmEntry::getAll(
             array(
-                'it.form_id' => 209,
+                'it.form_id' => $eval_form,
                 'it.user_id' => $r['ID'],
             ),
             ' ORDER BY it.created_at DESC',
@@ -236,7 +269,7 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
             $entry = reset( $entries );
             $entry = FrmEntry::getOne( $entry->id );
             foreach ( $f_array as $f ) {
-                ${"f".$f} = FrmEntryMeta::get_meta_value( $entry, $f );
+                $answers[ $f ] = $f ? FrmEntryMeta::get_meta_value( $entry, $f ) : '';
             }
         }
 
@@ -245,7 +278,7 @@ function csvr_build_mca_report( string $date_from, string $date_to ): array {
             $racgp_number,
             gmdate( 'Y-m-d H:i:s', $ts ),
         );
-        foreach ( $f_array as $f ) { array_push( $new_arr, ( ${"f".$f} ?? "-" ) ); }
+        foreach ( $f_array as $f ) { array_push( $new_arr, ( $answers[ $f ] ?? "-" ) ); }
 
         $rows[] = $new_arr;
     }
@@ -311,6 +344,14 @@ function csvr_render_page(): void {
 	$users_url = add_query_arg( [
 		'page'        => 'tbst-custom-reports',
 		'csvr_action' => 'report_mca',
+		'date_from'   => $date_from,
+		'date_to'     => $date_to,
+		'_wpnonce'    => $nonce,
+	], admin_url( 'options-general.php' ) );
+
+	$audit_v2_url = add_query_arg( [
+		'page'        => 'tbst-custom-reports',
+		'csvr_action' => 'report_mca_v2',
 		'date_from'   => $date_from,
 		'date_to'     => $date_to,
 		'_wpnonce'    => $nonce,
@@ -444,10 +485,10 @@ function csvr_render_page(): void {
 			/* ---- Report cards ---- */
 			.csvr-reports-grid {
 				display: grid;
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: 1fr 1fr 1fr;
 				gap: 16px;
 			}
-			@media (max-width: 580px) { .csvr-reports-grid { grid-template-columns: 1fr; } }
+			@media (max-width: 900px) { .csvr-reports-grid { grid-template-columns: 1fr; } }
 
 			.csvr-report-tile {
 				border: 1.5px solid var(--border);
@@ -471,6 +512,8 @@ function csvr_render_page(): void {
 			.csvr-tile-icon.green { background: #dcfce7; }
 			.csvr-tile-icon.blue  svg { fill: #2563eb; }
 			.csvr-tile-icon.green svg { fill: #16a34a; }
+			.csvr-tile-icon.teal  { background: #ccfbf1; }
+			.csvr-tile-icon.teal  svg { fill: #0d9488; }
 
 			.csvr-report-tile h3 { font-size: .95rem; font-weight: 600; margin: 0; }
 			.csvr-report-tile p  { font-size: .8rem; color: var(--ink-soft); margin: 0; line-height: 1.5; }
@@ -491,6 +534,8 @@ function csvr_render_page(): void {
 			.csvr-dl-btn.blue  { background: var(--accent);  color: #fff; }
 			.csvr-dl-btn.blue:hover  { background: var(--accent-h); transform: translateY(-1px); }
 			.csvr-dl-btn.green { background: var(--success); color: #fff; }
+			.csvr-dl-btn.teal  { background: #0d9488; color: #fff; }
+			.csvr-dl-btn.teal:hover  { background: #0f766e; transform: translateY(-1px); }
 			.csvr-dl-btn.green:hover { background: #15803d; transform: translateY(-1px); }
 			.csvr-dl-btn svg { flex-shrink: 0; }
 
@@ -614,6 +659,19 @@ function csvr_render_page(): void {
 					<h3><?php esc_html_e( 'Mini Clinical Audit Completion Report', 'tbst-custom-reports' ); ?></h3>
 					<p><?php esc_html_e( 'All completed / completion in the selected period.', 'tbst-custom-reports' ); ?></p>
 					<a href="<?php echo esc_url( $users_url ); ?>" class="csvr-dl-btn green">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5zm7-18L5.33 9h4.34v6h4.66V9h4.34z"/></svg>
+						<?php esc_html_e( 'Download CSV', 'tbst-custom-reports' ); ?>
+					</a>
+				</div>
+
+				<!-- Report 3: Clinical Audit 2026 -->
+				<div class="csvr-report-tile">
+					<div class="csvr-tile-icon teal">
+						<svg width="18" height="18" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+					</div>
+					<h3><?php esc_html_e( 'Clinical Audit 2026 Completion Report', 'tbst-custom-reports' ); ?></h3>
+					<p><?php esc_html_e( 'Completions of the updated audit (case study assessments) in the selected period.', 'tbst-custom-reports' ); ?></p>
+					<a href="<?php echo esc_url( $audit_v2_url ); ?>" class="csvr-dl-btn teal">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5zm7-18L5.33 9h4.34v6h4.66V9h4.34z"/></svg>
 						<?php esc_html_e( 'Download CSV', 'tbst-custom-reports' ); ?>
 					</a>
