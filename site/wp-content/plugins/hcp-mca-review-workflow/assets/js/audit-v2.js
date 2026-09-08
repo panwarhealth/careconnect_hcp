@@ -251,7 +251,7 @@
 				return;
 			}
 			if (btn.classList.contains('frm_page_skip')) {
-				var current = parseInt($('.frm_current_page .frm_page_skip').val(), 10);
+				var current = parseInt($('.frm_current_page input[type="button"]').val(), 10);
 				if (parseInt(btn.value, 10) < current) {
 					return;
 				}
