@@ -31,6 +31,9 @@ function hcp_mca_variant_definitions(): array {
 			'hours_rp'     => '1.0',
 			// Legacy artwork carries its own activity ID and hours; no overlay.
 			'cert_template' => null,
+			// Legacy RACGP CPD logos stay as the media-library images the pages already embed.
+			'cpd_logo'       => null,
+			'cpd_logo_total' => null,
 			'ids'          => [
 				'course'       => HCP_MCA_COURSE_ID,
 				'lesson'       => HCP_MCA_LESSON_ID,
@@ -51,6 +54,9 @@ function hcp_mca_variant_definitions(): array {
 			'hours_rp'     => '2.0',
 			// Blank artwork: activity ID and hours are drawn at render time (see certificate.php).
 			'cert_template' => 'assets/img/certificate-2026-background.jpg',
+			// RACGP CPD hours logos: audit only, and the whole activity (module + audit).
+			'cpd_logo'       => 'assets/img/RACGP-logo-2026-Clinical-Audit-Only.png',
+			'cpd_logo_total' => 'assets/img/RACGP-logo-2026-Total-Activity.png',
 			'lookup'       => [
 				'course'       => [ 'post', 'sfwd-courses', HCP_MCA_V2_COURSE_SLUG ],
 				'lesson'       => [ 'post', 'sfwd-lessons', HCP_MCA_V2_LESSON_SLUG ],
