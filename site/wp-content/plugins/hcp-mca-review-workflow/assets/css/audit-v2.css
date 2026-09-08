@@ -110,3 +110,11 @@
 .hcp-limit-error {
 	margin-top: 0.25rem;
 }
+
+.hcp-check.is-pending .hcp-check__btn {
+	outline: 2px solid #b33a3a;
+	outline-offset: 2px;
+}
+.hcp-check-gate {
+	margin: 0 0 1rem;
+}

@@ -234,6 +234,45 @@
 		});
 	}
 
+	// Every Check on the page must have been pressed before Next. Previous
+	// and Save-and-continue-later stay free.
+	function unchecked() {
+		return $('.hcp-check').filter(function () {
+			return !$(this).find('.hcp-check__feedback').hasClass('is-open');
+		});
+	}
+
+	// Runs in the capture phase so it wins over Formidable's own click and
+	// AJAX submit handlers.
+	function gateNext() {
+		document.addEventListener('click', function (e) {
+			var btn = e.target.closest ? e.target.closest('.frm_button_submit, .frm_page_skip') : null;
+			if (!btn || !$form().length || !$.contains($form()[0], btn)) {
+				return;
+			}
+			if (btn.classList.contains('frm_page_skip')) {
+				var current = parseInt($('.frm_current_page .frm_page_skip').val(), 10);
+				if (parseInt(btn.value, 10) < current) {
+					return;
+				}
+			}
+			var $pending = unchecked();
+			$('.hcp-check-gate').remove();
+			if (!$pending.length) {
+				return;
+			}
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			$pending.addClass('is-pending');
+			$('<p class="frm_error hcp-check-gate" role="alert">Press Check on every question before continuing.</p>')
+				.insertBefore($form().find('.frm_submit').first());
+			$('html, body').animate({ scrollTop: $pending.first().offset().top - 120 }, 300);
+		}, true);
+		$(document).on('click', '.hcp-check__btn', function () {
+			$(this).closest('.hcp-check').removeClass('is-pending');
+		});
+	}
+
 	function refresh() {
 		renderCriteria();
 		checkLimits();
@@ -244,6 +283,7 @@
 
 	$(function () {
 		refresh();
+		gateNext();
 		$(document).on('frmPageChanged frmFormComplete', refresh);
 		$(document).on('input change', 'form.frm-show-form input, form.frm-show-form textarea, form.frm-show-form select', function () {
 			checkLimits();
