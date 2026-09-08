@@ -195,9 +195,10 @@ function hcp_mca_user_has_variant_progress( int $user_id, array $variant ): bool
 		return true;
 	}
 
+	// 'access' rows are written just by opening the course page; they are not progress.
 	$activity = (int) $wpdb->get_var( $wpdb->prepare(
 		"SELECT COUNT(*) FROM {$wpdb->prefix}learndash_user_activity
-		 WHERE user_id = %d AND course_id = %d",
+		 WHERE user_id = %d AND course_id = %d AND activity_type <> 'access'",
 		$user_id, (int) $variant['course']
 	) );
 

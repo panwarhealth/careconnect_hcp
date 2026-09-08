@@ -196,7 +196,13 @@ if ( ! function_exists( 'hcp_v2_check_html' ) ) {
 	 * answered. $field_keys are the question fields the button validates.
 	 */
 	function hcp_v2_check_html( array $field_keys, string $feedback ): string {
-		return '<div class="hcp-check" data-fields="' . esc_attr( implode( ',', $field_keys ) ) . '">'
+		// Question keys travel as classes: data-* attributes are stripped when
+		// Formidable saves a field description.
+		$classes = 'hcp-check';
+		foreach ( $field_keys as $key ) {
+			$classes .= ' hcp-check--' . $key;
+		}
+		return '<div class="' . esc_attr( $classes ) . '">'
 			. '<button type="button" class="btn cta hcp-check__btn">Check</button>'
 			. '<p class="hcp-check__prompt">Please answer the question above before checking.</p>'
 			. '<div class="hcp-check__feedback"><p>' . esc_html( $feedback ) . '</p></div>'

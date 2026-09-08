@@ -118,3 +118,9 @@
 .hcp-check-gate {
 	margin: 0 0 1rem;
 }
+
+.hcp-limit-error {
+	color: #e97777;
+	margin: 0.35rem 0 0;
+	font-size: 0.9rem;
+}
