@@ -150,6 +150,7 @@ function hcp_mca_render_variant_card( int $user_id, array $variant, bool $is_old
 		. '<h3 class=" ">' . esc_html( $variant['label'] ) . '</h3>'
 		. '<hr class=" " />'
 		. '<p class=" ">' . esc_html( $note ) . '</p>'
+		. '<p class="font-bold mb-0">RACGP Activity ID: ' . esc_html( $variant['activity_id'] ) . '</p>'
 		. '<p class="font-bold">Approved RACGP CPD hours:<br />' . esc_html( $variant['hours'] ) . '</p>'
 		. '<p class=" "><span class="font-bold">Your status:</span> ' . esc_html( hcp_mca_variant_status_text( $user_id, $variant, $state ) ) . '</p>'
 		. sprintf(
@@ -237,4 +238,54 @@ function hcp_mca_render_learning_module_button(): string {
 		esc_url( $course_url ),
 		esc_html( $label )
 	);
+}
+
+/**
+ * Activity ID and hours for copy that must follow the registry.
+ *
+ * [hcp_mca_activity_id variant="v2"]          -> XXX (or the accredited ID once set)
+ * [hcp_mca_activity_id]                        -> resolved from the course_id request
+ *                                                 var (certificate pages) or the course
+ *                                                 being viewed
+ * [hcp_mca_hours variant="v2" type="mo|rp"]    -> 3.0 / 2.0
+ * [hcp_mca_activity_ids]                       -> "1460034 (Online Learning Module),
+ *                                                 1460044 (Mini Clinical Audit) and
+ *                                                 XXX (Clinical Audit 2026)"
+ */
+add_shortcode( 'hcp_mca_activity_id', 'hcp_mca_shortcode_activity_id' );
+add_shortcode( 'hcp_mca_hours', 'hcp_mca_shortcode_hours' );
+add_shortcode( 'hcp_mca_activity_ids', 'hcp_mca_shortcode_activity_ids' );
+
+function hcp_mca_variant_from_context( array $atts ): ?array {
+	if ( ! empty( $atts['variant'] ) ) {
+		return hcp_mca_variant( $atts['variant'] );
+	}
+	$course_id = isset( $_GET['course_id'] ) ? absint( $_GET['course_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! $course_id && function_exists( 'learndash_get_course_id' ) ) {
+		$course_id = (int) learndash_get_course_id();
+	}
+	return $course_id ? hcp_mca_variant_for_course( $course_id ) : null;
+}
+
+function hcp_mca_shortcode_activity_id( $atts ): string {
+	$variant = hcp_mca_variant_from_context( (array) $atts );
+	return $variant ? esc_html( $variant['activity_id'] ) : '';
+}
+
+function hcp_mca_shortcode_hours( $atts ): string {
+	$atts    = shortcode_atts( [ 'variant' => '', 'type' => 'mo' ], (array) $atts );
+	$variant = hcp_mca_variant_from_context( $atts );
+	if ( ! $variant ) {
+		return '';
+	}
+	return esc_html( 'rp' === $atts['type'] ? $variant['hours_rp'] : $variant['hours_mo'] );
+}
+
+function hcp_mca_shortcode_activity_ids(): string {
+	$parts = [ '<b>' . esc_html( HCP_MCA_LEARNING_ACTIVITY_ID ) . '</b> (Online Learning Module)' ];
+	foreach ( hcp_mca_variants() as $variant ) {
+		$parts[] = '<b>' . esc_html( $variant['activity_id'] ) . '</b> (' . esc_html( $variant['short_label'] ) . ')';
+	}
+	$last = array_pop( $parts );
+	return $parts ? implode( ', ', $parts ) . ' and ' . $last : $last;
 }

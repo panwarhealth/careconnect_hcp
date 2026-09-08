@@ -11,6 +11,7 @@ const HCP_MCA_LESSON_ID           = 112353;   // sfwd-lessons   — "Complete Mi
 const HCP_MCA_QUIZ_ID             = 116865;   // sfwd-quiz      — "Activity evaluation" (embeds eval form)
 const HCP_MCA_CERT_ID             = 96129;    // sfwd-certificates — "Clinical Audit Module" (auto-issued on course complete)
 const HCP_MCA_LEARNING_COURSE_ID  = 95553;    // sfwd-courses   — "Online Learning Module" (prerequisite, auto-completes)
+const HCP_MCA_LEARNING_ACTIVITY_ID = '1460034'; // RACGP activity ID of the Online Learning Module
 
 // Formidable form IDs.
 const HCP_MCA_CONTACT_FORM_ID     = 113;   // "Course Contact Form" — name, email and enquiry from HCPs

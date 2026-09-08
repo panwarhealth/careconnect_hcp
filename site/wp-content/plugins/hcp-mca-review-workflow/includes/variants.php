@@ -25,8 +25,12 @@ function hcp_mca_variant_definitions(): array {
 		HCP_MCA_VARIANT_LEGACY => [
 			'key'          => HCP_MCA_VARIANT_LEGACY,
 			'label'        => 'Mini Clinical Audit (original version)',
+			'short_label'  => 'Mini Clinical Audit',
 			'activity_id'  => '1460044',
-			'hours'        => '6.5 hours Measuring Outcomes + 1.0 hour Reviewing Performance',
+			'hours_mo'     => '6.5',
+			'hours_rp'     => '1.0',
+			// Legacy artwork carries its own activity ID and hours; no overlay.
+			'cert_template' => null,
 			'ids'          => [
 				'course'       => HCP_MCA_COURSE_ID,
 				'lesson'       => HCP_MCA_LESSON_ID,
@@ -40,8 +44,13 @@ function hcp_mca_variant_definitions(): array {
 		HCP_MCA_VARIANT_V2     => [
 			'key'          => HCP_MCA_VARIANT_V2,
 			'label'        => 'Clinical Audit: Anal Fissure Management (2026 version)',
+			'short_label'  => 'Clinical Audit 2026',
+			// Placeholder until RACGP accredits the 2026 audit; this is the only place to change it.
 			'activity_id'  => 'XXX',
-			'hours'        => '3.0 hours Measuring Outcomes + 2.0 hours Reviewing Performance',
+			'hours_mo'     => '3.0',
+			'hours_rp'     => '2.0',
+			// Blank artwork: activity ID and hours are drawn at render time (see certificate.php).
+			'cert_template' => 'assets/img/certificate-2026-background.jpg',
 			'lookup'       => [
 				'course'       => [ 'post', 'sfwd-courses', HCP_MCA_V2_COURSE_SLUG ],
 				'lesson'       => [ 'post', 'sfwd-lessons', HCP_MCA_V2_LESSON_SLUG ],
@@ -76,10 +85,23 @@ function hcp_mca_variants( bool $reload = false ): array {
 			continue;
 		}
 		unset( $defn['lookup'], $defn['ids'] );
+		$defn['hours']    = hcp_mca_hours_sentence( $defn );
 		$resolved[ $key ] = $defn + $ids;
 	}
 
 	return $resolved;
+}
+
+/**
+ * "3.0 hours Measuring Outcomes + 2.0 hours Reviewing Performance".
+ */
+function hcp_mca_hours_sentence( array $variant ): string {
+	$unit = fn( string $n ) => ( (float) $n === 1.0 ) ? 'hour' : 'hours';
+	return sprintf(
+		'%s %s Measuring Outcomes + %s %s Reviewing Performance',
+		$variant['hours_mo'], $unit( $variant['hours_mo'] ),
+		$variant['hours_rp'], $unit( $variant['hours_rp'] )
+	);
 }
 
 function hcp_mca_variant_resolve_id( array $spec ): int {
