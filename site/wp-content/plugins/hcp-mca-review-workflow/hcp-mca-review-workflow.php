@@ -22,6 +22,7 @@ require_once HCP_MCA_PLUGIN_DIR . 'includes/notifications.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/approval.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/frontend.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/certificate.php';
+require_once HCP_MCA_PLUGIN_DIR . 'includes/cpd-logo.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/course-access.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/migrations.php';
 require_once HCP_MCA_PLUGIN_DIR . 'includes/login-as-rescue.php';
