@@ -161,16 +161,25 @@ function hcp_mca_render_variant_card( int $user_id, array $variant, bool $is_old
 }
 
 /**
- * The chooser page is for logged-in HCPs only; anonymous visitors get the
- * public landing page, matching the activity homepage.
+ * The chooser page exists only for users with something to choose between.
+ * Anonymous visitors get the public landing page, matching the activity
+ * homepage; users with no progress on an older variant go straight to the
+ * current course.
  */
-add_action( 'template_redirect', 'hcp_mca_chooser_requires_login' );
-function hcp_mca_chooser_requires_login(): void {
-	if ( is_user_logged_in() || ! is_page( HCP_MCA_CHOOSER_PAGE_SLUG ) ) {
+add_action( 'template_redirect', 'hcp_mca_chooser_redirects' );
+function hcp_mca_chooser_redirects(): void {
+	if ( ! is_page( HCP_MCA_CHOOSER_PAGE_SLUG ) ) {
 		return;
 	}
-	wp_safe_redirect( home_url( '/anal-fissures-breaking-the-cycle-and-the-stigma-landing/' ) );
-	exit;
+	if ( ! is_user_logged_in() ) {
+		wp_safe_redirect( home_url( '/anal-fissures-breaking-the-cycle-and-the-stigma-landing/' ) );
+		exit;
+	}
+	$default = hcp_mca_default_variant();
+	if ( null !== $default && ! hcp_mca_user_older_variants_with_progress( get_current_user_id() ) ) {
+		wp_safe_redirect( get_permalink( (int) $default['course'] ) );
+		exit;
+	}
 }
 
 // Old name kept as alias so any out-of-band content referencing it still renders.
