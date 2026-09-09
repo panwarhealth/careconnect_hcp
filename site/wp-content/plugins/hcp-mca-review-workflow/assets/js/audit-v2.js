@@ -90,7 +90,7 @@
 	// ------------------------------------------------------------------
 	function limit($input, max, message) {
 		var $wrap = $input.closest('.frm_form_field');
-		var $err = $wrap.find('.hcp-limit-error');
+		var $err = $wrap.find('.hcp-limit-error').not('.hcp-sum-error');
 		var raw = $.trim($input.val() || '');
 		var val = parseFloat(raw);
 		var min = parseFloat($input.attr('min'));
@@ -137,6 +137,36 @@
 			var $el = firstVisible(key);
 			if ($el.length) {
 				limit($el, diagnosed, 'This number cannot exceed the number of patients diagnosed with anal fissure (' + diagnosed + ').');
+			}
+		});
+		$.each(cfg.exclusiveGroups || [], function (_, group) {
+			var sum = 0;
+			var filled = 0;
+			var $last = $();
+			$.each(group.keys, function (_, key) {
+				var $el = firstVisible(key);
+				if (!$el.length) {
+					return;
+				}
+				$last = $el;
+				var v = parseFloat($el.val());
+				if (!isNaN(v)) {
+					sum += v;
+					filled++;
+				}
+			});
+			if (!$last.length) {
+				return;
+			}
+			var $wrap = $last.closest('.frm_form_field');
+			var $err = $wrap.find('.hcp-sum-error');
+			if (filled && !isNaN(diagnosed) && sum > diagnosed) {
+				if (!$err.length) {
+					$err = $('<p class="hcp-limit-error hcp-sum-error" role="alert"></p>').appendTo($wrap);
+				}
+				$err.text('The ' + group.label + ' add up to ' + sum + ', more than the ' + diagnosed + ' patients diagnosed with anal fissure.');
+			} else {
+				$err.remove();
 			}
 		});
 		$('.hcp-diag-count').text(isNaN(diagnosed) ? 'number of' : diagnosed);
