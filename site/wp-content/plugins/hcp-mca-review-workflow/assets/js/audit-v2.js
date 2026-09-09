@@ -249,10 +249,31 @@
 
 	// Runs in the capture phase so it wins over Formidable's own click and
 	// AJAX submit handlers.
+	// A count over its limit blocks every button that saves the page:
+	// Previous and Save-and-continue-later carry formnovalidate, so the
+	// browser's own max check never runs for them.
+	function gateLimits(e) {
+		var $bad = $form().find('.hcp-limit-error').filter(':visible');
+		if (!$bad.length) {
+			return false;
+		}
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		$('html, body').animate({ scrollTop: $bad.first().offset().top - 160 }, 300);
+		$bad.first().prev('input').trigger('focus');
+		return true;
+	}
+
 	function gateNext() {
 		document.addEventListener('click', function (e) {
-			var btn = e.target.closest ? e.target.closest('.frm_button_submit, .frm_page_skip') : null;
+			var btn = e.target.closest ? e.target.closest('.frm_button_submit, .frm_page_skip, .frm_page_back, .frm_prev_page, .frm_save_draft') : null;
 			if (!btn || !$form().length || !$.contains($form()[0], btn)) {
+				return;
+			}
+			if (gateLimits(e)) {
+				return;
+			}
+			if (btn.classList.contains('frm_page_back') || btn.classList.contains('frm_prev_page') || btn.classList.contains('frm_save_draft')) {
 				return;
 			}
 			if (btn.classList.contains('frm_page_skip')) {
