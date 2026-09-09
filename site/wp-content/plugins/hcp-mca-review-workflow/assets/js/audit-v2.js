@@ -278,6 +278,21 @@
 		});
 	}
 
+	// Enter in a text or number box would "click" the first submit button,
+	// which in a multi-page Formidable form is Previous: the page saves
+	// without validation and the browser steps back. Only buttons submit.
+	function blockImplicitSubmit() {
+		document.addEventListener('keydown', function (e) {
+			if (e.key !== 'Enter' || !$form().length || !$.contains($form()[0], e.target)) {
+				return;
+			}
+			var tag = e.target.tagName;
+			if (tag === 'INPUT' && !/^(submit|button|reset)$/i.test(e.target.type)) {
+				e.preventDefault();
+			}
+		}, true);
+	}
+
 	function refresh() {
 		renderCriteria();
 		checkLimits();
@@ -289,6 +304,7 @@
 	$(function () {
 		refresh();
 		gateNext();
+		blockImplicitSubmit();
 		$(document).on('frmPageChanged frmFormComplete', refresh);
 		$(document).on('input change', 'form.frm-show-form input, form.frm-show-form textarea, form.frm-show-form select', function () {
 			checkLimits();
