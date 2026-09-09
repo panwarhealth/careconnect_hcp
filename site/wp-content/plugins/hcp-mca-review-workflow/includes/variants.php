@@ -24,8 +24,8 @@ function hcp_mca_variant_definitions(): array {
 	return [
 		HCP_MCA_VARIANT_LEGACY => [
 			'key'          => HCP_MCA_VARIANT_LEGACY,
-			'label'        => 'Mini Clinical Audit (original version)',
-			'short_label'  => 'Mini Clinical Audit',
+			'label'        => 'Mini Clinical Audit (legacy)',
+			'short_label'  => 'Mini Clinical Audit, legacy',
 			'activity_id'  => '1460044',
 			'hours_mo'     => '6.5',
 			'hours_rp'     => '1.0',
@@ -46,8 +46,8 @@ function hcp_mca_variant_definitions(): array {
 		],
 		HCP_MCA_VARIANT_V2     => [
 			'key'          => HCP_MCA_VARIANT_V2,
-			'label'        => 'Clinical Audit: Anal Fissure Management (2026 version)',
-			'short_label'  => 'Clinical Audit 2026',
+			'label'        => 'Clinical Audit: Anal Fissure Management',
+			'short_label'  => 'Clinical Audit: Anal Fissure Management',
 			// Placeholder until RACGP accredits the 2026 audit; this is the only place to change it.
 			'activity_id'  => 'XXX',
 			'hours_mo'     => '3.0',

@@ -87,7 +87,7 @@ function csvr_maybe_download() {
 			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to, 'legacy' ), "mini-clinical-audit-report-{$date_from}-{$date_to}.csv" );
 			break;
 		case 'report_mca_v2':
-			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to, 'v2' ), "clinical-audit-2026-report-{$date_from}-{$date_to}.csv" );
+			csvr_stream_csv( csvr_build_mca_report( $date_from, $date_to, 'v2' ), "clinical-audit-anal-fissure-report-{$date_from}-{$date_to}.csv" );
 			break;
 	}
 }
@@ -173,7 +173,7 @@ function csvr_build_olm_report( string $date_from, string $date_to ): array {
 
 /**
  * Audit completion report for one variant of the audit ("legacy" = Mini
- * Clinical Audit, "v2" = Clinical Audit 2026). Course, evaluation form and
+ * Clinical Audit, "v2" = Clinical Audit: Anal Fissure Management). Course, evaluation form and
  * field ids come from the hcp-mca-review-workflow variant registry; the
  * legacy ids are kept as a fallback so the report works if that plugin is off.
  */
@@ -664,12 +664,12 @@ function csvr_render_page(): void {
 					</a>
 				</div>
 
-				<!-- Report 3: Clinical Audit 2026 -->
+				<!-- Report 3: Clinical Audit: Anal Fissure Management -->
 				<div class="csvr-report-tile">
 					<div class="csvr-tile-icon teal">
 						<svg width="18" height="18" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
 					</div>
-					<h3><?php esc_html_e( 'Clinical Audit 2026 Completion Report', 'tbst-custom-reports' ); ?></h3>
+					<h3><?php esc_html_e( 'Clinical Audit: Anal Fissure Management Completion Report', 'tbst-custom-reports' ); ?></h3>
 					<p><?php esc_html_e( 'Completions of the updated audit (case study assessments) in the selected period.', 'tbst-custom-reports' ); ?></p>
 					<a href="<?php echo esc_url( $audit_v2_url ); ?>" class="csvr-dl-btn teal">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5zm7-18L5.33 9h4.34v6h4.66V9h4.34z"/></svg>

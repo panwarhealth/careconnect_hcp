@@ -249,8 +249,8 @@ function hcp_mca_render_learning_module_button(): string {
  *                                                 being viewed
  * [hcp_mca_hours variant="v2" type="mo|rp"]    -> 3.0 / 2.0
  * [hcp_mca_activity_ids]                       -> "1460034 (Online Learning Module),
- *                                                 1460044 (Mini Clinical Audit) and
- *                                                 XXX (Clinical Audit 2026)"
+ *                                                 1460044 (Mini Clinical Audit, legacy) and
+ *                                                 XXX (Clinical Audit: Anal Fissure Management)"
  */
 add_shortcode( 'hcp_mca_activity_id', 'hcp_mca_shortcode_activity_id' );
 add_shortcode( 'hcp_mca_hours', 'hcp_mca_shortcode_hours' );
