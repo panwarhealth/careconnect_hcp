@@ -329,6 +329,7 @@
 			var tag = e.target.tagName;
 			if (tag === 'INPUT' && !/^(submit|button|reset)$/i.test(e.target.type)) {
 				e.preventDefault();
+				e.target.blur();
 			}
 		}, true);
 	}
