@@ -2959,6 +2959,12 @@ function hcp_mca_complete_on_submit($entry_id, $form_id): void {
     if (empty($map[$form_id]) || !$map[$form_id]['submit']) {
         return;
     }
+    // Both hooks fire for "Save and continue later" drafts; only a validated
+    // submission counts. A draft that is later submitted arrives via update.
+    $entry = FrmEntry::getOne((int) $entry_id);
+    if (!$entry || !empty($entry->is_draft)) {
+        return;
+    }
     $user_id = get_current_user_id();
     if (!$user_id) {
         return;
@@ -2969,6 +2975,7 @@ function hcp_mca_complete_on_submit($entry_id, $form_id): void {
     ]);
 }
 add_action('frm_after_create_entry', 'hcp_mca_complete_on_submit', 20, 2);
+add_action('frm_after_update_entry', 'hcp_mca_complete_on_submit', 20, 2);
 
 // Trigger 2 — on course page view, heal any desync the submit hook silently lost.
 // is_draft=0 is Formidable's own "validated, fully submitted" signal (it already
