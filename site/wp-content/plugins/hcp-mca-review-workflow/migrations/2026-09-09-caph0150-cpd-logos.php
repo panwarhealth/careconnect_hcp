@@ -59,9 +59,6 @@ return [
 			}
 			$notes[] = "{$type} logo uploaded as {$attachment_id}";
 		}
-		// Drop the static cache so the shortcode sees the new attachments in this request.
-		hcp_mca_cpd_logo_attachment_id( $variant, 'audit' );
-
 		// 2. Homepage and landing page: whole-activity logo.
 		foreach ( [ 111281, 108753 ] as $page_id ) {
 			$post = get_post( $page_id );
