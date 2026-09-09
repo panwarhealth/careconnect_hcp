@@ -163,7 +163,7 @@ function hcp_mca_enqueue_audit_v2_assets(): void {
 	}
 
 	$base_url = plugins_url( '', HCP_MCA_PLUGIN_DIR . 'hcp-mca-review-workflow.php' );
-	$version  = '1.1.6';
+	$version  = '1.1.7';
 
 	wp_enqueue_style( 'hcp-mca-audit-v2', $base_url . '/assets/css/audit-v2.css', [], $version );
 	wp_enqueue_script( 'hcp-mca-audit-v2', $base_url . '/assets/js/audit-v2.js', [ 'jquery' ], $version, true );
