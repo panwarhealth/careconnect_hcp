@@ -3597,8 +3597,10 @@ add_shortcode( 'current_user_id', function() {
 
 add_filter('frm_success_message', 'custom_message_specific_form', 10, 3);
 function custom_message_specific_form($message, $form, $entry) { 
-    if (hcp_audit_variant_for('eval_form', (int) $form->id)) {
-        return 'Thank you for completing the Mini Clinical Audit and the Activity Evaluation survey.<br/><br/>Your audit responses will now be evaluated by the education providers. Provided there are no issues with your responses, you will receive an email within the next four weeks with your Statement of Completion.';
+    $variant = hcp_audit_variant_for('eval_form', (int) $form->id);
+    if ($variant) {
+        $name = ($variant['key'] === 'legacy') ? 'Mini Clinical Audit' : 'Clinical Audit';
+        return 'Thank you for completing the ' . $name . ' and the Activity Evaluation survey.<br/><br/>Your audit responses will now be evaluated by the education providers. Provided there are no issues with your responses, you will receive an email within the next four weeks with your Statement of Completion.';
     }
     
     return $message;
