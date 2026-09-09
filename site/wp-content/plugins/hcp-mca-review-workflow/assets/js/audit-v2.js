@@ -91,14 +91,29 @@
 	function limit($input, max, message) {
 		var $wrap = $input.closest('.frm_form_field');
 		var $err = $wrap.find('.hcp-limit-error');
-		var val = parseFloat($input.val());
+		var raw = $.trim($input.val() || '');
+		var val = parseFloat(raw);
+		var min = parseFloat($input.attr('min'));
+		if (isNaN(min)) {
+			min = 0;
+		}
 		$input.attr('max', isNaN(max) ? null : max);
-		if (!isNaN(val) && !isNaN(max) && val > max) {
+		var problem = '';
+		if (raw !== '' && !isNaN(val)) {
+			if (val < min) {
+				problem = min > 0 ? 'Enter at least ' + min + '.' : 'This number cannot be negative.';
+			} else if (val !== Math.floor(val)) {
+				problem = 'Enter a whole number of patients.';
+			} else if (!isNaN(max) && val > max) {
+				problem = message;
+			}
+		}
+		if (problem) {
 			if (!$err.length) {
 				// Not .frm_error: Formidable clears those on edit after a refused submit.
 				$err = $('<p class="hcp-limit-error" role="alert"></p>').appendTo($wrap);
 			}
-			$err.text(message);
+			$err.text(problem);
 			$input.addClass('frm_invalid');
 			return false;
 		}
@@ -108,6 +123,10 @@
 	}
 
 	function checkLimits() {
+		// Floor and whole-number check on every count the user types.
+		$form().find('input[type="number"]').not('[readonly]').filter(':visible').each(function () {
+			limit($(this), NaN, '');
+		});
 		var total = number('v2-khh7w');
 		var diagnosed = number('v2-9962s');
 		var $diag = firstVisible('v2-9962s');
