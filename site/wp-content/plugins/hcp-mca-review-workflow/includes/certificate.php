@@ -29,6 +29,13 @@ function hcp_mca_certificate_overlay( $pdf, $cert_args ): void {
 
 	$pdf->SetTextColor( 20, 41, 74 );
 
+	// Course title, centred, two lines under "Completed the".
+	if ( ! empty( $variant['cert_title'] ) ) {
+		$pdf->SetFont( 'helvetica', 'B', 22 );
+		$pdf->SetXY( $u( 60 ), $u( 243 ) );
+		$pdf->MultiCell( $pdf->getPageWidth() - $u( 120 ), $u( 27 ), $variant['cert_title'], 0, 'C' );
+	}
+
 	// "Activity ID XXX", centred, between the course title and "on".
 	$pdf->SetFont( 'helvetica', 'B', 25 );
 	$pdf->SetXY( 0, $u( 300 ) );
