@@ -29,8 +29,9 @@ function hcp_mca_variant_definitions(): array {
 			'activity_id'  => '1460044',
 			'hours_mo'     => '6.5',
 			'hours_rp'     => '1.0',
-			// Legacy artwork carries its own activity ID and hours; no overlay.
+			// Legacy artwork carries its own title, activity ID and hours; no overlay.
 			'cert_template' => null,
+			'cert_title'    => null,
 			// Legacy RACGP CPD logos stay as the media-library images the pages already embed.
 			'cpd_logo'       => null,
 			'cpd_logo_total' => null,
@@ -52,8 +53,9 @@ function hcp_mca_variant_definitions(): array {
 			'activity_id'  => 'XXX',
 			'hours_mo'     => '3.0',
 			'hours_rp'     => '2.0',
-			// Blank artwork: activity ID and hours are drawn at render time (see certificate.php).
+			// Blank artwork: title, activity ID and hours are drawn at render time (see certificate.php).
 			'cert_template' => 'assets/img/certificate-2026-background.jpg',
+			'cert_title'    => 'Anal Fissures: Breaking the Cycle and the Stigma – Clinical Audit',
 			// RACGP CPD hours logos: audit only, and the whole activity (module + audit).
 			'cpd_logo'       => 'assets/img/RACGP-logo-2026-Clinical-Audit-Only.png',
 			'cpd_logo_total' => 'assets/img/RACGP-logo-2026-Total-Activity.png',
