@@ -163,7 +163,7 @@ function hcp_mca_enqueue_audit_v2_assets(): void {
 	}
 
 	$base_url = plugins_url( '', HCP_MCA_PLUGIN_DIR . 'hcp-mca-review-workflow.php' );
-	$version  = '1.1.8';
+	$version  = '1.1.9';
 
 	wp_enqueue_style( 'hcp-mca-audit-v2', $base_url . '/assets/css/audit-v2.css', [], $version );
 	wp_enqueue_script( 'hcp-mca-audit-v2', $base_url . '/assets/js/audit-v2.js', [ 'jquery' ], $version, true );
@@ -219,6 +219,7 @@ function hcp_mca_audit_v2_js_config( array $variant ): array {
 		[ 'label' => 'age groups', 'keys' => $k( [ 'sbk2o', 'knwub', 'wdxdg', '6kmxw', 'f199v' ] ) ],
 		[ 'label' => 'males and females', 'keys' => $k( [ '83nfc', '8ufcu' ] ) ],
 		[ 'label' => 'fissure types', 'keys' => $k( [ 'nnv4f', 'o2g6g', '5yztl' ] ) ],
+		[ 'label' => 'visual anal examination counts', 'keys' => $k( [ 'kake1', 'gpxbt' ] ) ],
 	];
 
 	return [
