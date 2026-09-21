@@ -562,7 +562,7 @@ return [
 		hcp_v2_update_field( hcp_v2_k( '3zl70' ), [ 'name' => 'The prevalence of anal fissure in your patient cohort (i.e., proportion of the total number who were diagnosed with anal fissure) is:' ] );
 
 		$count_copy = static fn( string $what ): string =>
-			'<p><em>Out of the <span class="hcp-diag-count">number of</span> patients diagnosed with anal fissure, enter the number of patients relevant for each ' . $what . ' listed below. <br />If no patients are relevant, enter the number zero (0).</em></p>';
+			'<p><em>Out of the <span class="hcp-diag-count">number of</span> patients diagnosed with anal fissure, enter the number of patients relevant for each ' . $what . ' listed below. <br />If no patients are relevant, leave the box blank and it will be recorded as zero.</em></p>';
 		hcp_v2_update_field( hcp_v2_k( 'zl5bk' ), [ 'description' => $count_copy( 'characteristic' ) ] );
 		hcp_v2_update_field( hcp_v2_k( 'z5gyk' ), [ 'description' => $count_copy( 'risk factor' ) ] );
 		hcp_v2_update_field( hcp_v2_k( 'vpcpm' ), [ 'description' => $count_copy( 'management step' ) ] );

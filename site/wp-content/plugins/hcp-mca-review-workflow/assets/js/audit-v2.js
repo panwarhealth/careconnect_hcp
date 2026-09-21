@@ -142,6 +142,23 @@
 		$('.hcp-diag-count').text(isNaN(diagnosed) ? 'number of' : diagnosed);
 	}
 
+	// Step 1B: a count box left blank means zero. Filled in when the user
+	// moves forward so only the numbers that apply need typing. The total
+	// and diagnosed boxes are the denominators and must be entered.
+	function fillZeros() {
+		var keep = [id('v2-khh7w'), id('v2-9962s')];
+		$form().find('input[type="number"]').not('[readonly]').filter(':visible').each(function () {
+			var $el = $(this);
+			var m = ($el.attr('name') || '').match(/item_meta\[(\d+)\]/);
+			if (m && keep.indexOf(parseInt(m[1], 10)) !== -1) {
+				return;
+			}
+			if ($.trim($el.val() || '') === '') {
+				$el.val('0').trigger('change');
+			}
+		});
+	}
+
 	// Each group of boxes must add up to the diagnosed count (blank = 0).
 	// Checked when the user tries to leave the page, not while typing;
 	// an error already showing is re-evaluated on every edit so it clears.
@@ -352,6 +369,7 @@
 				backwards = parseInt(btn.value, 10) < current;
 			}
 			if (!backwards) {
+				fillZeros();
 				checkSums(true);
 			}
 			if (gateLimits(e, backwards) || backwards) {
