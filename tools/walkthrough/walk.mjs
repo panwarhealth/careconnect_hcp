@@ -202,6 +202,15 @@ async function main() {
   const browser = await chromium.launch({ headless: !args.headed });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
+  // Keep the admin bar and the off-canvas mobile menu out of the captures: the recorder
+  // turns fixed elements static so they would otherwise print inline.
+  await context.addInitScript(() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = '#wpadminbar, .fixed.-top-full, .nojq { display: none !important; } html { margin-top: 0 !important; }';
+      document.head.appendChild(style);
+    });
+  });
   page.on('pageerror', (e) => console.log('  ! page error:', e.message));
 
   await login(page);
