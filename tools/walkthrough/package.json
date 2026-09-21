@@ -1,0 +1,10 @@
+{
+  "name": "hcp-clinical-audit-walkthrough",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Walks the 2026 Clinical Audit end to end on a local site and renders every screen to a vector PDF for review.",
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}
