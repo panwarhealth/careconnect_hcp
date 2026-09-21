@@ -462,7 +462,7 @@ if ( ! function_exists( 'hcp_v2_build_case_study' ) ) {
 			return $id;
 		};
 
-		$section = $add( 'divider', 'section', [ 'name' => "Patient {$n}", 'classes' => 'hcp-cs' ] );
+		$section = $add( 'divider', 'section', [ 'name' => "Patient {$n} of 3", 'classes' => 'hcp-cs' ] );
 
 		$add( 'html', 'presentation', [ 'description' => $cs['presentation'], 'in_section' => $section ] );
 
