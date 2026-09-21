@@ -388,13 +388,14 @@
 			}
 			e.preventDefault();
 			e.stopImmediatePropagation();
-			$pending.addClass('is-pending');
+			$pending.first().addClass('is-pending');
 			$('<p class="frm_error hcp-check-gate" role="alert">Press Check on every question before continuing.</p>')
 				.insertBefore($form().find('.frm_submit').first());
 			$('html, body').animate({ scrollTop: $pending.first().offset().top - 120 }, 300);
 		}, true);
 		$(document).on('click', '.hcp-check__btn', function () {
-			$(this).closest('.hcp-check').removeClass('is-pending');
+			$('.hcp-check').removeClass('is-pending');
+			$('.hcp-check-gate').remove();
 		});
 	}
 
