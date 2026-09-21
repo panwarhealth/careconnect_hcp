@@ -333,7 +333,7 @@ if ( ! function_exists( 'hcp_v2_case_studies' ) ) {
 		return [
 			1 => [
 				'presentation' => hcp_v2_case_table( 'Patient 1 – Presentation', [
-					'Presentation'     => 'A 31-year-old woman (BMI 28.5 kg/m2) presents with a 6-day history of severe anal pain described as ‘like passing broken glass’ during defecation, persisting for up to 2 hours after defecation, with a small amount of bright red blood on wiping.',
+					'Presentation'     => 'A 31-year-old woman (BMI 28.5 kg/m²) presents with a 6-day history of severe anal pain described as ‘like passing broken glass’ during defecation, persisting for up to 2 hours after defecation, with a small amount of bright red blood on wiping.',
 					'Clinical history' => [
 						'Recent constipation after travelling – straining to pass hard stools',
 						'Has been using topical lidocaine (recommended by a pharmacist) for 2 days with limited pain relief',
@@ -354,7 +354,7 @@ if ( ! function_exists( 'hcp_v2_case_studies' ) ) {
 				'review_fb'    => $review_fb,
 				'management'   => hcp_v2_case_table( 'Patient 1 – Management and follow-up', [
 					'Recommended interventions' => 'Conservative management with increased dietary fibre and fluid intake, stool softeners, and sitz baths, and initiating topical glyceryl trinitrate 0.2% (1.0–1.5 cm strip, 3 times daily) for 4 weeks.',
-					'Follow-up call'            => 'Two days after starting the glyceryl nitrate, the patient calls to discuss the headaches and dizziness she experiences after applying the ointment.',
+					'Follow-up call'            => 'Two days after starting the glyceryl trinitrate, the patient calls to discuss the headaches and dizziness she experiences after applying the ointment.',
 				] ),
 				'side_effects' => [
 					'question' => '(F) Based on your patient’s description of side effects with glyceryl trinitrate treatment, what would you advise?',
@@ -376,7 +376,7 @@ if ( ! function_exists( 'hcp_v2_case_studies' ) ) {
 			],
 			2 => [
 				'presentation' => hcp_v2_case_table( 'Patient 2 – Presentation', [
-					'Presentation'     => 'A 47-year-old man (BMI 24.9 kg/m2) presents with a regular anal pain during and after defecation and intermittent rectal bleeding over the past 6 weeks.',
+					'Presentation'     => 'A 47-year-old man (BMI 24.9 kg/m²) presents with a regular anal pain during and after defecation and intermittent rectal bleeding over the past 6 weeks.',
 					'Clinical history' => [
 						'Persistent symptoms despite increased fibre intake',
 						'Fear of pain with defecation resulting in bowel movement avoidance and worsening constipation',
@@ -553,7 +553,7 @@ return [
 		// Step 1B: copy, dynamic counts, automated statements.
 		// ------------------------------------------------------------------
 		hcp_v2_update_field( hcp_v2_k( 'p9mkv' ), [
-			'description' => '<em>Find your total patient cohort by using the timeframe and other demographic/clinical criteria you selected in Step 1A:</em>'
+			'description' => '<em>Find your <strong>total patient cohort</strong> by using the timeframe and other demographic/clinical criteria you selected in Step 1A:</em>'
 				. '<ul class="hcp-criteria" aria-live="polite"></ul>',
 		] );
 		hcp_v2_update_field( hcp_v2_k( 'khh7w' ), [ 'name' => 'Record the total number of patients identified' ] );
