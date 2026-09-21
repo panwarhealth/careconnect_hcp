@@ -265,8 +265,11 @@
 	// Case study stages: everything after a Check that has not been pressed
 	// stays hidden, so later findings and recommendations cannot be read
 	// ahead of answering.
+	// A later patient stays hidden until the previous patient is finished.
 	function revealStages() {
+		var hideSection = false;
 		$('.frm_section_heading').has('.hcp-check').each(function () {
+			$(this).toggleClass('hcp-stage-hidden', hideSection);
 			var hide = false;
 			$(this).find('.frm_form_field').each(function () {
 				var $field = $(this);
@@ -276,6 +279,9 @@
 					hide = true;
 				}
 			});
+			if (hide) {
+				hideSection = true;
+			}
 		});
 	}
 
