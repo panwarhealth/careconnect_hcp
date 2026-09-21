@@ -139,9 +139,16 @@
 				limit($el, diagnosed, 'This number cannot exceed the number of patients diagnosed with anal fissure (' + diagnosed + ').');
 			}
 		});
+		$('.hcp-diag-count').text(isNaN(diagnosed) ? 'number of' : diagnosed);
+	}
+
+	// Each group of boxes must add up to the diagnosed count (blank = 0).
+	// Checked when the user tries to leave the page, not while typing;
+	// an error already showing is re-evaluated on every edit so it clears.
+	function checkSums(show) {
+		var diagnosed = number('v2-9962s');
 		$.each(cfg.exclusiveGroups || [], function (_, group) {
 			var sum = 0;
-			var filled = 0;
 			var $last = $();
 			$.each(group.keys, function (_, key) {
 				var $el = firstVisible(key);
@@ -152,7 +159,6 @@
 				var v = parseFloat($el.val());
 				if (!isNaN(v)) {
 					sum += v;
-					filled++;
 				}
 			});
 			if (!$last.length) {
@@ -160,16 +166,16 @@
 			}
 			var $wrap = $last.closest('.frm_form_field');
 			var $err = $wrap.find('.hcp-sum-error');
-			if (filled && !isNaN(diagnosed) && sum > diagnosed) {
+			var mismatch = !isNaN(diagnosed) && sum !== diagnosed;
+			if (mismatch && (show || $err.length)) {
 				if (!$err.length) {
 					$err = $('<p class="hcp-limit-error hcp-sum-error" role="alert"></p>').appendTo($wrap);
 				}
-				$err.text('The ' + group.label + ' add up to ' + sum + ', more than the ' + diagnosed + ' patients diagnosed with anal fissure.');
+				$err.text('The ' + group.label + ' add up to ' + sum + ', not the ' + diagnosed + ' patients diagnosed with anal fissure.');
 			} else {
 				$err.remove();
 			}
 		});
-		$('.hcp-diag-count').text(isNaN(diagnosed) ? 'number of' : diagnosed);
 	}
 
 	// ------------------------------------------------------------------
@@ -239,6 +245,23 @@
 		return ok;
 	}
 
+	// Case study stages: everything after a Check that has not been pressed
+	// stays hidden, so later findings and recommendations cannot be read
+	// ahead of answering.
+	function revealStages() {
+		$('.frm_section_heading').has('.hcp-check').each(function () {
+			var hide = false;
+			$(this).find('.frm_form_field').each(function () {
+				var $field = $(this);
+				$field.toggleClass('hcp-stage-hidden', hide);
+				var $check = $field.find('.hcp-check');
+				if ($check.length && !$check.find('.hcp-check__feedback').hasClass('is-open')) {
+					hide = true;
+				}
+			});
+		});
+	}
+
 	function initChecks() {
 		$('.hcp-check').each(function () {
 			var $check = $(this);
@@ -261,6 +284,7 @@
 				}
 				$check.find('.hcp-check__prompt').removeClass('is-open');
 				$check.find('.hcp-check__feedback').addClass('is-open');
+				revealStages();
 			});
 		});
 	}
@@ -301,8 +325,11 @@
 	// A count over its limit blocks every button that saves the page:
 	// Previous and Save-and-continue-later carry formnovalidate, so the
 	// browser's own max check never runs for them.
-	function gateLimits(e) {
+	function gateLimits(e, backwards) {
 		var $bad = $form().find('.hcp-limit-error').filter(':visible');
+		if (backwards) {
+			$bad = $bad.not('.hcp-sum-error');
+		}
 		if (!$bad.length) {
 			return false;
 		}
@@ -319,17 +346,16 @@
 			if (!btn || !$form().length || !$.contains($form()[0], btn)) {
 				return;
 			}
-			if (gateLimits(e)) {
-				return;
-			}
-			if (btn.classList.contains('frm_page_back') || btn.classList.contains('frm_prev_page') || btn.classList.contains('frm_save_draft')) {
-				return;
-			}
+			var backwards = btn.classList.contains('frm_page_back') || btn.classList.contains('frm_prev_page') || btn.classList.contains('frm_save_draft');
 			if (btn.classList.contains('frm_page_skip')) {
 				var current = parseInt($('.frm_current_page input[type="button"]').val(), 10);
-				if (parseInt(btn.value, 10) < current) {
-					return;
-				}
+				backwards = parseInt(btn.value, 10) < current;
+			}
+			if (!backwards) {
+				checkSums(true);
+			}
+			if (gateLimits(e, backwards) || backwards) {
+				return;
 			}
 			var $pending = unchecked();
 			$('.hcp-check-gate').remove();
@@ -370,6 +396,7 @@
 		renderStatements();
 		renderAreas();
 		initChecks();
+		revealStages();
 	}
 
 	$(function () {
@@ -379,6 +406,7 @@
 		$(document).on('frmPageChanged frmFormComplete', refresh);
 		$(document).on('input change', 'form.frm-show-form input, form.frm-show-form textarea, form.frm-show-form select', function () {
 			checkLimits();
+			checkSums(false);
 			renderStatements();
 			renderCriteria();
 			renderAreas();
