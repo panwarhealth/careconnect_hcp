@@ -213,13 +213,13 @@ function hcp_mca_audit_v2_js_config( array $variant ): array {
 	);
 
 	// Each patient sits in exactly one bucket of these groups, so the boxes
-	// together may not exceed the diagnosed count.
+	// together must add up to the diagnosed count. Examination counts are
+	// not a group: a patient may have neither been examined nor offered one.
 	$k = fn( array $keys ) => array_map( fn( $key ) => HCP_MCA_V2_FIELD_KEY_PREFIX . $key, $keys );
 	$exclusive = [
 		[ 'label' => 'age groups', 'keys' => $k( [ 'sbk2o', 'knwub', 'wdxdg', '6kmxw', 'f199v' ] ) ],
 		[ 'label' => 'males and females', 'keys' => $k( [ '83nfc', '8ufcu' ] ) ],
 		[ 'label' => 'fissure types', 'keys' => $k( [ 'nnv4f', 'o2g6g', '5yztl' ] ) ],
-		[ 'label' => 'visual anal examination counts', 'keys' => $k( [ 'kake1', 'gpxbt' ] ) ],
 	];
 
 	return [

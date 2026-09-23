@@ -376,7 +376,7 @@ if ( ! function_exists( 'hcp_v2_case_studies' ) ) {
 			],
 			2 => [
 				'presentation' => hcp_v2_case_table( 'Patient 2 – Presentation', [
-					'Presentation'     => 'A 47-year-old man (BMI 24.9 kg/m²) presents with a regular anal pain during and after defecation and intermittent rectal bleeding over the past 6 weeks.',
+					'Presentation'     => 'A 47-year-old man (BMI 24.9 kg/m²) presents with regular anal pain during and after defecation and intermittent rectal bleeding over the past 6 weeks.',
 					'Clinical history' => [
 						'Persistent symptoms despite increased fibre intake',
 						'Fear of pain with defecation resulting in bowel movement avoidance and worsening constipation',
