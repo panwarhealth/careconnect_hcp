@@ -32,7 +32,7 @@ for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
     return Math.round(r.top - inset - want);
   });
   const progressTop = () => js(() => { const p = document.querySelector('[data-cs-progress]'); return p.hidden ? null : Math.round(p.getBoundingClientRect().top); });
-  const modalText = async () => (await page.locator('.cs-modal__body').textContent()).trim().slice(0, 40);
+  const modalText = async () => (await page.locator('.cs-modal__body').textContent()).replace(/\u00a0/g, ' ').trim().slice(0, 40);
   const modalBtn = async () => { await page.click('.cs-modal .cs-btn'); await sleep(900); };
   const shot = (label) => page.screenshot({ path: OUT + n + '-s-' + label + '.png' });
 
@@ -111,12 +111,28 @@ for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
   ok('Prepare revealed', await visibleSecs() === 6);
   ok('Prepare lands centred or top-aligned', Math.abs(await landing()) <= 4, 'offset ' + await landing());
   const planCheck = page.locator('[data-cs-quiz][data-right="plan-right"] [data-cs-check]');
-  ok('Prepare check disabled until all answered', await planCheck.isDisabled());
-  const rows = await page.$$('[data-cs-quiz][data-right="plan-right"] [data-cs-row]');
-  for (const r of rows) await (await r.$('.cs-opt:not([data-correct])')).click();
+  const rowSel = '[data-cs-quiz][data-right="plan-right"] [data-cs-row]';
+  const visibleRows = () => page.$$eval(rowSel, els => els.filter(e => !e.hidden).length);
+  ok('Prepare shows one question at first', await visibleRows() === 1);
+  ok('Prepare check hidden until last answered', !(await planCheck.isVisible()));
+  // answer every question wrong, one at a time, checking each next one appears and is centred/top-aligned
+  let landedOk = true;
+  // questions 1 and 3 right, the other three wrong
+  for (let j = 0; j < 5; j++) {
+    const pick = j === 0 || j === 2 ? '.cs-opt[data-correct]' : '.cs-opt:not([data-correct])';
+    await page.locator(rowSel).nth(j).locator(pick).click(); await sleep(1100);
+    if (j < 4 && await visibleRows() !== j + 2) landedOk = false;
+  }
+  ok('each answer reveals the next question', landedOk && await visibleRows() === 5);
+  ok('Check appears after the fifth answer', await planCheck.isVisible() && await planCheck.isEnabled());
   await planCheck.click(); await sleep(300);
   ok('wrong plan -> not quite right', (await modalText()).startsWith('That’s not quite')); await modalBtn();
-  for (const r of rows) await (await r.$('.cs-opt[data-correct]')).click();
+  const wrongRows = () => page.$$eval(rowSel, els => els.map((e, i) => e.classList.contains('is-wrong') ? i + 1 : 0).filter(Boolean).join(','));
+  ok('only the wrong questions are outlined', await wrongRows() === '2,4,5', 'outlined ' + await wrongRows());
+  await page.locator(rowSel).nth(1).locator('.cs-opt[data-correct]').click(); await sleep(200);
+  ok('changing an answer clears its outline', await wrongRows() === '4,5', 'outlined ' + await wrongRows());
+  for (let j = 0; j < 5; j++) await page.locator(rowSel).nth(j).locator('.cs-opt[data-correct]').click();
+  await sleep(300);
   await shot('6-plan');
   await planCheck.click(); await sleep(300);
   ok('right plan -> perfect', (await modalText()).startsWith('Perfect')); await modalBtn(); await sleep(300);

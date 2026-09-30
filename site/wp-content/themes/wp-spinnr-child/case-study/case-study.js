@@ -164,20 +164,41 @@
     const rows = $$('[data-cs-row]', quiz);
     const check = $('[data-cs-check]', quiz);
     const picked = (row) => $('.cs-opt[aria-pressed="true"]', row);
+    // Stepped: one row at a time, each revealed as the one above is answered; Check follows the last.
+    const stepped = quiz.hasAttribute('data-cs-stepped');
+    const checkActions = check.closest('.cs-actions');
     check.disabled = true;
+    if (stepped) {
+      rows.forEach((r, j) => { if (j > 0) r.hidden = true; });
+      checkActions.hidden = true;
+    }
 
-    rows.forEach((row) => {
+    rows.forEach((row, j) => {
       $$('.cs-opt', row).forEach((opt) => opt.addEventListener('click', () => {
         if (quiz.classList.contains('is-locked')) return;
+        const first = !picked(row);
         $$('.cs-opt', row).forEach((o) => o.setAttribute('aria-pressed', String(o === opt)));
+        row.classList.remove('is-wrong');
         check.disabled = !rows.every(picked);
+        if (!stepped || !first) return;
+        const nextEl = rows[j + 1] || checkActions;
+        // A short pause lets the pick register before the page moves on.
+        if (nextEl.hidden) setTimeout(() => reveal(nextEl), 250);
       }));
     });
 
     check.addEventListener('click', () => {
-      const right = rows.every((row) => picked(row) && picked(row).hasAttribute('data-correct'));
-      if (!right) {
-        modal.open(quiz.dataset.wrong);
+      const wrong = rows.filter((row) => !picked(row) || !picked(row).hasAttribute('data-correct'));
+      if (wrong.length) {
+        // With several questions, outline the wrong ones and take the reader to the first.
+        if (rows.length > 1) {
+          wrong.forEach((row) => row.classList.add('is-wrong'));
+          modal.open(quiz.dataset.wrong, () => {
+            window.scrollTo({ top: scrollTarget(wrong[0]), behavior: reduceMotion ? 'auto' : 'smooth' });
+          });
+        } else {
+          modal.open(quiz.dataset.wrong);
+        }
         return;
       }
       quiz.classList.add('is-locked');

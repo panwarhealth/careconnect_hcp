@@ -66,12 +66,12 @@ return [
 		// [ component, prompt, [ [ option, correct ], ... ] ]
 		$plan_rows = [
 			[ 'Checking glucose<sup>2,3</sup>', 'Jess should check her blood glucose levels…', [
-				[ 'Hourly (if they are above 15 mmol/L for 8 hours or more)', false ],
-				[ 'Every 2 to 4 hours (if they are above 15 mmol/L for 8 hours or more)', true ],
+				[ 'Hourly (if they are above 15&#160;mmol/L for 8&#160;hours or more)', false ],
+				[ 'Every 2&#160;to&#160;4&#160;hours (if they are above 15&#160;mmol/L for 8&#160;hours or more)', true ],
 			] ],
 			[ 'Medication management<sup>2,3</sup>', 'If Jess experiences vomiting or diarrhoea, she should…', [
-				[ 'Pause her metformin and empagliflozin, then resume once she has been eating and drinking normally for at least 24 hours', true ],
-				[ 'Increase the dose of her metformin, then return to normal dosage after at least 48 hours', false ],
+				[ 'Pause her metformin and empagliflozin, then resume once she has been eating and drinking normally for at least 24&#160;hours', true ],
+				[ 'Increase the dose of her metformin, then return to normal dosage after at least 48&#160;hours', false ],
 			] ],
 			[ 'Adequate hydration<sup>2,3</sup>', 'To stay hydrated, Jess should aim to drink…', [
 				[ '125&#160;mL to 250&#160;mL of fluid every hour', true ],
@@ -96,6 +96,11 @@ return [
 		];
 
 		/* ---- builders ---- */
+		// Keeps the last two words of a plain-text string on one line.
+		$tie = function ( $text ) {
+			return preg_replace( '/ (\S+)$/u', "\u{A0}$1", $text );
+		};
+
 		$msg = function ( $key, $tone, $label, $html ) {
 			return '<div class="cs-msg" data-cs-msg="' . esc_attr( $key ) . '" data-tone="' . esc_attr( $tone ) . '" data-label="' . esc_attr( $label ) . '" hidden>' . $html . '</div>';
 		};
@@ -109,7 +114,7 @@ return [
 			$flip_html .= '<button type="button" class="cs-flip" aria-pressed="false" aria-label="Clue ' . ( $i + 1 ) . '">'
 				. '<span class="cs-flip__inner">'
 				. '<span class="cs-flip__face cs-flip__front"><img src="' . esc_url( $img . $c[0] ) . '" alt="" loading="lazy" /><span class="cs-flip__cue">Tap to reveal</span></span>'
-				. '<span class="cs-flip__face cs-flip__back">' . esc_html( $c[1] ) . '</span>'
+				. '<span class="cs-flip__face cs-flip__back">' . esc_html( $tie( $c[1] ) ) . '</span>'
 				. '</span></button>';
 		}
 
@@ -148,7 +153,7 @@ return [
 			$target = ( substr( $r[2], -4 ) === '.pdf' ) ? '_blank' : '_self';
 			$res_html .= '<div class="cs-res">'
 				. '<a class="cs-res__thumb" href="' . esc_url( $r[2] ) . '" target="' . $target . '" aria-label="' . esc_attr( $r[0] ) . '"><img src="' . esc_url( $r[4] ) . '" alt="" loading="lazy" /></a>'
-				. '<div class="cs-res__body"><h3>' . esc_html( $r[0] ) . '</h3><p>' . esc_html( $r[1] ) . '</p><a class="cs-btn" href="' . esc_url( $r[2] ) . '" target="' . $target . '">' . esc_html( $r[3] ) . '</a></div>'
+				. '<div class="cs-res__body"><h3>' . esc_html( $tie( $r[0] ) ) . '</h3><p>' . esc_html( $tie( $r[1] ) ) . '</p><a class="cs-btn" href="' . esc_url( $r[2] ) . '" target="' . $target . '">' . esc_html( $r[3] ) . '</a></div>'
 				. '</div>';
 		}
 
@@ -197,7 +202,7 @@ return [
 			. $section( 4,
 				'<p><strong>Prepare:</strong> Jess confirms that she doesn’t have a sick day plan to take with her to Vietnam, so it’s time to create one together.</p>'
 				. '<p>For each of the sick day plan components below, select the correct advice to give Jess if she were to become unwell or dehydrated during her trip.</p>'
-				. '<div class="cs-quiz" data-cs-quiz data-right="plan-right" data-wrong="plan-wrong">'
+				. '<div class="cs-quiz" data-cs-quiz data-cs-stepped data-right="plan-right" data-wrong="plan-wrong">'
 				. '<div class="cs-rows">' . $row_html . '</div>'
 				. '<div class="cs-actions">' . str_replace( 'data-cs-check>', 'data-cs-check disabled>', $check ) . '</div>'
 				. '</div>',
@@ -275,6 +280,20 @@ return [
 			. '<p class="text-sm">&#169;Care Pharmaceuticals 2026. Hydralyte&#174; is a registered trademark of Care Pharmaceuticals. All rights reserved. October 2026.</p>'
 			. '<p class="text-sm font-bold">This information is intended for use by healthcare professionals only.</p>'
 			. '</div></div></div></div>';
+
+		// No line in a paragraph or list item ends on a lone word; headings too, unless the tied pair
+		// would be too wide for a phone at heading size. The lookahead skips a trailing tag attribute.
+		$content = preg_replace_callback(
+			'/(\S+) (?![^\s]*=)(\S+)(<\/(p|li|h[1-3])>)/u',
+			function ( $m ) {
+				$pair = wp_strip_all_tags( $m[1] . ' ' . $m[2] );
+				if ( 'h' === $m[4][0] && mb_strlen( $pair ) > 16 ) {
+					return $m[0];
+				}
+				return $m[1] . '&#160;' . $m[2] . $m[3];
+			},
+			$content
+		);
 
 		// Buttons, data-* and hidden attributes must survive a non-admin run.
 		kses_remove_filters();
