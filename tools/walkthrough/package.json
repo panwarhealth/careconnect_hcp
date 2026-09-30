@@ -1,0 +1,10 @@
+{
+  "name": "hcp-walkthrough",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Walks a feature end to end on the local site and renders every screen to a vector PDF for review.",
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}
