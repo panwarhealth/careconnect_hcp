@@ -5,29 +5,16 @@
 //   node walk.mjs [--site http://localhost:8080] [--user Rob-Panwar] [--pass staging123] [--out out] [--headed]
 //
 // Local only: the reset and approval steps run PHP inside the wordpress container.
-import { chromium } from 'playwright';
-import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createRecorder } from './lib/vec.mjs';
+import { createRecorder } from '../lib/vec.mjs';
+import { parseArgs, isLocal, php, createChecks, launch, login, goto as open, sleep } from '../lib/session.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-
-function parseArgs(argv) {
-  const args = {};
-  for (let i = 0; i < argv.length; i++) {
-    const t = argv[i];
-    if (!t.startsWith('--')) continue;
-    if (argv[i + 1] && !argv[i + 1].startsWith('--')) args[t.slice(2)] = argv[++i];
-    else args[t.slice(2)] = true;
-  }
-  return args;
-}
-const args = parseArgs(process.argv.slice(2));
-const SITE = (args.site || 'http://localhost:8080').replace(/\/$/, '');
-const USER = args.user || 'Rob-Panwar';
-const PASS = args.pass || 'staging123';
+const args = parseArgs();
+const SITE = args.site;
+const USER = args.user;
 const OUT = path.resolve(here, args.out || 'out');
 const COURSE = '/courses/clinical-audit-anal-fissure-management/';
 const LESSON = COURSE + 'lessons/complete-clinical-audit/';
@@ -49,40 +36,8 @@ const NUMBERS = {
 const AREAS = ['v2-or0v0', 'v2-nl84o', 'v2-qx8vp'];
 const REASONS = { 'v2-q65tg': 'Reason (walkthrough)', 'v2-wr612': 'Reason (walkthrough)', 'v2-vlg1l': 'Reason (walkthrough)' };
 
-const checks = [];
-function check(name, ok, detail = '') {
-  checks.push({ name, ok: !!ok, detail });
-  console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  (' + detail + ')' : ''}`);
-}
-
-function php(script, ...a) {
-  const out = execFileSync('bash', [path.join(here, 'php.sh'), script, ...a], { encoding: 'utf8' });
-  console.log('  php:', out.trim());
-  return out;
-}
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function login(page) {
-  await page.goto(SITE + '/log-in/', { waitUntil: 'load' });
-  await page.fill('#rcp_user_login', USER);
-  await page.fill('#rcp_user_pass', PASS);
-  await Promise.all([page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}), page.click('#rcp_login_submit')]);
-  const loggedIn = await page.evaluate(() => document.body.classList.contains('logged-in'));
-  if (!loggedIn) throw new Error('login failed for ' + USER);
-}
-
-async function dismissPopups(page) {
-  await page.evaluate(() => {
-    for (const el of document.querySelectorAll('.modal.show .close, [class*="popup"] [aria-label="Close"], .hcp-popup__close')) el.click();
-  }).catch(() => {});
-}
-
-async function goto(page, route) {
-  await page.goto(SITE + route, { waitUntil: 'load' });
-  await sleep(600);
-  await dismissPopups(page);
-}
+const { check, write: writeChecks } = createChecks();
+const goto = (page, route) => open(page, SITE + route);
 
 /** Fields on the current Formidable page, from the plugin's key -> id map. */
 async function fieldMap(page) {
@@ -194,26 +149,13 @@ async function unpressedCheck(page) {
 
 async function main() {
   fs.rmSync(OUT, { recursive: true, force: true });
-  const local = /localhost|127\.0\.0\.1/.test(SITE);
-  if (!local) throw new Error('walk.mjs runs against the local site only (reset and approval need the container).');
+  if (!isLocal(SITE)) throw new Error('walk.mjs runs against the local site only (reset and approval need the container).');
 
-  const ids = JSON.parse(php('reset.php', USER).trim().split('\n').pop());
+  const ids = JSON.parse(php(path.join(here, 'reset.php'), USER).trim().split('\n').pop());
   const rec = createRecorder(OUT, { width: 1280, settle: 1200 });
-  const browser = await chromium.launch({ headless: !args.headed });
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await context.newPage();
-  // Keep the admin bar and the off-canvas mobile menu out of the captures: the recorder
-  // turns fixed elements static so they would otherwise print inline.
-  await context.addInitScript(() => {
-    document.addEventListener('DOMContentLoaded', () => {
-      const style = document.createElement('style');
-      style.textContent = '#wpadminbar, .fixed.-top-full, .nojq { display: none !important; } html { margin-top: 0 !important; }';
-      document.head.appendChild(style);
-    });
-  });
-  page.on('pageerror', (e) => console.log('  ! page error:', e.message));
+  const { browser, context, page } = await launch({ headed: args.headed });
 
-  await login(page);
+  await login(page, args);
 
   // 1. Chooser (this user has legacy progress, so both cards show).
   await goto(page, '/clinical-audit/');
@@ -323,7 +265,7 @@ async function main() {
   await rec.shot(page, 'Evaluation thank-you');
 
   // 9. Reviewer approval, then the certificate.
-  const approved = php('approve.php', USER, 'Panwar-education');
+  const approved = php(path.join(here, 'approve.php'), USER, 'Panwar-education');
   check('reviewer approval completes the course', /approved .* complete=yes/.test(approved), approved.trim());
   const certUrl = `${SITE}/certificate/?course=${ids.course}&user=${ids.uid}`;
   const res = await context.request.get(certUrl, { maxRedirects: 5 });
@@ -333,10 +275,7 @@ async function main() {
   if (isPdf) fs.writeFileSync(path.join(OUT, 'certificate.pdf'), body);
 
   rec.write();
-  fs.writeFileSync(path.join(OUT, 'checks.json'), JSON.stringify(checks, null, 2));
-  const failed = checks.filter((c) => !c.ok);
-  console.log(`\n${checks.length - failed.length}/${checks.length} checks passed`);
-  if (failed.length) console.log('FAILED: ' + failed.map((c) => c.name).join('; '));
+  writeChecks(OUT);
   await browser.close();
 }
 

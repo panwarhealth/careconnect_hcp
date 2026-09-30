@@ -1,8 +1,8 @@
-"""Merge the crawled screens into one PDF with a bookmark tree.
+"""Merge the captured screens into one PDF with a bookmark tree.
 
-    py -X utf8 assemble.py --dir out --out VAPO0005_walkthrough.pdf
+    python3 lib/assemble.py --dir caph0150/out --out caph0150/out/walkthrough.pdf
 
-Reads manifest.json, so pages come out in the order the crawler walked them rather than in
+Reads manifest.json, so pages come out in the order the walk captured them rather than in
 whatever order the filenames happen to sort. Group headings become the top level of the bookmarks.
 
 Paper:
@@ -25,7 +25,7 @@ A4_WIDTH = 595.276
 A4_HEIGHT = 841.89
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dir", default="out", help="directory the crawler wrote")
+parser.add_argument("--dir", default="out", help="directory the walk wrote")
 parser.add_argument("--out", default=None, help="output PDF path")
 parser.add_argument("--paper", default="a4", choices=["a4", "a4-pages", "native"])
 parser.add_argument("--title", default=None, help="add a cover page with this title")
@@ -43,7 +43,7 @@ args = parser.parse_args()
 
 manifest_path = os.path.join(args.dir, "manifest.json")
 if not os.path.exists(manifest_path):
-    sys.exit(f"No manifest at {manifest_path}. Run crawl.mjs first.")
+    sys.exit(f"No manifest at {manifest_path}. Run the walk first.")
 
 with open(manifest_path, encoding="utf8") as handle:
     screens = json.load(handle)
@@ -61,7 +61,6 @@ def cover(title, subtitle):
     if subtitle:
         page.insert_text((60, 340), subtitle, fontname="helv", fontsize=14)
     page.insert_text((60, 380), date.today().strftime("%d %B %Y"), fontname="helv", fontsize=11)
-    page.insert_text((60, 782), "Clinical Studio", fontname="helv", fontsize=9)
 
 
 def place(src_doc):
