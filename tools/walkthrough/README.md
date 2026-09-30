@@ -1,39 +1,71 @@
-# Clinical Audit 2026 walkthrough
+# Walkthroughs
 
-Walks the 2026 Clinical Audit end to end on the local site as a test user, checks the
-interactive behaviour, and renders every screen to a vector PDF for reviewer sign-off.
-Pages come out in this order: note, module chooser, course page, Step 1A, 1B, 2A, 2B, 3
-(all filled in), activity evaluation (filled in), thank-you, certificate.
+Walks a feature end to end on the local site as a test user, checks its behaviour (PASS/FAIL),
+and renders every screen to a vector PDF for reviewer sign-off. Vector means real text, so
+reviewers can select and annotate it.
 
-## Run
+## Layout
 
-```bash
-docker compose up -d                 # local site on http://localhost:8080
-cd tools/walkthrough
-npm install                          # first time only
-npx playwright install chromium-headless-shell   # first time only
-./build.sh                           # ~4 minutes
+```
+tools/walkthrough/
+├── lib/                 # shared, job-independent
+│   ├── session.mjs      # args, browser, login, goto, PASS/FAIL checks, php() runner
+│   ├── vec.mjs          # captures the current page as one full-height vector PDF
+│   ├── php.sh           # runs a PHP script inside the local wordpress container
+│   ├── note.py          # text-only note page, put first in the PDF
+│   └── assemble.py      # merges out/manifest.json into one bookmarked PDF
+└── <job>/               # one folder per job, e.g. caph0150/
+    ├── walk.mjs         # the walk: navigate, interact, check(), rec.shot()
+    ├── build.sh         # walk + note + assemble + copy to Windows Downloads
+    └── *.php            # optional setup/teardown run via php(), e.g. reset progress
 ```
 
-The PDF lands in `out/` and a dated copy in the Windows Downloads folder.
+Each job writes to its own `<job>/out/` (gitignored).
 
-`build.sh` runs, in order: `reset.php` (wipes the test user's 2026 audit progress),
-`walk.mjs` (fills and captures every screen, prints PASS/FAIL checks, writes `out/checks.json`),
-`approve.php` (approves the audit as the reviewer would, which issues the certificate),
-`note.py` (the opening note page) and `assemble.py` (merges `out/manifest.json` into one PDF).
+## First run
 
-Options: `node walk.mjs --user Rob-Panwar --pass staging123 --headed`.
-The test user needs legacy audit progress for the chooser screen to show both cards;
-Rob-Panwar has it in the seeded DB. Set the local password first if needed:
+```bash
+docker compose up -d                              # local site on http://localhost:8080
+cd tools/walkthrough
+npm install                                       # first time only
+npx playwright install chromium-headless-shell    # first time only
+./caph0150/build.sh
+```
+
+Every walk takes `--site`, `--user`, `--pass` and `--headed` (watch the browser). Defaults are
+the local site and `Rob-Panwar` / `staging123`. Set a local password if needed:
 `docker compose exec -T wordpress php -r 'require "/var/www/html/wp-load.php"; wp_set_password("staging123", 25027);'`
 
-## Test data
+## Starting a new job
 
-Step 1B counts live in `NUMBERS` in `walk.mjs` (20 identified, 12 diagnosed, groups add up
-to 12). Boxes not listed are left blank on purpose to exercise the fill-with-zero on Next.
-Step 1B question 3 picks the first three areas with a reason each (the form needs at least three).
+Copy `caph0150/walk.mjs` and `build.sh` as a template, keep the imports and `main()` shape,
+and replace the steps. The minimum walk is:
+
+```js
+import { createRecorder } from '../lib/vec.mjs';
+import { parseArgs, createChecks, launch, login, goto } from '../lib/session.mjs';
+
+const args = parseArgs();
+const { check, write } = createChecks();
+const rec = createRecorder(OUT);
+const { browser, page } = await launch({ headed: args.headed });
+await login(page, args);
+await goto(page, args.site + '/some-page/');
+check('heading shows', await page.locator('h1').count() > 0);
+await rec.shot(page, 'Some page');
+rec.write();
+write(OUT);
+await browser.close();
+```
 
 ## Local only
 
-The reset and approval steps run PHP inside the wordpress container via `php.sh`, so the walk
-does not run against staging or prod.
+`php()` runs inside the local wordpress container, so walks that reset or approve anything
+do not run against staging or prod.
+
+## Jobs
+
+- `caph0150/`: 2026 Clinical Audit. Note, module chooser, course page, Steps 1A-3 filled in,
+  activity evaluation, thank-you, certificate. The test user needs legacy audit progress for the
+  chooser to show both cards (Rob-Panwar has it in the seeded DB). Step 1B counts are in
+  `NUMBERS`; boxes not listed are left blank on purpose to exercise the fill-with-zero on Next.
