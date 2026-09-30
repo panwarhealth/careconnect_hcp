@@ -8,8 +8,8 @@
  * live in wp-spinnr-child/case-study/, loaded on posts carrying the `_hcp_case_study` meta.
  *
  * Images expected at wp-content/uploads/2026/10/caph0148/ on each environment BEFORE running:
- *   hero.jpg (1200x630, also the /blog/ card image), jess.jpg (800x800),
- *   clue-vietnam.jpg, clue-activities.jpg, clue-street-food.jpg, clue-fluids.jpg (600x600).
+ *   hero.webp (1200x630, also the /blog/ card image), jess.webp (800x800),
+ *   clue-vietnam.webp, clue-activities.webp, clue-street-food.webp, clue-fluids.webp (600x800 portrait).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -30,10 +30,10 @@ return [
 
 		/* ---- content data ---- */
 		$clues = [
-			[ 'clue-vietnam.jpg', '10 days travelling around Vietnam' ],
-			[ 'clue-activities.jpg', 'Itinerary includes guided nature hikes, city walking tours and a kayaking day trip' ],
-			[ 'clue-street-food.jpg', 'Excited to explore markets and try different street foods' ],
-			[ 'clue-fluids.jpg', 'Dislikes public bathrooms, so limits fluid intake during flights and while out to avoid toileting' ],
+			[ 'clue-vietnam.webp', '10 days travelling around Vietnam' ],
+			[ 'clue-activities.webp', 'Itinerary includes guided nature hikes, city walking tours and a kayaking day trip' ],
+			[ 'clue-street-food.webp', 'Excited to explore markets and try different street foods' ],
+			[ 'clue-fluids.webp', 'Dislikes public bathrooms, so limits fluid intake during flights and while out to avoid toileting' ],
 		];
 
 		$factors = [
@@ -89,10 +89,10 @@ return [
 
 		// [ title, description, url, button, thumbnail ]
 		$resources = [
-			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', '#', 'Download', $img . 'placeholder-resource.jpg' ],
-			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', '#', 'Read article', $img . 'placeholder-resource.jpg' ],
+			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', '#', 'Download', $img . 'placeholder-resource.webp' ],
+			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', '#', 'Read article', $img . 'placeholder-resource.webp' ],
 			[ 'KOL Clinical Bites', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne', $base . '/tools-and-videos/', 'Watch videos', $base . '/wp-content/uploads/2026/07/caph0105-clinical-bites-video-1-thumbnail.png' ],
-			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', '#', 'Download', $img . 'placeholder-resource.jpg' ],
+			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', '#', 'Download', $img . 'placeholder-resource.webp' ],
 		];
 
 		/* ---- builders ---- */
@@ -176,7 +176,7 @@ return [
 			. $section( 1,
 				'<h2 class="cs-h">Meet your patient</h2>'
 				. '<div class="cs-patient">'
-				. '<img class="cs-patient__img" src="' . esc_url( $img . 'jess.jpg' ) . '" alt="Jess" />'
+				. '<img class="cs-patient__img" src="' . esc_url( $img . 'jess.webp' ) . '" alt="Jess" />'
 				. '<ul class="cs-patient__facts"><li><strong>Jess, 54 years old, female</strong></li><li>Well-controlled type 2 diabetes</li><li>Medications: metformin, empagliflozin</li></ul>'
 				. '</div>'
 				. '<p>Jess is booked in for a pre-travel consultation to discuss travel vaccines.</p>',
@@ -255,7 +255,7 @@ return [
 			. '<div class="flex gap-md items-center justify-center mb-0"><p class="bg-accent-secondary mb-0 px-6 py-2 rounded-full text-heading">Case study</p><p class="mb-0">' . esc_html( wp_date( 'd.m.y' ) ) . '</p></div>'
 			. $close
 			. $open( 'pt-0 pb-0', 'max-w-4xl' )
-			. '<img src="' . esc_url( $img . 'hero.jpg' ) . '" class="cs-hero h-auto rounded-xl w-full" alt="" />'
+			. '<img src="' . esc_url( $img . 'hero.webp' ) . '" class="cs-hero h-auto rounded-xl w-full" alt="" />'
 			. '<h1 class="cs-title">Travelling with diabetes: A 3-step check before take&#8209;off</h1>'
 			. $close
 			. $open( 'pt-0 pb-0 logged_in_users_only', 'max-w-4xl' )
@@ -320,14 +320,14 @@ return [
 		update_post_meta( $post_id, '_hcp_case_study', 1 );
 		update_post_meta( $post_id, '_hcp_card_cta', 'Start the case study' );
 
-		$hero_rel = '2026/10/caph0148/hero.jpg';
+		$hero_rel = '2026/10/caph0148/hero.webp';
 		$hero_abs = wp_upload_dir()['basedir'] . '/' . $hero_rel;
 		if ( ! file_exists( $hero_abs ) ) {
 			return "Created post '$slug' (ID $post_id). WARNING: $hero_rel not found, the /blog/ card has no image until it is uploaded.";
 		}
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		$thumb_id = wp_insert_attachment(
-			[ 'post_title' => 'Travelling with diabetes case study hero', 'post_mime_type' => 'image/jpeg', 'post_status' => 'inherit' ],
+			[ 'post_title' => 'Travelling with diabetes case study hero', 'post_mime_type' => 'image/webp', 'post_status' => 'inherit' ],
 			$hero_abs,
 			$post_id
 		);
