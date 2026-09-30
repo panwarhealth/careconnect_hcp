@@ -2584,6 +2584,17 @@ add_action( 'wp_enqueue_scripts', function () {
     }
 } );
 
+// Interactive case studies: assets load only on posts flagged with _hcp_case_study.
+add_action( 'wp_enqueue_scripts', function () {
+    if ( ! is_singular() || ! get_post_meta( get_queried_object_id(), '_hcp_case_study', true ) ) {
+        return;
+    }
+    $dir = get_stylesheet_directory() . '/case-study/';
+    $uri = get_stylesheet_directory_uri() . '/case-study/';
+    wp_enqueue_style( 'hcp-case-study', $uri . 'case-study.css', [], filemtime( $dir . 'case-study.css' ) );
+    wp_enqueue_script( 'hcp-case-study', $uri . 'case-study.js', [], filemtime( $dir . 'case-study.js' ), true );
+} );
+
 require_once get_stylesheet_directory() . '/inc/ungate.php';
 
 // Priority 20 so parent theme has already registered wp-spinnr-custom-js-body (priority 10, loads after child)
