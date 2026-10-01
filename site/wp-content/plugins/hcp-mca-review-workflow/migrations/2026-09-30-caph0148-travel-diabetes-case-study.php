@@ -74,8 +74,8 @@ return [
 				[ 'Increase the dose of her metformin, then return to normal dosage after at least 48&#160;hours', false ],
 			] ],
 			[ 'Adequate hydration<sup>2,3</sup>', 'To stay hydrated, Jess should aim to drink…', [
-				[ '125&#160;mL to 250&#160;mL of fluid every hour', true ],
-				[ '250&#160;mL to 500&#160;mL of fluid every hour', false ],
+				[ '125mL to 250mL of fluid every hour', true ],
+				[ '250mL to 500mL of fluid every hour', false ],
 			] ],
 			[ 'Appropriate fluids<sup>2,3</sup>', 'If Jess’ blood glucose levels are above 10&#160;mmol/L, she should consume…', [
 				[ 'Carbohydrate-containing fluids', false ],
@@ -195,7 +195,7 @@ return [
 				'Continue', ' hidden' )
 			. $section( 3, 'discuss',
 				'<p><strong>Discuss:</strong> After discussing travel vaccines with Jess, there is limited time left in today’s consultation. You’ll need to choose which of the following points you will prioritise for further discussion.</p>'
-				. '<p>Move each discussion point into the most appropriate column. Each column can hold a maximum of three cards, so choose carefully!</p>'
+				. '<p>Move each discussion point into the most appropriate column. Each column can hold a maximum of three cards – choose carefully!</p>'
 				. '<div class="cs-sort" data-cs-sort data-max="3" data-right="sort-right" data-wrong="sort-wrong">'
 				. '<div class="cs-pool" data-cs-pool><p class="cs-pool__tip">Drag each card into a column, or tap a card and then tap a column.</p><div class="cs-pool__list" data-cs-list>' . $card_html . '</div><button type="button" class="cs-pool__drop" data-cs-drop>Return card here</button></div>'
 				. '<div class="cs-cols">' . $col_html . '</div>'
@@ -227,7 +227,7 @@ return [
 			. $msg( 'sort-hint', 'wrong', 'Show me a hint', '<p>Not quite. Would you like a hint?</p>' )
 			. $msg( 'sort-right', 'right', 'Continue', '<p class="cs-msg__title">Nicely done!</p><p>Jess’ immediate travel risks are dehydration and acute illness, particularly if she develops vomiting or diarrhoea while on her regular medicines. Sick day planning, medication readiness and practical hydration strategies should therefore be prioritised, as they are key to reducing her risk of acute harm while travelling.<sup>2</sup></p><p>If time permits, discussion on food and water safety, mosquito-bite prevention and travel insurance/access to care would also be beneficial based on Jess’ itinerary.<sup>2</sup> Her routine skin check and mammogram, while important, can be considered a lower priority for today.</p>' )
 			. $msg( 'plan-wrong', 'wrong', 'Try again', '<p>That’s not quite right.</p>' )
-			. $msg( 'plan-right', 'right', 'Continue', '<p class="cs-msg__title">Perfect!</p><p>Providing Jess with a simple, personalised Sick Day Care Plan that provides clear guidance on glucose monitoring, medication management, and appropriate hydration is a practical and highly impactful step to support her health while travelling.</p><p>With that, you have successfully navigated your pre-travel health consultation with Jess. Congratulations!</p>' );
+			. $msg( 'plan-right', 'right', 'Continue', '<p class="cs-msg__title">Perfect!</p><p>Providing Jess with a simple, personalised Sick Day Care Plan that provides clear guidance on glucose monitoring, medication management, and appropriate hydration is a practical and highly impactful step to support her health while travelling.</p><p>With that, you have successfully navigated your pre-travel health consultation with Jess – congratulations!</p>' );
 
 		$closing = '<div class="cs-closing" data-cs-closing>'
 			. '<div class="cs-closing__box">'
