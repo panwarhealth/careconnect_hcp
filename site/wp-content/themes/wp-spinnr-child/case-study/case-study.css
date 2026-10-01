@@ -188,6 +188,9 @@
   transition: transform .55s ease;
 }
 #hcp-cs .cs-flip.is-flipped .cs-flip__inner { transform: rotateY(180deg); }
+/* peek: a quick half-turn in sequence to show the cards flip, played by case-study.js */
+#hcp-cs .cs-flip.is-peeking:not(.is-flipped) .cs-flip__inner { animation: cs-peek 1.1s ease-in-out; }
+@keyframes cs-peek { 0%, 100% { transform: none; } 45% { transform: rotateY(-14deg); } }
 #hcp-cs .cs-flip__face {
   position: absolute;
   inset: 0;
@@ -199,20 +202,6 @@
 }
 #hcp-cs .cs-flip__front { background: var(--cs-cream); }
 #hcp-cs .cs-flip__front img { width: 100%; height: 100%; margin: 0; object-fit: cover; }
-#hcp-cs .cs-flip__cue {
-  position: absolute;
-  left: 50%;
-  bottom: .6rem;
-  transform: translateX(-50%);
-  padding: .3rem .8rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .92);
-  color: var(--cs-ink);
-  font-size: .78rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-#hcp-cs .cs-flip.is-seen .cs-flip__cue::before { content: "\2713\00a0"; color: var(--cs-green); }
 #hcp-cs .cs-flip__back {
   align-items: center;
   justify-content: center;
@@ -464,6 +453,8 @@ html.cs-modal-open { overflow: hidden; }
   #hcp-cs .cs-btn:disabled:hover { background: #CFC7C0; }
   #hcp-cs .cs-opt:hover { border-color: #F2B98E; }
   #hcp-cs .cs-opt[aria-pressed="true"]:hover { border-color: var(--cs-orange); }
+  #hcp-cs .cs-flip { transition: transform .2s ease; }
+  #hcp-cs .cs-flip:hover { transform: translateY(-4px); }
   #hcp-cs .cs-card:hover { border-color: #F2B98E; }
   #hcp-cs .cs-card.is-selected:hover { border-color: var(--cs-orange); }
 }

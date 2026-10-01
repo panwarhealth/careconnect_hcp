@@ -87,12 +87,14 @@ return [
 			] ],
 		];
 
-		// [ title, description, url, button, thumbnail ]
+		// [ title, description, url, button, thumbnail, opens in a new tab ]
+		// PDFs go through their tracked redirect pages so the click registers in GA4.
+		$uploads   = $base . '/wp-content/uploads/';
 		$resources = [
-			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', '#', 'Download', $img . 'placeholder-resource.webp' ],
-			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', '#', 'Read article', $img . 'placeholder-resource.webp' ],
-			[ 'KOL Clinical Bites', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne', $base . '/tools-and-videos/', 'Watch videos', $base . '/wp-content/uploads/2026/07/caph0105-clinical-bites-video-1-thumbnail.png' ],
-			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', '#', 'Download', $img . 'placeholder-resource.webp' ],
+			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', $base . '/hydralyte-sick-days/', 'Download', $uploads . '2026/03/hydra-sick-days.png', true ],
+			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', $base . '/blog/travellers-diarrhoea-quick-management-guide-for-the-holiday-season/', 'Read article', $uploads . '2025/11/shutterstock_141564331_orange-suitcase-scaled.jpg', false ],
+			[ 'KOL Clinical Bites', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne', $base . '/tools-and-videos/', 'Watch videos', $uploads . '2026/07/caph0105-clinical-bites-video-1-thumbnail.png', false ],
+			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', $base . '/oral-rehydration-in-diabetes/', 'Download', $uploads . '2026/08/caph0124-hydralyte-ors-diabetes-thumb.jpg', true ],
 		];
 
 		/* ---- builders ---- */
@@ -113,7 +115,7 @@ return [
 		foreach ( $clues as $i => $c ) {
 			$flip_html .= '<button type="button" class="cs-flip" aria-pressed="false" aria-label="Clue ' . ( $i + 1 ) . '">'
 				. '<span class="cs-flip__inner">'
-				. '<span class="cs-flip__face cs-flip__front"><img src="' . esc_url( $img . $c[0] ) . '" alt="" loading="lazy" /><span class="cs-flip__cue">Tap to reveal</span></span>'
+				. '<span class="cs-flip__face cs-flip__front"><img src="' . esc_url( $img . $c[0] ) . '" alt="" loading="lazy" /></span>'
 				. '<span class="cs-flip__face cs-flip__back">' . esc_html( $tie( $c[1] ) ) . '</span>'
 				. '</span></button>';
 		}
@@ -150,7 +152,7 @@ return [
 
 		$res_html = '';
 		foreach ( $resources as $r ) {
-			$target = ( substr( $r[2], -4 ) === '.pdf' ) ? '_blank' : '_self';
+			$target = $r[5] ? '_blank' : '_self';
 			$res_html .= '<div class="cs-res">'
 				. '<a class="cs-res__thumb" href="' . esc_url( $r[2] ) . '" target="' . $target . '" aria-label="' . esc_attr( $r[0] ) . '"><img src="' . esc_url( $r[4] ) . '" alt="" loading="lazy" /></a>'
 				. '<div class="cs-res__body"><h3>' . esc_html( $tie( $r[0] ) ) . '</h3><p>' . esc_html( $tie( $r[1] ) ) . '</p><a class="cs-btn" href="' . esc_url( $r[2] ) . '" target="' . $target . '">' . esc_html( $r[3] ) . '</a></div>'
@@ -159,21 +161,22 @@ return [
 
 		/* ---- sections: each appears when the one above is finished. data-step drives the progress
 		   bar; [data-cs-continue] reveals the next section and is held back until the section is done ---- */
-		$section = function ( $step, $html, $continue = '', $continue_attrs = '' ) {
+		// $name labels the section in analytics events (case-study.js).
+		$section = function ( $step, $name, $html, $continue = '', $continue_attrs = '' ) {
 			$actions = $continue
 				? '<div class="cs-actions" data-cs-actions><button type="button" class="cs-btn" data-cs-continue' . $continue_attrs . '>' . $continue . '</button></div>'
 				: '';
-			return '<section class="cs-sec" data-cs-sec data-step="' . $step . '">' . $html . $actions . '</section>';
+			return '<section class="cs-sec" data-cs-sec data-step="' . $step . '" data-name="' . esc_attr( $name ) . '">' . $html . $actions . '</section>';
 		};
 
 		$check = '<button type="button" class="cs-btn" data-cs-check>Check your answer</button>';
 
 		$sections = ''
-			. $section( 0,
+			. $section( 0, 'intro',
 				'<p>Staying healthy when travelling is important for everyone, but for your patients with diabetes, travelling can come with extra considerations and risks.</p>'
 				. '<p>Put your pre-travel health check skills to the test with this mini case study.</p>',
 				'Start your consultation', ' data-size="lg"' )
-			. $section( 1,
+			. $section( 1, 'meet_jess',
 				'<h2 class="cs-h">Meet your patient</h2>'
 				. '<div class="cs-patient">'
 				. '<img class="cs-patient__img" src="' . esc_url( $img . 'jess.webp' ) . '" alt="Jess" />'
@@ -181,16 +184,16 @@ return [
 				. '</div>'
 				. '<p>Jess is booked in for a pre-travel consultation to discuss travel vaccines.</p>',
 				'Learn more' )
-			. $section( 2,
+			. $section( 2, 'investigate',
 				'<p><strong>Investigate:</strong> Click on each clue to discover more details about Jess’s travel plans to help tailor your advice.</p>'
 				. '<div class="cs-flips" data-cs-flips>' . $flip_html . '</div>',
 				'Continue', ' disabled' )
-			. $section( 2,
+			. $section( 2, 'factors_question',
 				'<p>Now that you’ve learned more about Jess’s travel plans, which of the following factors may affect her health while she is travelling?</p>'
 				. '<div class="cs-quiz" data-cs-quiz data-right="factor-right" data-wrong="factor-wrong"><div class="cs-opts" data-cs-row role="group" aria-label="Factors">' . $factor_html . '</div>'
 				. '<div class="cs-actions">' . $check . '</div></div>',
 				'Continue', ' hidden' )
-			. $section( 3,
+			. $section( 3, 'discuss',
 				'<p><strong>Discuss:</strong> After discussing travel vaccines with Jess, there is limited time left in today’s consultation. You’ll need to choose which of the following points you will prioritise for further discussion.</p>'
 				. '<p>Move each discussion point into the most appropriate column. Each column can hold a maximum of three cards, so choose carefully!</p>'
 				. '<div class="cs-sort" data-cs-sort data-max="3" data-right="sort-right" data-wrong="sort-wrong">'
@@ -199,7 +202,7 @@ return [
 				. '<div class="cs-actions">' . $check . '</div>'
 				. '</div>',
 				'Continue', ' hidden' )
-			. $section( 4,
+			. $section( 4, 'prepare',
 				'<p><strong>Prepare:</strong> Jess confirms that she doesn’t have a sick day plan to take with her to Vietnam, so it’s time to create one together.</p>'
 				. '<p>For each of the sick day plan components below, select the correct advice to give Jess if she were to become unwell or dehydrated during her trip.</p>'
 				. '<div class="cs-quiz" data-cs-quiz data-cs-stepped data-right="plan-right" data-wrong="plan-wrong">'

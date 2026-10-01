@@ -12,6 +12,7 @@ const only = process.argv.find(a => a.startsWith('--only='))?.slice(7);
 for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
   const { browser, page } = await launch({ width: w, height: h });
   const errs = []; page.on('pageerror', e => errs.push(e.message));
+  const gaHits = []; page.on('request', r => { if (/google-analytics\.com\/g\/collect/.test(r.url()) && /case_study/.test(r.url() + (r.postData() || ''))) gaHits.push(r.url()); });
   const log = [];
   const ok = (name, cond, detail = '') => log.push(`${cond ? 'PASS' : 'FAIL'} ${name}${detail ? ' (' + detail + ')' : ''}`);
   await login(page, args);
@@ -140,6 +141,20 @@ for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
   ok('closing lands centred or top-aligned', Math.abs(await landing()) <= 4, 'offset ' + await landing());
   await shot('7-closing');
   ok('earlier sections still on the page', await visibleSecs() === 6);
+  // analytics: events are logged locally (not sent) in the order a reader triggers them
+  await js(() => { const a = document.querySelector('.cs-res a.cs-btn'); a.addEventListener('click', e => e.preventDefault(), { once: true }); a.click(); });
+  const events = await js(() => (window.hcpCaseStudyEvents || []).map(([n, p]) => [n, p.cs_step || p.cs_result || p.cs_resource || '', p.cs_result || '', p.case_study]));
+  const names = events.map(e => e[0]);
+  ok('GA: first event is case_study_start', names[0] === 'case_study_start', names.slice(0, 3).join(','));
+  const steps = events.filter(e => e[0] === 'case_study_step').map(e => e[1]).join(',');
+  ok('GA: a step event for every section', steps === 'meet_jess,investigate,factors_question,discuss,prepare', steps);
+  const answerEvents = events.filter(e => e[0] === 'case_study_answer');
+  ok('GA: answers logged with right/wrong', answerEvents.some(e => e[2] === 'incorrect') && answerEvents.some(e => e[2] === 'correct'), answerEvents.length + ' answers');
+  ok('GA: hint logged', names.includes('case_study_hint'));
+  ok('GA: completion logged', names.includes('case_study_complete'));
+  ok('GA: resource click logged', events.some(e => e[0] === 'case_study_resource' && e[1] === 'Diabetes Sick Day Care Plan'));
+  ok('GA: every event tagged with the case study', events.every(e => e[3] === 'travelling-with-diabetes'));
+  ok('GA: nothing sent to Google from local', gaHits.length === 0, gaHits.length + ' hits');
   ok('no horizontal overflow', !(await js(() => document.documentElement.scrollWidth > innerWidth)));
   ok('no script errors', errs.length === 0, errs.join(' | '));
   const fails = log.filter(l => l.startsWith('FAIL'));

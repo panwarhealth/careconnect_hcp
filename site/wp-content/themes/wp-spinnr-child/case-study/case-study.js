@@ -15,6 +15,37 @@
   const $$ = (sel, el = root) => Array.from(el.querySelectorAll(sel));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- GA4 events, delivered like the hcp-popups and hcp-videos plugins ---------- */
+
+  // gtag is configured with send_page_view off and events addressed with send_to, so the
+  // GTM container's pageviews are never doubled.
+  const ga = window.hcpCaseStudy || {};
+  let gaReady = false;
+  function track(name, params) {
+    if (ga.debug) {
+      const event = [name, Object.assign({ case_study: ga.caseStudy || '' }, params)];
+      (window.hcpCaseStudyEvents = window.hcpCaseStudyEvents || []).push(event);
+      console.debug('[case study GA4, not sent]', ...event);
+      return;
+    }
+    if (!ga.measurementId) return;
+    if (!gaReady) {
+      window.dataLayer = window.dataLayer || [];
+      if (!window.gtag) {
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        const s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga.measurementId);
+        document.head.appendChild(s);
+      }
+      window.gtag('config', ga.measurementId, { send_page_view: false });
+      gaReady = true;
+    }
+    window.gtag('event', name, Object.assign({ send_to: ga.measurementId, case_study: ga.caseStudy || '' }, params));
+  }
+  const stepOf = (el) => (el.closest('[data-cs-sec]') || {}).dataset.name || '';
+
   /* ---------- feedback pop-up ---------- */
 
   const modal = (function () {
@@ -104,6 +135,8 @@
 
   function reveal(el) {
     el.hidden = false;
+    if (el.matches('[data-cs-sec]')) track('case_study_step', { cs_step: el.dataset.name });
+    if (el === closing) track('case_study_complete');
     if (el.dataset.step) setProgress(Number(el.dataset.step));
     // Measured before the slide-in animation starts, since its transform shifts the box.
     const top = scrollTarget(el);
@@ -116,7 +149,10 @@
     const actions = $('[data-cs-actions]', from);
     if (actions) actions.hidden = true;
     const i = sections.indexOf(from);
-    if (i === 0) progress.hidden = false;
+    if (i === 0) {
+      progress.hidden = false;
+      track('case_study_start');
+    }
     if (i === sections.length - 1) {
       setProgress(5);
       reveal(closing);
@@ -144,12 +180,49 @@
     if (btn) advance(btn.closest('[data-cs-sec]'));
   });
 
+  // Resource cards (thumbnail or button) and the Order samples banner in the closing section.
+  closing.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    const card = link.closest('.cs-res');
+    const title = card ? card.querySelector('h3').textContent : link.textContent;
+    track('case_study_resource', { cs_resource: title.replace(/\s+/g, ' ').trim(), link_url: link.href });
+  });
+
   /* ---------- flip cards ---------- */
 
   $$('[data-cs-flips]').forEach((group) => {
     const section = group.closest('[data-cs-sec]');
     const cards = $$('.cs-flip', group);
+
+    // Peek: once the cards are on screen, each gives a slight turn in turn to show they flip.
+    // Any touch of a card cancels the peek on every card, so it never fights a flip.
+    const peekTimers = [];
+    let peekDone = false;
+    function stopPeek() {
+      peekDone = true;
+      peekTimers.forEach(clearTimeout);
+      cards.forEach((c) => c.classList.remove('is-peeking'));
+    }
+    function peek() {
+      if (reduceMotion || peekDone) return;
+      cards.forEach((c, i) => peekTimers.push(setTimeout(() => {
+        c.classList.remove('is-peeking');
+        void c.offsetWidth;
+        c.classList.add('is-peeking');
+      }, i * 180)));
+    }
+    if ('IntersectionObserver' in window) {
+      const seen = new IntersectionObserver((entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        seen.disconnect();
+        peekTimers.push(setTimeout(peek, 400));
+      }, { threshold: 0.6 });
+      seen.observe(group);
+    }
+    cards.forEach((card) => card.addEventListener('pointerdown', stopPeek));
     cards.forEach((card) => card.addEventListener('click', () => {
+      stopPeek();
       const flipped = card.classList.toggle('is-flipped');
       card.setAttribute('aria-pressed', String(flipped));
       card.classList.add('is-seen');
@@ -166,6 +239,7 @@
     const picked = (row) => $('.cs-opt[aria-pressed="true"]', row);
     // Stepped: one row at a time, each revealed as the one above is answered; Check follows the last.
     const stepped = quiz.hasAttribute('data-cs-stepped');
+    let attempts = 0;
     const checkActions = check.closest('.cs-actions');
     check.disabled = true;
     if (stepped) {
@@ -189,6 +263,8 @@
 
     check.addEventListener('click', () => {
       const wrong = rows.filter((row) => !picked(row) || !picked(row).hasAttribute('data-correct'));
+      attempts++;
+      track('case_study_answer', { cs_step: stepOf(quiz), cs_result: wrong.length ? 'incorrect' : 'correct', cs_attempt: attempts });
       if (wrong.length) {
         // With several questions, outline the wrong ones and take the reader to the first.
         if (rows.length > 1) {
@@ -349,6 +425,7 @@
 
     function hint() {
       hintUsed = true;
+      track('case_study_hint', { cs_step: stepOf(sort) });
       cards.forEach((c) => list(pool).appendChild(c));
       cards.forEach((c) => {
         if (!c.hasAttribute('data-hint-leave')) list($('[data-cs-col="' + c.dataset.answer + '"]', sort)).appendChild(c);
@@ -363,6 +440,7 @@
         return;
       }
       const right = cards.every((c) => zoneOf(c).dataset.csCol === c.dataset.answer);
+      track('case_study_answer', { cs_step: stepOf(sort), cs_result: right ? 'correct' : 'incorrect', cs_attempt: fails + 1 });
       if (right) {
         locked = true;
         sort.classList.add('is-locked');

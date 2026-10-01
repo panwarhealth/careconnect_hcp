@@ -2593,6 +2593,14 @@ add_action( 'wp_enqueue_scripts', function () {
     $uri = get_stylesheet_directory_uri() . '/case-study/';
     wp_enqueue_style( 'hcp-case-study', $uri . 'case-study.css', [], filemtime( $dir . 'case-study.css' ) );
     wp_enqueue_script( 'hcp-case-study', $uri . 'case-study.js', [], filemtime( $dir . 'case-study.js' ), true );
+    // GA4 funnel events (start, step, answer, hint, complete, resource). Sent only from the live
+    // domain so local and staging test runs never reach the report; elsewhere they are logged.
+    $live = 'hcp.carepharma.com.au' === wp_parse_url( home_url(), PHP_URL_HOST );
+    wp_localize_script( 'hcp-case-study', 'hcpCaseStudy', [
+        'measurementId' => (string) apply_filters( 'hcp_case_study_ga4_measurement_id', 'G-ZM1QH0ZTGW' ),
+        'caseStudy'     => get_post_field( 'post_name', get_queried_object_id() ),
+        'debug'         => ! $live,
+    ] );
 } );
 
 require_once get_stylesheet_directory() . '/inc/ungate.php';
