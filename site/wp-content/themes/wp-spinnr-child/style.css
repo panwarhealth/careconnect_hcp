@@ -130,3 +130,38 @@ Version:        1.0
     align-items: flex-start !important;
     padding-top: 250px !important;
 }
+
+/* Formidable image choices use a fixed --image-size width, which overflows
+   narrow screens. Cap them at the column width and keep the images square. */
+.frm_image_options .frm_opt_container {
+    max-width: 100%;
+    justify-content: center;
+}
+.frm_image_options .frm_radio.frm_image_option,
+.frm_image_options .frm_checkbox.frm_image_option {
+    width: min(var(--image-size), 100%) !important;
+}
+.frm_image_options .frm_image_option_container img {
+    height: auto !important;
+    aspect-ratio: 1;
+}
+@media (max-width: 1279px) {
+    .frm_image_options .frm_opt_container > p {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Order Samples (page 145): the [restrict] shortcode spans sections, leaving
+   empty paragraphs that add stray space above the form. */
+.post-145 p:empty {
+    display: none;
+}
+
+/* Same page: the logged-out sign-up section is emptied for logged-in users and
+   an unused builder column sits under the form; hide both so their padding
+   doesn't open a gap above the brand logos. */
+.post-145 .section:not(:has(*)),
+.post-145 .column:not(:has(img, form, input, h1, h2, h3, h4, a)) {
+    display: none;
+}
