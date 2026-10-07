@@ -70,6 +70,5 @@ do not run against staging or prod.
   chooser to show both cards (Rob-Panwar has it in the seeded DB). Step 1B counts are in
   `NUMBERS`; boxes not listed are left blank on purpose to exercise the fill-with-zero on Next.
 - `caph0148/`: travel & diabetes case study. `checks.mjs` plays it at four screen sizes (PASS/FAIL
-  only); `build.sh` makes the review PDF: each stage, every pop-up over the page, the sorting tick
-  and wrong-card states, then the completed page. Sections are cut from full-page prints by
-  `crop.py`, because the theme sizes some blocks to the window height.
+  only); `build.sh` makes the review PDF in the client's v1 layout: five full-length pages (the
+  completed page, then the page behind each pop-up), merged at v1's page width by `merge.py`.
