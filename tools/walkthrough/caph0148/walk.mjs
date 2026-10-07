@@ -22,6 +22,11 @@ const { check, write: writeChecks } = createChecks();
  */
 async function capture(page, file, popupOver = null) {
   await page.evaluate(() => document.fonts?.ready);
+  // Lazy images below the fold would otherwise print as empty boxes.
+  await page.evaluate(() => Promise.all([...document.images].map((img) => {
+    img.loading = 'eager';
+    return img.decode().catch(() => {});
+  })));
   await sleep(600);
   for (let i = 0; i < 4; i++) {
     const h = await page.evaluate(() => document.documentElement.scrollHeight);
@@ -42,6 +47,7 @@ async function capture(page, file, popupOver = null) {
     }
     return doc;
   }, popupOver);
+  check(`${file}: every image loaded`, await page.evaluate(() => [...document.images].filter((i) => i.offsetParent && i.getAttribute('src')).every((i) => i.complete && i.naturalWidth > 0)));
   await page.pdf({ path: path.join(OUT, file), width: `${WIDTH}px`, height: `${height + 4}px`, printBackground: true, pageRanges: '1' });
   await page.evaluate(() => {
     const modal = document.querySelector('.cs-modal');
