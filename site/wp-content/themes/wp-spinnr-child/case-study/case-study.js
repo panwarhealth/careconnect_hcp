@@ -272,7 +272,8 @@
   });
 
   /* ---------- sort into columns: drag or tap, both go through place(). A card placed in its
-     right column is marked and fixed there; the activity completes when every card is right. ---------- */
+     right column is marked and fixed there; a card in the wrong column is marked and sent back to
+     the list. The activity completes when every card is right. ---------- */
 
   $$('[data-cs-sort]').forEach((sort) => {
     const section = sort.closest('[data-cs-sec]');
@@ -299,20 +300,29 @@
 
     function place(card, zone) {
       if (locked || !zone || zone === zoneOf(card)) return;
-      if (zone !== pool && list(zone).children.length >= max) {
-        modal.open('sort-full');
-        return;
-      }
       list(zone).appendChild(card);
       refresh();
       if (zone === pool) return;
       if (zone.dataset.csCol !== card.dataset.answer) {
         misses++;
+        bounce(card);
         return;
       }
       card.classList.add('is-correct');
       card.disabled = true;
       if (cards.every((c) => c.classList.contains('is-correct'))) complete();
+    }
+
+    // Shows the card as wrong where it was dropped, then returns it to the list.
+    function bounce(card) {
+      card.classList.add('is-wrong');
+      card.disabled = true;
+      setTimeout(() => {
+        card.classList.remove('is-wrong');
+        card.disabled = false;
+        list(pool).appendChild(card);
+        refresh();
+      }, 1000);
     }
 
     function complete() {

@@ -371,6 +371,20 @@
   border-radius: 50%;
   background: var(--cs-blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat;
 }
+/* a card in the wrong column: red with a cross and a shake, before it returns to the list */
+#hcp-cs .cs-card.is-wrong { position: relative; cursor: default; border-color: var(--cs-red); background: var(--cs-red-l); color: var(--cs-ink); opacity: 1; animation: cs-shake .4s ease; }
+#hcp-cs .cs-card.is-wrong::after {
+  content: "";
+  position: absolute;
+  top: -.45rem;
+  right: -.45rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff;
+  background: var(--cs-red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5.5 5.5l5 5M10.5 5.5l-5 5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% no-repeat;
+}
+@keyframes cs-shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 #hcp-cs .cs-sort.is-locked .cs-col { border-style: solid; border-color: var(--cs-blue); }
 
 /* ---------- closing explainer + resources ---------- */
@@ -503,5 +517,5 @@ html.cs-modal-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #hcp-cs .cs-flip__inner, #hcp-cs .cs-sec, .cs-closing, .cs-modal__box { transition: none; animation: none; }
+  #hcp-cs .cs-flip__inner, #hcp-cs .cs-sec, #hcp-cs .cs-card.is-wrong, .cs-closing, .cs-modal__box { transition: none; animation: none; }
 }

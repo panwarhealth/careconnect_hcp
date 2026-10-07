@@ -93,15 +93,16 @@ for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
   ok('right column -> card ticked', await isCorrect(answers[0][0]));
   ok('ticked card is blue', await cardEl(answers[0][0]).evaluate(e => getComputedStyle(e).borderColor) === 'rgb(0, 179, 214)');
   ok('ticked card is fixed in place', await cardEl(answers[0][0]).isDisabled());
-  await tapTo('Skin check', 'time');
-  ok('wrong column -> no tick', !(await isCorrect('Skin check')));
-  for (const [t, a] of answers.slice(1)) if (t !== 'Skin check' && !t.startsWith('Mosquito')) await tapTo(t, a);
-  // the wrong card is holding a place in "time", so the last right card for it does not fit
-  await tapTo('Mosquito-bite prevention', 'time');
-  ok('full column (wrong card in it) -> column full', (await page.locator('.cs-modal:not([hidden])').count()) === 1 && (await modalText()).startsWith('This column is full')); await modalBtn();
-  await tapTo('Skin check', 'defer');
+  const inPool = (t) => page.$eval('[data-cs-pool]', (p, t) => p.textContent.replace(/\u00ad/g, '').includes(t), t);
+  await cardEl('Skin check').click(); await page.click('[data-cs-col="time"] [data-cs-drop]'); await sleep(150);
+  ok('wrong column -> card marked wrong', await cardEl('Skin check').evaluate(e => e.classList.contains('is-wrong') && getComputedStyle(e).borderColor === 'rgb(214, 69, 69)'));
+  await sleep(1200);
+  ok('wrong card returns to the list', await inPool('Skin check') && !(await isCorrect('Skin check')));
+  for (const [t, a] of answers.slice(1)) if (t !== 'Skin check') await tapTo(t, a);
+  await cardEl('Skin check').click(); await page.click('[data-cs-col="top"] [data-cs-drop]'); await sleep(1300);
+  ok('full column: no pop-up, card returns', (await page.locator('.cs-modal:not([hidden])').count()) === 0 && await inPool('Skin check'));
   await shot('5-sort-ticks');
-  await tapTo('Mosquito-bite prevention', 'time'); await sleep(700);
+  await tapTo('Skin check', 'defer'); await sleep(700);
   ok('empty pool reads "All cards placed."', await js(() => { const l = document.querySelector('[data-cs-pool].is-empty [data-cs-list]'); return !!l && getComputedStyle(l, '::before').content === '"All cards placed."'; }));
   ok('last right card -> nicely done', (await modalText()).startsWith('Nicely done')); await modalBtn();
   ok('Prepare revealed', await visibleSecs() === 6);
