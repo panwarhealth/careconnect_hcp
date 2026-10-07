@@ -66,8 +66,8 @@ return [
 		// [ component, prompt, [ [ option, correct ], ... ] ]
 		$plan_rows = [
 			[ 'Checking glucose<sup>2,3</sup>', 'Jess should check her blood glucose levels more regularly, generally…', [
-				[ 'Hourly (if they are above 15&#160;mmol/L for 8&#160;hours or more)', false ],
-				[ 'Every 2&#160;to&#160;4&#160;hours (if they are above 15&#160;mmol/L for 8&#160;hours or more)', true ],
+				[ 'Every hour', false ],
+				[ 'Every 2&#160;to&#160;4&#160;hours', true ],
 			] ],
 			[ 'Medication management<sup>2,3</sup>', 'If Jess experiences vomiting or diarrhoea, she should…', [
 				[ 'Pause her metformin and empagliflozin, then resume once she has been eating and drinking normally for at least 24&#160;hours', true ],
