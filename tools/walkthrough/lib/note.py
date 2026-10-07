@@ -9,9 +9,12 @@ import sys
 import fitz
 
 out_dir, text = sys.argv[1], sys.argv[2]
-doc = fitz.open()
-page = doc.new_page(width=595.276, height=549)
-page.insert_textbox(fitz.Rect(60, 60, 535, 300), text, fontname="helv", fontsize=12)
+# insert_textbox draws nothing when the text overflows, so step the size down until it fits.
+for size in (12, 11, 10, 9):
+    doc = fitz.open()
+    page = doc.new_page(width=595.276, height=549)
+    if page.insert_textbox(fitz.Rect(60, 60, 535, 509), text, fontname="helv", fontsize=size) >= 0:
+        break
 doc.save(os.path.join(out_dir, "000_note.pdf"))
 
 manifest_path = os.path.join(out_dir, "manifest.json")
