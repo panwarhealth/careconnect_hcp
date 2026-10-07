@@ -46,16 +46,15 @@
   }
   const stepOf = (el) => (el.closest('[data-cs-sec]') || {}).dataset.name || '';
 
-  /* ---------- feedback pop-up ---------- */
+  /* ---------- feedback pop-up: closed only by its own button ---------- */
 
   const modal = (function () {
     const wrap = document.createElement('div');
     wrap.className = 'cs-modal';
     wrap.hidden = true;
     wrap.innerHTML =
-      '<div class="cs-modal__backdrop" data-close></div>' +
+      '<div class="cs-modal__backdrop"></div>' +
       '<div class="cs-modal__box" role="dialog" aria-modal="true">' +
-      '<button type="button" class="cs-modal__x" aria-label="Close" data-close>&times;</button>' +
       '<div class="cs-modal__body"></div>' +
       '<div class="cs-modal__actions"></div>' +
       '</div>';
@@ -70,7 +69,6 @@
       document.documentElement.classList.remove('cs-modal-open');
       if (returnFocus) returnFocus.focus({ preventScroll: true });
     }
-    wrap.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) close(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !wrap.hidden) close(); });
 
     return {
@@ -237,27 +235,15 @@
     const rows = $$('[data-cs-row]', quiz);
     const check = $('[data-cs-check]', quiz);
     const picked = (row) => $('.cs-opt[aria-pressed="true"]', row);
-    // Stepped: one row at a time, each revealed as the one above is answered; Check follows the last.
-    const stepped = quiz.hasAttribute('data-cs-stepped');
     let attempts = 0;
-    const checkActions = check.closest('.cs-actions');
     check.disabled = true;
-    if (stepped) {
-      rows.forEach((r, j) => { if (j > 0) r.hidden = true; });
-      checkActions.hidden = true;
-    }
 
-    rows.forEach((row, j) => {
+    rows.forEach((row) => {
       $$('.cs-opt', row).forEach((opt) => opt.addEventListener('click', () => {
         if (quiz.classList.contains('is-locked')) return;
-        const first = !picked(row);
         $$('.cs-opt', row).forEach((o) => o.setAttribute('aria-pressed', String(o === opt)));
         row.classList.remove('is-wrong');
         check.disabled = !rows.every(picked);
-        if (!stepped || !first) return;
-        const nextEl = rows[j + 1] || checkActions;
-        // A short pause lets the pick register before the page moves on.
-        if (nextEl.hidden) setTimeout(() => reveal(nextEl), 250);
       }));
     });
 
@@ -285,7 +271,8 @@
     });
   });
 
-  /* ---------- sort into columns: drag or tap, both go through place() ---------- */
+  /* ---------- sort into columns: drag or tap, both go through place(). A card placed in its
+     right column is marked and fixed there; the activity completes when every card is right. ---------- */
 
   $$('[data-cs-sort]').forEach((sort) => {
     const section = sort.closest('[data-cs-sec]');
@@ -293,13 +280,11 @@
     const cols = $$('[data-cs-col]', sort);
     const zones = [pool].concat(cols);
     const cards = $$('[data-cs-card]', sort);
-    const check = $('[data-cs-check]', sort);
     const max = Number(sort.dataset.max) || 3;
     const list = (zone) => $('[data-cs-list]', zone);
     const zoneOf = (card) => card.parentElement.closest('[data-cs-col], [data-cs-pool]');
     let selected = null;
-    let fails = 0;
-    let hintUsed = false;
+    let misses = 0;
     let locked = false;
     let suppressClick = false;
 
@@ -320,6 +305,23 @@
       }
       list(zone).appendChild(card);
       refresh();
+      if (zone === pool) return;
+      if (zone.dataset.csCol !== card.dataset.answer) {
+        misses++;
+        return;
+      }
+      card.classList.add('is-correct');
+      card.disabled = true;
+      if (cards.every((c) => c.classList.contains('is-correct'))) complete();
+    }
+
+    function complete() {
+      locked = true;
+      sort.classList.add('is-locked');
+      track('case_study_answer', { cs_step: stepOf(sort), cs_result: 'correct', cs_attempt: misses + 1 });
+      unlock(section);
+      // A short pause lets the last tick show before the pop-up covers it.
+      setTimeout(() => modal.open(sort.dataset.right, () => advance(section)), 450);
     }
 
     function select(card) {
@@ -346,7 +348,7 @@
 
     /* drag: pointer events cover mouse, touch and pen */
     cards.forEach((card) => card.addEventListener('pointerdown', (down) => {
-      if (locked || down.button !== 0) return;
+      if (locked || card.disabled || down.button !== 0) return;
       const startX = down.clientX;
       const startY = down.clientY;
       let ghost = null;
@@ -422,38 +424,6 @@
       window.addEventListener('pointerup', end);
       window.addEventListener('pointercancel', end);
     }));
-
-    function hint() {
-      hintUsed = true;
-      track('case_study_hint', { cs_step: stepOf(sort) });
-      cards.forEach((c) => list(pool).appendChild(c));
-      cards.forEach((c) => {
-        if (!c.hasAttribute('data-hint-leave')) list($('[data-cs-col="' + c.dataset.answer + '"]', sort)).appendChild(c);
-      });
-      refresh();
-    }
-
-    check.addEventListener('click', () => {
-      select(null);
-      if (list(pool).children.length) {
-        modal.open('sort-incomplete');
-        return;
-      }
-      const right = cards.every((c) => zoneOf(c).dataset.csCol === c.dataset.answer);
-      track('case_study_answer', { cs_step: stepOf(sort), cs_result: right ? 'correct' : 'incorrect', cs_attempt: fails + 1 });
-      if (right) {
-        locked = true;
-        sort.classList.add('is-locked');
-        cards.forEach((c) => { c.disabled = true; });
-        check.closest('.cs-actions').hidden = true;
-        unlock(section);
-        modal.open(sort.dataset.right, () => advance(section));
-        return;
-      }
-      fails++;
-      if (fails >= 2 && !hintUsed) modal.open('sort-hint', hint);
-      else modal.open(sort.dataset.wrong);
-    });
 
     refresh();
   });

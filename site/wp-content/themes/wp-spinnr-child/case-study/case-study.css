@@ -9,8 +9,8 @@
   --cs-ink: #141515;
   --cs-muted: #6B6460;
   --cs-line: #E6D9CE;
-  --cs-green: #2E9E4C;
-  --cs-green-l: #EBF7EE;
+  --cs-blue: #00B3D6;
+  --cs-blue-l: #E5F7FB;
   --cs-red: #D64545;
   --cs-red-l: #FCECEC;
   --cs-radius: 14px;
@@ -130,7 +130,7 @@
   background: #fff;
   box-shadow: 0 8px 28px rgba(20, 21, 21, .06);
 }
-#hcp-cs .cs-sec.is-new, #hcp-cs .cs-row.is-new, #hcp-cs .cs-actions.is-new { animation: cs-rise .5s ease; }
+#hcp-cs .cs-sec.is-new { animation: cs-rise .5s ease; }
 #hcp-cs .cs-sec > p:first-child { margin-top: 0; }
 #hcp-cs .cs-sec > :last-child { margin-bottom: 0; }
 #hcp-cs .cs-sec p { margin: 0 0 1rem; }
@@ -245,8 +245,8 @@
 #hcp-cs .cs-opt[aria-pressed="true"] { border-color: var(--cs-orange); background: var(--cs-cream-l); }
 #hcp-cs .cs-opt[aria-pressed="true"] .cs-opt__dot { border-color: var(--cs-orange); box-shadow: inset 0 0 0 3px #fff; background: var(--cs-orange); }
 #hcp-cs .cs-quiz.is-locked .cs-opt { cursor: default; }
-#hcp-cs .cs-quiz.is-locked .cs-opt[aria-pressed="true"] { border-color: var(--cs-green); background: var(--cs-green-l); }
-#hcp-cs .cs-quiz.is-locked .cs-opt[aria-pressed="true"] .cs-opt__dot { border-color: var(--cs-green); background: var(--cs-green); }
+#hcp-cs .cs-quiz.is-locked .cs-opt[aria-pressed="true"] { border-color: var(--cs-blue); background: var(--cs-blue-l); }
+#hcp-cs .cs-quiz.is-locked .cs-opt[aria-pressed="true"] .cs-opt__dot { border-color: var(--cs-blue); background: var(--cs-blue); }
 #hcp-cs .cs-quiz.is-locked .cs-opt[aria-pressed="false"] { opacity: .55; }
 
 /* prepare: sick-day plan rows */
@@ -268,7 +268,7 @@
 }
 #hcp-cs .cs-sec .cs-pool__tip { margin: 0 0 .75rem; font-size: .9rem; color: var(--cs-muted); }
 #hcp-cs .cs-pool__list { display: flex; flex-wrap: wrap; gap: .5rem; min-height: 44px; }
-#hcp-cs .cs-pool.is-empty .cs-pool__list::before { content: "All cards placed"; align-self: center; font-size: .9rem; color: #8A827C; }
+#hcp-cs .cs-pool.is-empty .cs-pool__list::before { content: "All cards placed."; align-self: center; font-size: .9rem; font-style: italic; color: #8A827C; }
 #hcp-cs .cs-pool__drop { display: none; margin-top: .75rem; }
 #hcp-cs .cs-sort.is-selecting-placed .cs-pool__drop {
   display: inline-block;
@@ -358,8 +358,20 @@
 #hcp-cs .cs-sort.is-selecting-placed .cs-pool { box-shadow: inset 0 0 0 2px var(--cs-orange); cursor: pointer; }
 #hcp-cs .cs-col.is-over, #hcp-cs .cs-pool.is-over { border-color: var(--cs-orange); background: var(--cs-cream); }
 #hcp-cs .cs-col.is-over-full { border-color: var(--cs-red); background: var(--cs-red-l); }
-#hcp-cs .cs-sort.is-locked .cs-card { cursor: default; border-color: var(--cs-green); background: var(--cs-green-l); color: var(--cs-ink); }
-#hcp-cs .cs-sort.is-locked .cs-col { border-style: solid; border-color: var(--cs-green); }
+/* a card in its right column: blue with a tick, fixed in place */
+#hcp-cs .cs-card.is-correct { position: relative; cursor: default; border-color: var(--cs-blue); background: var(--cs-blue-l); color: var(--cs-ink); opacity: 1; }
+#hcp-cs .cs-card.is-correct::after {
+  content: "";
+  position: absolute;
+  top: -.45rem;
+  right: -.45rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  box-shadow: 0 0 0 2px #fff;
+  border-radius: 50%;
+  background: var(--cs-blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat;
+}
+#hcp-cs .cs-sort.is-locked .cs-col { border-style: solid; border-color: var(--cs-blue); }
 
 /* ---------- closing explainer + resources ---------- */
 
@@ -395,12 +407,15 @@
 
 #hcp-cs .cs-res-title { margin: 2.5rem 0 1rem; }
 #hcp-cs .cs-res-grid { display: grid; gap: 1.25rem; }
-#hcp-cs .cs-res { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--cs-line); border-radius: var(--cs-radius); background: #fff; }
-#hcp-cs .cs-res__thumb { display: block; padding: 12px; background: var(--cs-cream-l); }
-#hcp-cs .cs-res__thumb img { display: block; width: 100%; height: 12rem; margin: 0 auto; object-fit: contain; }
-#hcp-cs .cs-res__body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 1.25rem; }
-#hcp-cs .cs-res__body h3 { margin: 0 0 .5rem; font-size: 1.15rem; line-height: 1.3; }
-#hcp-cs .cs-res__body p { flex: 1; margin: 0 0 1rem; }
+#hcp-cs .cs-res { display: block; height: 100%; color: inherit; }
+#hcp-cs .cs-res .card { display: flex; flex-direction: column; }
+#hcp-cs .cs-res .card-body { display: flex; flex: 1 1 auto; flex-direction: column; height: auto; }
+#hcp-cs .cs-res .card-body > :last-child { margin-top: auto; padding-top: .5rem; align-self: flex-start; }
+#hcp-cs .cs-res h3 { margin: 0 0 .5rem; font-size: 1.15rem; line-height: 1.3; }
+#hcp-cs .cs-res p { margin: 0 0 .5rem; }
+#hcp-cs .cs-res img { margin: 0 auto; }
+#hcp-cs .cs-play { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+#hcp-cs .cs-play svg { width: 56px; height: 56px; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .25)); transition: transform .18s ease; }
 
 /* ---------- feedback pop-up: bottom sheet on mobile, centred on desktop ---------- */
 
@@ -422,25 +437,10 @@ html.cs-modal-open { overflow: hidden; }
   box-shadow: 0 -10px 40px rgba(20, 21, 21, .25);
   animation: cs-sheet .25s ease;
 }
-.cs-modal__x {
-  position: absolute;
-  top: .75rem;
-  right: .75rem;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 50%;
-  background: none;
-  color: #6B6460;
-  font-size: 1.75rem;
-  line-height: 1;
-  cursor: pointer;
-}
 .cs-modal__body p { margin: 0 0 1rem; font-size: 1rem; line-height: 1.8; }
 .cs-modal__body p:last-child { margin-bottom: 0; }
 .cs-modal__body sup { font-size: .65em; line-height: 0; }
-/* 24px+ so the green heading counts as large text, which needs 3:1 contrast rather than 4.5:1 */
-.cs-modal .cs-msg__title { margin-bottom: .5rem; color: var(--cs-green); font-size: 1.5rem; font-weight: 600; line-height: 1.35; }
+.cs-modal .cs-msg__title { margin-bottom: .5rem; color: var(--cs-blue); font-size: 1.5rem; font-weight: 600; line-height: 1.35; }
 .cs-modal__actions { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
 
 @keyframes cs-rise { from { transform: translateY(18px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -457,6 +457,8 @@ html.cs-modal-open { overflow: hidden; }
   #hcp-cs .cs-flip:hover { transform: translateY(-4px); }
   #hcp-cs .cs-card:hover { border-color: #F2B98E; }
   #hcp-cs .cs-card.is-selected:hover { border-color: var(--cs-orange); }
+  #hcp-cs .cs-card.is-correct:hover { border-color: var(--cs-blue); }
+  #hcp-cs .cs-res:hover .cs-play svg { transform: scale(1.12); }
 }
 
 /* ---------- phones: three narrow columns side by side keep every drop target close ---------- */
@@ -501,5 +503,5 @@ html.cs-modal-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #hcp-cs .cs-flip__inner, #hcp-cs .cs-sec, #hcp-cs .cs-row, #hcp-cs .cs-actions, .cs-closing, .cs-modal__box { transition: none; animation: none; }
+  #hcp-cs .cs-flip__inner, #hcp-cs .cs-sec, .cs-closing, .cs-modal__box { transition: none; animation: none; }
 }

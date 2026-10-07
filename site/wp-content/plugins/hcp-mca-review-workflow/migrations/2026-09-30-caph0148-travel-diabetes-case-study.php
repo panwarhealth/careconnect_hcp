@@ -51,21 +51,21 @@ return [
 			'defer' => 'Defer for now',
 		];
 
-		// [ label, correct column, left for the user to place when the hint fills the rest ]
+		// [ label, correct column ]
 		$sort_cards = [
-			[ 'Food and water precautions', 'time', false ],
-			[ 'Medication readiness', 'top', false ],
-			[ 'Skin check', 'defer', false ],
-			[ 'Hydration strategies', 'top', true ],
-			[ 'Travel insurance and access to care', 'time', true ],
-			[ 'Diabetes sick day plan', 'top', false ],
-			[ "Mammo\u{AD}gram", 'defer', false ], // soft hyphen: breaks only in the narrow phone column
-			[ 'Mosquito-bite prevention', 'time', false ],
+			[ 'Food and water precautions', 'time' ],
+			[ 'Medication readiness', 'top' ],
+			[ 'Skin check', 'defer' ],
+			[ 'Hydration strategies', 'top' ],
+			[ 'Travel insurance and access to care', 'time' ],
+			[ 'Diabetes sick day plan', 'top' ],
+			[ "Mammo\u{AD}gram", 'defer' ], // soft hyphen: breaks only in the narrow phone column
+			[ 'Mosquito-bite prevention', 'time' ],
 		];
 
 		// [ component, prompt, [ [ option, correct ], ... ] ]
 		$plan_rows = [
-			[ 'Checking glucose<sup>2,3</sup>', 'Jess should check her blood glucose levels…', [
+			[ 'Checking glucose<sup>2,3</sup>', 'Jess should check her blood glucose levels more regularly, generally…', [
 				[ 'Hourly (if they are above 15&#160;mmol/L for 8&#160;hours or more)', false ],
 				[ 'Every 2&#160;to&#160;4&#160;hours (if they are above 15&#160;mmol/L for 8&#160;hours or more)', true ],
 			] ],
@@ -81,20 +81,20 @@ return [
 				[ 'Carbohydrate-containing fluids', false ],
 				[ 'Carbohydrate-free fluids', true ],
 			] ],
-			[ 'Oral rehydration solutions (ORS)<sup>2,3</sup>', 'Advise Jess that these are suitable for hydration and…', [
+			[ 'Oral rehydration solutions (ORS)<sup>2,3</sup>', 'Advise Jess that ORS are suitable for hydration and…', [
 				[ 'Depending on the formulation, some ORS can be considered carbohydrate free', true ],
 				[ 'All ORS are considered carbohydrate-containing', false ],
 			] ],
 		];
 
-		// [ title, description, url, button, thumbnail, opens in a new tab ]
+		// [ title, description, url, link label, thumbnail, opens in a new tab, video (play icon) ]
 		// PDFs go through their tracked redirect pages so the click registers in GA4.
 		$uploads   = $base . '/wp-content/uploads/';
 		$resources = [
-			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', $base . '/hydralyte-sick-days/', 'Download', $uploads . '2026/03/hydra-sick-days.png', true ],
-			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', $base . '/blog/travellers-diarrhoea-quick-management-guide-for-the-holiday-season/', 'Read article', $uploads . '2025/11/shutterstock_141564331_orange-suitcase-scaled.jpg', false ],
-			[ 'KOL Clinical Bites', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne', $base . '/tools-and-videos/', 'Watch videos', $uploads . '2026/07/caph0105-clinical-bites-video-1-thumbnail.png', false ],
-			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', $base . '/oral-rehydration-in-diabetes/', 'Download', $uploads . '2026/08/caph0124-hydralyte-ors-diabetes-thumb.jpg', true ],
+			[ 'Diabetes Sick Day Care Plan', 'A simple 2-page template to personalise for your patients', $base . '/hydralyte-sick-days/', 'Download', $uploads . '2026/03/hydra-sick-days.png', true, false ],
+			[ 'Traveller’s diarrhoea: quick management guide', 'Read the latest on prevention and management strategies', $base . '/blog/travellers-diarrhoea-quick-management-guide-for-the-holiday-season/', 'Read article', $uploads . '2025/11/shutterstock_141564331_orange-suitcase-scaled.jpg', false, false ],
+			[ 'KOL Clinical Bites', 'Bite-sized videos offering practical sick day management advice, featuring CDE Deb Hawthorne', $base . '/clinical-bites/', 'Watch videos', $uploads . '2026/07/caph0105-clinical-bites-video-1-thumbnail.png', false, true ],
+			[ 'Using Oral Rehydration Solutions in diabetes', 'A helpful factsheet summarising key considerations and guideline recommendations', $base . '/oral-rehydration-in-diabetes/', 'Download', $uploads . '2026/08/caph0124-hydralyte-ors-diabetes-thumb.jpg', true, false ],
 		];
 
 		/* ---- builders ---- */
@@ -127,7 +127,7 @@ return [
 
 		$card_html = '';
 		foreach ( $sort_cards as $c ) {
-			$card_html .= '<button type="button" class="cs-card" data-cs-card data-answer="' . esc_attr( $c[1] ) . '"' . ( $c[2] ? ' data-hint-leave' : '' ) . '>' . esc_html( $c[0] ) . '</button>';
+			$card_html .= '<button type="button" class="cs-card" data-cs-card data-answer="' . esc_attr( $c[1] ) . '">' . esc_html( $c[0] ) . '</button>';
 		}
 
 		$col_html = '';
@@ -150,13 +150,17 @@ return [
 				. '</div>';
 		}
 
+		// Same card markup as the site's resource and video listings.
+		$play = '<span class="cs-play" aria-hidden="true"><svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="25" fill="white" fill-opacity="0.92"/><path d="M37.4331 24.1265C38.1172 24.5079 38.1172 25.4921 37.4331 25.8735L18.7369 36.2955C18.0703 36.6671 17.25 36.1852 17.25 35.422L17.25 14.578C17.25 13.8148 18.0703 13.3329 18.7369 13.7045L37.4331 24.1265Z" fill="#35B1C9"/></svg></span>';
 		$res_html = '';
 		foreach ( $resources as $r ) {
 			$target = $r[5] ? '_blank' : '_self';
-			$res_html .= '<div class="cs-res">'
-				. '<a class="cs-res__thumb" href="' . esc_url( $r[2] ) . '" target="' . $target . '" aria-label="' . esc_attr( $r[0] ) . '"><img src="' . esc_url( $r[4] ) . '" alt="" loading="lazy" /></a>'
-				. '<div class="cs-res__body"><h3>' . esc_html( $tie( $r[0] ) ) . '</h3><p>' . esc_html( $tie( $r[1] ) ) . '</p><a class="cs-btn" href="' . esc_url( $r[2] ) . '" target="' . $target . '">' . esc_html( $r[3] ) . '</a></div>'
-				. '</div>';
+			$res_html .= '<a class="cs-res no-underline" href="' . esc_url( $r[2] ) . '" target="' . $target . '">'
+				. '<div class="card h-full overflow-hidden">'
+				. '<div class="bg-secondary p-md h-48 rounded-t relative">' . ( $r[6] ? $play : '' ) . '<img src="' . esc_url( $r[4] ) . '" class="h-full object-contain mx-auto" alt="" loading="lazy" /></div>'
+				. '<div class="card-body"><div><h3>' . esc_html( $tie( $r[0] ) ) . '</h3><p>' . esc_html( $tie( $r[1] ) ) . '</p></div>'
+				. '<span class="underline text-accent font-semibold">' . esc_html( $r[3] ) . '</span></div>'
+				. '</div></a>';
 		}
 
 		/* ---- sections: each appears when the one above is finished. data-step drives the progress
@@ -174,7 +178,7 @@ return [
 		$sections = ''
 			. $section( 0, 'intro',
 				'<p>Staying healthy when travelling is important for everyone, but for your patients with diabetes, travelling can come with extra considerations and risks.</p>'
-				. '<p>Put your pre-travel health check skills to the test with this mini case study.</p>',
+				. '<p><strong>Put your pre-travel health check skills to the test with this mini case study.</strong></p>',
 				'Start your consultation', ' data-size="lg"' )
 			. $section( 1, 'meet_jess',
 				'<h2 class="cs-h">Meet your patient</h2>'
@@ -185,7 +189,7 @@ return [
 				. '<p>Jess is booked in for a pre-travel consultation to discuss travel vaccines.</p>',
 				'Learn more' )
 			. $section( 2, 'investigate',
-				'<p><strong>Investigate:</strong> Click on each clue to discover more details about Jess’s travel plans to help tailor your advice.</p>'
+				'<p><strong>Identify the risks:</strong> Click on each clue to discover more details about Jess’s travel plans to help tailor your advice.</p>'
 				. '<div class="cs-flips" data-cs-flips>' . $flip_html . '</div>',
 				'Continue', ' disabled' )
 			. $section( 2, 'factors_question',
@@ -194,18 +198,17 @@ return [
 				. '<div class="cs-actions">' . $check . '</div></div>',
 				'Continue', ' hidden' )
 			. $section( 3, 'discuss',
-				'<p><strong>Discuss:</strong> After discussing travel vaccines with Jess, there is limited time left in today’s consultation. You’ll need to choose which of the following points you will prioritise for further discussion.</p>'
+				'<p><strong>Decide the discussion:</strong> After discussing travel vaccines with Jess, there is limited time left in today’s consultation. You’ll need to choose which of the following points you will prioritise for further discussion.</p>'
 				. '<p>Move each discussion point into the most appropriate column. Each column can hold a maximum of three cards – choose carefully!</p>'
-				. '<div class="cs-sort" data-cs-sort data-max="3" data-right="sort-right" data-wrong="sort-wrong">'
+				. '<div class="cs-sort" data-cs-sort data-max="3" data-right="sort-right">'
 				. '<div class="cs-pool" data-cs-pool><p class="cs-pool__tip">Drag each card into a column, or tap a card and then tap a column.</p><div class="cs-pool__list" data-cs-list>' . $card_html . '</div><button type="button" class="cs-pool__drop" data-cs-drop>Return card here</button></div>'
 				. '<div class="cs-cols">' . $col_html . '</div>'
-				. '<div class="cs-actions">' . $check . '</div>'
 				. '</div>',
 				'Continue', ' hidden' )
 			. $section( 4, 'prepare',
-				'<p><strong>Prepare:</strong> Jess confirms that she doesn’t have a sick day plan to take with her to Vietnam, so it’s time to create one together.</p>'
-				. '<p>For each of the sick day plan components below, select the correct advice to give Jess if she were to become unwell or dehydrated during her trip.</p>'
-				. '<div class="cs-quiz" data-cs-quiz data-cs-stepped data-right="plan-right" data-wrong="plan-wrong">'
+				'<p><strong>Prepare the plan:</strong> Jess confirms that she doesn’t have a sick day plan to take with her to Vietnam, so it’s time to create one together.</p>'
+				. '<p>For each of the sick day plan components below, select the correct guideline-based advice to give Jess if she were to become unwell or dehydrated during her trip.</p>'
+				. '<div class="cs-quiz" data-cs-quiz data-right="plan-right" data-wrong="plan-wrong">'
 				. '<div class="cs-rows">' . $row_html . '</div>'
 				. '<div class="cs-actions">' . str_replace( 'data-cs-check>', 'data-cs-check disabled>', $check ) . '</div>'
 				. '</div>',
@@ -213,21 +216,18 @@ return [
 
 		$progress = '<ol class="cs-progress" data-cs-progress aria-label="Case study progress">'
 			. '<li data-cs-dot="1"><span class="cs-progress__n">1</span><span class="cs-progress__label">Meet Jess</span></li>'
-			. '<li data-cs-dot="2"><span class="cs-progress__n">2</span><span class="cs-progress__label">Investigate</span></li>'
-			. '<li data-cs-dot="3"><span class="cs-progress__n">3</span><span class="cs-progress__label">Discuss</span></li>'
-			. '<li data-cs-dot="4"><span class="cs-progress__n">4</span><span class="cs-progress__label">Prepare</span></li>'
+			. '<li data-cs-dot="2"><span class="cs-progress__n">2</span><span class="cs-progress__label">Identify the risks</span></li>'
+			. '<li data-cs-dot="3"><span class="cs-progress__n">3</span><span class="cs-progress__label">Decide the discussion</span></li>'
+			. '<li data-cs-dot="4"><span class="cs-progress__n">4</span><span class="cs-progress__label">Prepare the plan</span></li>'
 			. '</ol>';
 
 		$messages = ''
 			. $msg( 'factor-wrong', 'wrong', 'Try again', '<p>Perhaps there’s another factor you could consider?</p>' )
-			. $msg( 'factor-right', 'right', 'Continue', '<p class="cs-msg__title">Great choice!</p><p>The heat and humidity and large amounts of walking can increase Jess’ risk for dehydration, which may already be elevated following reduced fluid intake. She may also be putting herself at risk for food- or water-borne infections that could result in vomiting and diarrhoea, further exacerbating any dehydration. Importantly, dehydration and acute illness compromise diabetes control, and her medications (particularly the SGLT2 inhibitor) can increase the risk of developing diabetic ketoacidosis during illness.<sup>1</sup></p>' )
+			. $msg( 'factor-right', 'right', 'Continue', '<p class="cs-msg__title">Great choice!</p><p>The heat and humidity and large amounts of walking can increase Jess’ <strong>risk for dehydration</strong>, which may already be elevated following reduced fluid intake. She may also be putting herself at <strong>risk for food- or water-borne infections</strong> that could result in vomiting and diarrhoea, further exacerbating any dehydration. Importantly, <strong>dehydration and acute illness compromise diabetes control</strong>, and her medications (particularly the SGLT2 inhibitor) can increase the risk of developing diabetic ketoacidosis during illness.<sup>1</sup></p>' )
 			. $msg( 'sort-full', 'info', 'Close', '<p>This column is full. Move one card to another column first to continue.</p>' )
-			. $msg( 'sort-incomplete', 'info', 'Close', '<p>Place all cards into a column before checking your answer.</p>' )
-			. $msg( 'sort-wrong', 'wrong', 'Try again', '<p>Perhaps you could consider different prioritisation?</p>' )
-			. $msg( 'sort-hint', 'wrong', 'Show me a hint', '<p>Not quite. Would you like a hint?</p>' )
-			. $msg( 'sort-right', 'right', 'Continue', '<p class="cs-msg__title">Nicely done!</p><p>Jess’ immediate travel risks are dehydration and acute illness, particularly if she develops vomiting or diarrhoea while on her regular medicines. Sick day planning, medication readiness and practical hydration strategies should therefore be prioritised, as they are key to reducing her risk of acute harm while travelling.<sup>2</sup></p><p>If time permits, discussion on food and water safety, mosquito-bite prevention and travel insurance/access to care would also be beneficial based on Jess’ itinerary.<sup>2</sup> Her routine skin check and mammogram, while important, can be considered a lower priority for today.</p>' )
-			. $msg( 'plan-wrong', 'wrong', 'Try again', '<p>That’s not quite right.</p>' )
-			. $msg( 'plan-right', 'right', 'Continue', '<p class="cs-msg__title">Perfect!</p><p>Providing Jess with a simple, personalised Sick Day Care Plan that provides clear guidance on glucose monitoring, medication management, and appropriate hydration is a practical and highly impactful step to support her health while travelling.</p><p>With that, you have successfully navigated your pre-travel health consultation with Jess – congratulations!</p>' );
+			. $msg( 'sort-right', 'right', 'Continue', '<p class="cs-msg__title">Nicely done!</p><p>Jess’ immediate travel risks are <strong>dehydration and acute illness</strong>, particularly if she develops vomiting or diarrhoea while on her regular medicines. Sick day planning, medication readiness and practical hydration strategies should therefore be prioritised, as they are key to <strong>reducing her risk of acute harm while travelling.</strong><sup>2</sup></p><p>If time permits, discussion on food and water safety, mosquito-bite prevention and travel insurance/access to care would also be beneficial based on Jess’ itinerary.<sup>2</sup> Her routine skin check and mammogram, while important, can be considered a lower priority for today.</p>' )
+			. $msg( 'plan-wrong', 'wrong', 'Try again', '<p>Some answers aren’t quite right – which options better match the guidelines?</p>' )
+			. $msg( 'plan-right', 'right', 'Continue', '<p class="cs-msg__title">Perfect!</p><p>Providing Jess with a simple, personalised Sick Day Care Plan that provides <strong>clear guidance on glucose monitoring, medication management, and appropriate hydration</strong> is a practical and highly impactful step to support her health while travelling.</p><p><strong>With that, you have successfully navigated your pre-travel health consultation with Jess – congratulations!</strong></p>' );
 
 		$closing = '<div class="cs-closing" data-cs-closing>'
 			. '<div class="cs-closing__box">'
