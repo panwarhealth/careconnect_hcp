@@ -103,10 +103,7 @@ for (const [n, w, h] of sizes.filter(s => !only || s[0] === only)) {
   ok('full column: no pop-up, card returns', (await page.locator('.cs-modal:not([hidden])').count()) === 0 && await inPool('Skin check'));
   await shot('5-sort-ticks');
   await tapTo('Skin check', 'defer'); await sleep(700);
-  ok('all right -> no pop-up until Continue', (await page.locator('.cs-modal:not([hidden])').count()) === 0);
-  const sortCont = page.locator('[data-cs-sec][data-step="3"] [data-cs-continue]');
-  ok('Continue shown when all right', await sortCont.isVisible());
-  await sortCont.click(); await sleep(300);
+  ok('no Continue button in Discuss', await page.locator('[data-cs-sec][data-step="3"] [data-cs-continue]').count() === 0);
   ok('empty pool reads "All cards placed."', await js(() => { const l = document.querySelector('[data-cs-pool].is-empty [data-cs-list]'); return !!l && getComputedStyle(l, '::before').content === '"All cards placed."'; }));
   ok('last right card -> nicely done', (await modalText()).startsWith('Nicely done')); await modalBtn();
   ok('Prepare revealed', await visibleSecs() === 6);

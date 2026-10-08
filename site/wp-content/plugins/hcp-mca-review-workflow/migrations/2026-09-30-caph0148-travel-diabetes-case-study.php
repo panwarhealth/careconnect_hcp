@@ -203,8 +203,7 @@ return [
 				. '<div class="cs-sort" data-cs-sort data-max="3" data-right="sort-right">'
 				. '<div class="cs-pool" data-cs-pool><p class="cs-pool__tip">Drag each card into a column, or tap a card and then tap a column.</p><div class="cs-pool__list" data-cs-list>' . $card_html . '</div><button type="button" class="cs-pool__drop" data-cs-drop>Return card here</button></div>'
 				. '<div class="cs-cols">' . $col_html . '</div>'
-				. '</div>',
-				'Continue', ' hidden' )
+				. '</div>' )
 			. $section( 4, 'prepare',
 				'<p><strong>Prepare the plan:</strong> Jess confirms that she doesn’t have a sick day plan to take with her to Vietnam, so it’s time to create one together.</p>'
 				. '<p>For each of the sick day plan components below, select the correct guideline-based advice to give Jess if she were to become unwell or dehydrated during her trip.</p>'
@@ -237,7 +236,7 @@ return [
 			. '<li><strong>What potential risks could your patient be exposed to?</strong> Consider the location and climate, and your patient’s age, comorbidities, and medications.</li>'
 			. '<li><strong>Is your patient’s treatment travel-ready?</strong> Review their access to medications and medical supplies, and whether any management adjustments are required.</li>'
 			. '<li><strong>Does your patient know what to do if illness develops?</strong> Create an individualised sick day plan and ensure they understand appropriate strategies for managing dehydration.</li>'
-			. '<li><strong>What hydration strategy do you recommend for your patient?</strong> Consider that oral rehydration solutions, such as Hydralyte, are formulated to rehydrate faster than water alone<sup>4-7</sup> and are suitable for use by people with diabetes.<sup>2,3</sup></li>'
+			. '<li><strong>What hydration strategy do you recommend for your patient?</strong> Consider that oral rehydration solutions, such as Hydralyte, are formulated to rehydrate faster than water alone<sup>4-7</sup> and may be considered as part of diabetes sick day management.<sup>2,3</sup></li>'
 			. '<li><strong>When and where should your patient seek help?</strong> Provide clear and practical instructions to follow if they do require medical attention.</li>'
 			. '</ul>'
 			. '</div>'

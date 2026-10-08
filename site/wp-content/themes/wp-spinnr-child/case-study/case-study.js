@@ -173,13 +173,9 @@
   setStickyTop();
   window.addEventListener('resize', setStickyTop);
 
-  // A section with a held message (data-msg) shows it on Continue, and moves on from the pop-up.
   root.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-cs-continue]');
-    if (!btn) return;
-    const sec = btn.closest('[data-cs-sec]');
-    if (sec.dataset.msg) modal.open(sec.dataset.msg, () => advance(sec));
-    else advance(sec);
+    if (btn) advance(btn.closest('[data-cs-sec]'));
   });
 
   // Resource cards (thumbnail or button) and the Order samples banner in the closing section.
@@ -333,8 +329,8 @@
       locked = true;
       sort.classList.add('is-locked');
       track('case_study_answer', { cs_step: stepOf(sort), cs_result: 'correct', cs_attempt: misses + 1 });
-      section.dataset.msg = sort.dataset.right;
-      unlock(section);
+      // A short pause lets the last tick show before the pop-up covers it.
+      setTimeout(() => modal.open(sort.dataset.right, () => advance(section)), 450);
     }
 
     function select(card) {
