@@ -34,10 +34,39 @@ function hcp_videos_vimeo_id( $raw ): string {
 }
 
 /**
- * Build the Vimeo player embed URL for an ID.
+ * The video file URL (R2) for a video post, or '' if none is set.
  */
-function hcp_videos_player_url( string $id ): string {
-	return $id ? 'https://player.vimeo.com/video/' . $id : '';
+function hcp_videos_src( int $post_id ): string {
+	return esc_url_raw( trim( (string) get_field( 'video_src', $post_id ) ) );
+}
+
+/**
+ * The player for a video post: a native <video> that fills its positioned
+ * parent. Without a file it shows the poster with an "unavailable" notice.
+ * The data-hcp-video title is what video-analytics.js reports to GA4.
+ */
+function hcp_videos_player_html( int $post_id ): string {
+	$fill   = 'position:absolute;inset:0;width:100%;height:100%;background:#000;';
+	$title  = get_the_title( $post_id );
+	$poster = hcp_videos_thumb_url( $post_id, 'large' );
+	$src    = hcp_videos_src( $post_id );
+
+	if ( '' === $src ) {
+		$img = $poster
+			? '<img src="' . esc_url( $poster ) . '" alt="" style="' . $fill . 'object-fit:cover;opacity:.35;" />'
+			: '';
+		return '<div style="' . $fill . 'display:flex;align-items:center;justify-content:center;">' . $img
+			. '<p style="position:relative;margin:0;padding:1rem;color:#fff;font-weight:600;text-align:center;">This video is temporarily unavailable.</p></div>';
+	}
+
+	return sprintf(
+		'<video src="%s" poster="%s" controls preload="metadata" playsinline controlslist="nodownload" data-hcp-video="%s" title="%s" style="%sobject-fit:contain;"></video>',
+		esc_url( $src ),
+		esc_url( $poster ),
+		esc_attr( $title ),
+		esc_attr( $title ),
+		$fill
+	);
 }
 
 /**
@@ -227,8 +256,8 @@ function hcp_videos_duration( int $post_id ): string {
 
 /**
  * Fetch duration + poster thumbnail from Vimeo oEmbed and cache both in
- * postmeta. Works for embed-only videos where vumbnail.com cannot reach a
- * frame. 3-second timeout; surfaces an admin notice on failure.
+ * postmeta. Legacy: videos are no longer hosted on Vimeo; kept only because
+ * earlier migrations call it.
  */
 function hcp_videos_cache_vimeo_meta( int $post_id ): string {
 	$id = hcp_videos_vimeo_id( get_field( 'vimeo', $post_id ) );
@@ -261,12 +290,6 @@ function hcp_videos_cache_vimeo_meta( int $post_id ): string {
 	return $formatted;
 }
 
-add_action( 'acf/save_post', function ( $post_id ) {
-	if ( get_post_type( $post_id ) === 'video' ) {
-		hcp_videos_cache_vimeo_meta( (int) $post_id );
-	}
-}, 20 );
-
 /**
  * Small duration badge for a thumbnail corner (YouTube-style).
  */
@@ -279,8 +302,8 @@ function hcp_videos_duration_badge( int $post_id ): string {
 }
 
 /**
- * Thumbnail URL for a video: the featured image if set, else the Vimeo
- * thumbnail via vumbnail.com (the convention already used on this site).
+ * Thumbnail URL for a video: the featured image if set, else the cached
+ * poster URL in _hcpvid_thumb.
  */
 function hcp_videos_thumb_url( int $post_id, string $size = 'medium' ): string {
 	if ( has_post_thumbnail( $post_id ) ) {
@@ -289,12 +312,7 @@ function hcp_videos_thumb_url( int $post_id, string $size = 'medium' ): string {
 			return $url;
 		}
 	}
-	$cached = get_post_meta( $post_id, '_hcpvid_thumb', true );
-	if ( $cached ) {
-		return $cached;
-	}
-	$id = hcp_videos_vimeo_id( get_field( 'vimeo', $post_id ) );
-	return $id ? 'https://vumbnail.com/' . $id . '.jpg' : '';
+	return (string) get_post_meta( $post_id, '_hcpvid_thumb', true );
 }
 
 /**

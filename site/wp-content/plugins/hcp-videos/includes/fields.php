@@ -2,8 +2,9 @@
 /**
  * ACF field group for the Video CPT, registered in code so it deploys via files.
  *
- * Field NAME `vimeo` intentionally matches the existing resources convention
- * (get_field('vimeo')); the field KEY is namespaced to avoid collisions.
+ * `video_src` is the playable file. The legacy `vimeo` field matches the
+ * resources convention (get_field('vimeo')); field KEYS are namespaced to
+ * avoid collisions.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,20 +19,25 @@ add_action( 'acf/init', function () {
 		'title'    => 'Video Details',
 		'fields'   => array(
 			array(
+				'key'          => 'field_hcpvid_src',
+				'label'        => 'Video file URL',
+				'name'         => 'video_src',
+				'type'         => 'url',
+				'instructions' => 'The MP4 on the Care Connect CDN, e.g. https://cdn-careconnect.panwarhealth.com.au/videos/{slug}/{slug}.mp4',
+			),
+			array(
 				'key'          => 'field_hcpvid_vimeo',
-				'label'        => 'Vimeo URL or ID',
+				'label'        => 'Vimeo URL or ID (legacy)',
 				'name'         => 'vimeo',
 				'type'         => 'text',
-				'instructions' => 'Paste the Vimeo share URL or just the numeric ID (e.g. 1122083239).',
-				'required'     => 1,
+				'instructions' => 'No longer played. Kept as a record of the original Vimeo upload.',
 			),
 			array(
 				'key'          => 'field_hcpvid_duration',
 				'label'        => 'Duration (optional)',
 				'name'         => 'duration',
 				'type'         => 'text',
-				'instructions' => 'e.g. 2:24. Leave blank to auto-pull from Vimeo on save.',
-				'placeholder'  => 'auto from Vimeo',
+				'instructions' => 'e.g. 2:24. Overrides the stored duration.',
 			),
 			array(
 				'key'           => 'field_hcpvid_listed',
