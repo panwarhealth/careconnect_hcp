@@ -164,6 +164,39 @@ add_action( 'acf/init', function () {
 	) );
 } );
 
+add_action( 'acf/init', function () {
+	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
+		return;
+	}
+
+	acf_add_local_field_group( array(
+		'key'      => 'group_hcp_video_topic',
+		'title'    => 'Series',
+		'fields'   => array(
+			array(
+				'key'           => 'field_hcpvid_series_next_video',
+				'label'         => 'After the last episode, show',
+				'name'          => 'series_next_video',
+				'type'          => 'post_object',
+				'instructions'  => 'The video the last episode\'s end card links to. Leave empty to link back to the series page. Only used for series topics.',
+				'post_type'     => array( 'video' ),
+				'allow_null'    => 1,
+				'ui'            => 1,
+				'return_format' => 'id',
+			),
+		),
+		'location' => array(
+			array(
+				array(
+					'param'    => 'taxonomy',
+					'operator' => '==',
+					'value'    => 'video_topic',
+				),
+			),
+		),
+	) );
+} );
+
 /**
  * Show what "Automatic" resolves to for the video being edited.
  */

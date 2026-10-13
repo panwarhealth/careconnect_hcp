@@ -6,7 +6,8 @@
  *   auto   — (default) derived from the series and related-video data, so a
  *            new or re-ordered episode needs no end-card setup:
  *              mid-series episode  -> the next episode
- *              last live episode   -> the series landing page
+ *              last live episode   -> the series' "after the last episode"
+ *                                     video if set, else its landing page
  *              standalone video    -> its first playable related video, or
  *                                     episode 1 when that video is in a series
  *            Videos with no file are never suggested.
@@ -58,6 +59,11 @@ function hcp_videos_endcard_auto( int $post_id ): ?array {
 		$next = false !== $position ? ( $episodes[ $position + 1 ] ?? 0 ) : 0;
 		if ( $next && '' !== hcp_videos_src( $next ) ) {
 			return hcp_videos_endcard_for_video( $next, 'Up next' );
+		}
+
+		$after = hcp_videos_series_next_video( $term->term_id );
+		if ( $after && $after !== $post_id && '' !== hcp_videos_src( $after ) ) {
+			return hcp_videos_endcard_for_video( $after, 'Watch next' );
 		}
 
 		$landing = hcp_videos_series_landing_url( $term->term_id );
