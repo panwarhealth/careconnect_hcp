@@ -3,28 +3,31 @@
  * Captions for the videos recovered from Vimeo.
  *
  * Vimeo's auto-generated English captions were saved before the account
- * closed and uploaded to the CDN as videos/{key}/captions.en.vtt. This copies
+ * closed and ship with this plugin in migrations/captions/{key}.vtt (prod
+ * cannot make outbound HTTP requests, so they are read from disk). This copies
  * each into the video post, where the player serves it as a same-origin track.
  * Videos are matched by their legacy Vimeo ID, as in 2026-10-13-r2-video-hosting.
  *
- * Idempotent: rewrites the same text; videos that already have captions are
- * left alone so a later hand-edited track is never overwritten.
+ * The sleep video is left out: its captions belong to the lost webinar, and
+ * the page now plays a different recording.
+ *
+ * Idempotent: videos that already have captions are left alone, so a later
+ * hand-edited track is never overwritten.
  */
 
 defined( 'ABSPATH' ) || exit;
 
 return array(
-	'description' => 'Captions: Vimeo auto-generated English captions onto the 13 recovered videos.',
+	'description' => 'Captions: Vimeo auto-generated English captions onto the 12 recovered videos.',
 	'up'          => function () {
-		$cdn = 'https://cdn-careconnect.panwarhealth.com.au/videos/';
+		$dir = __DIR__ . '/captions/';
 
-		// Vimeo ID => CDN key.
+		// Vimeo ID => caption file key.
 		$map = array(
 			'1125398505' => 'fess-healthed-product-explainer',
 			'839949755'  => 'fess-how-to-use-childrens-nasal-spray',
 			'839949677'  => 'fess-how-to-use-nasal-spray',
 			'839949859'  => 'fess-how-to-use-nasal-wash',
-			'865429849'  => 'the-role-of-pharmacists-in-sleep-health',
 			'1207250947' => 'why-sick-day-planning-is-important-in-diabetes',
 			'1213139778' => 'what-goes-in-a-sick-day-plan-for-people-with-diabetes',
 			'1213463817' => 'medication-management-during-sick-days',
@@ -55,9 +58,8 @@ return array(
 				continue;
 			}
 
-			$resp = wp_remote_get( $cdn . $map[ $vimeo ] . '/captions.en.vtt', array( 'timeout' => 15 ) );
-			$vtt  = str_replace( "\r\n", "\n", (string) wp_remote_retrieve_body( $resp ) );
-			if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) || ! hcp_videos_is_vtt( $vtt ) ) {
+			$vtt = str_replace( "\r\n", "\n", (string) @file_get_contents( $dir . $map[ $vimeo ] . '.vtt' ) );
+			if ( ! hcp_videos_is_vtt( $vtt ) ) {
 				$failed[] = $map[ $vimeo ];
 				continue;
 			}
@@ -67,7 +69,7 @@ return array(
 		}
 
 		if ( $failed ) {
-			throw new RuntimeException( 'Could not fetch captions for: ' . implode( ', ', $failed ) . " ($added added)." );
+			throw new RuntimeException( 'Missing or invalid caption files: ' . implode( ', ', $failed ) . " ($added added)." );
 		}
 
 		return sprintf( '%d videos given captions; %d already had them.', $added, $skipped );
