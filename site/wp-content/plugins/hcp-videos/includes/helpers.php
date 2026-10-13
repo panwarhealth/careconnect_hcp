@@ -65,10 +65,9 @@ function hcp_videos_player_html( int $post_id ): string {
 		? '<track kind="subtitles" srclang="en" label="English" src="' . esc_url( $captions ) . '">'
 		: '';
 
+	// Always loaded with a player: it also starts a video reached by autoplay.
+	hcp_videos_enqueue_player_script();
 	$endcard = hcp_videos_endcard( $post_id );
-	if ( $endcard ) {
-		hcp_videos_enqueue_player_script();
-	}
 
 	return sprintf(
 		'<video src="%s" poster="%s" controls preload="metadata" playsinline controlslist="nodownload" data-hcp-video="%s" title="%s"%s style="%sobject-fit:contain;">%s</video>',

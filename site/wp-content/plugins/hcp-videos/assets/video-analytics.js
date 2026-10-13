@@ -2,9 +2,10 @@
  * Forwards events from every hcp-videos <video> player on the page to GA4,
  * using the enhanced-measurement event schema (video_start / video_progress
  * at 25, 50, 75 / video_complete) so they surface in the standard GA4 video
- * reports, plus video_endcard_click for end-card links. Media events do not
- * bubble, so one capture-phase listener on the document covers players added
- * at any time. gtag is only loaded on first play.
+ * reports, plus video_endcard_click for end-card links and
+ * video_autoplay_next / video_autoplay_cancel for series autoplay. Media
+ * events do not bubble, so one capture-phase listener on the document covers
+ * players added at any time. gtag is only loaded on first play.
  */
 (function () {
 	'use strict';
@@ -98,9 +99,25 @@
 			send_to: cfg.measurementId,
 			video_provider: 'r2',
 			video_title: video.getAttribute('data-hcp-video') || '',
-			link_url: link.href,
+			link_url: link.href.replace(/[?&]hcp_autoplay=1/, ''),
 			link_text: link.textContent.replace(/\s*→$/, ''),
 			transport_type: 'beacon'
 		});
 	}, true);
+
+	// Series autoplay (player.js): the countdown ran out, or the viewer cancelled it.
+	document.addEventListener('hcp-endcard-autoplay', function (e) {
+		var video = e.detail && e.detail.video;
+		if (!video) {
+			return;
+		}
+		ensureGtag();
+		window.gtag('event', e.detail.action === 'next' ? 'video_autoplay_next' : 'video_autoplay_cancel', {
+			send_to: cfg.measurementId,
+			video_provider: 'r2',
+			video_title: video.getAttribute('data-hcp-video') || '',
+			link_url: e.detail.url,
+			transport_type: 'beacon'
+		});
+	});
 })();

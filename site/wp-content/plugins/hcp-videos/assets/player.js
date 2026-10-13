@@ -3,17 +3,26 @@
  * fullscreen is exited (an overlay cannot sit over native fullscreen) and a
  * clickable card is laid over the player: heading, optional thumbnail, title,
  * a link button and Replay. Playing or seeking again removes the card.
- * window.hcpEndcard exposes the same rendering for the edit-screen preview.
+ *
+ * Series cards (data.autoplay) count down and then open the next video with
+ * ?hcp_autoplay=1, which starts it on arrival. Cancel stops the countdown.
+ * If the browser refuses to autoplay with sound, the page simply waits.
+ *
+ * window.hcpEndcard exposes the same rendering for the edit-screen preview,
+ * where the countdown is shown but never runs.
  */
 (function () {
 	'use strict';
 
+	var AUTOPLAY_SECONDS = 5;
+	var AUTOPLAY_PARAM = 'hcp_autoplay';
+
 	var CSS = '' +
 		'.hcp-endcard{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(10,20,30,.86);color:#fff;text-align:center;}' +
 		'.hcp-endcard-inner{display:flex;align-items:center;gap:1.25rem;max-width:640px;text-align:left;}' +
-		// Whole thumbnail on the light panel the listing cards use, never cropped
-		// (some posters are portrait).
-		'.hcp-endcard-thumb{flex:0 0 42%;max-width:240px;aspect-ratio:16/9;box-sizing:border-box;padding:.5rem;background:#F6F9FF;object-fit:contain;border-radius:8px;}' +
+		// Whole thumbnail, never cropped (some posters are portrait), letterboxed
+		// in black like the player itself.
+		'.hcp-endcard-thumb{flex:0 0 42%;max-width:240px;aspect-ratio:16/9;background:#000;object-fit:contain;border-radius:8px;}' +
 		'.hcp-endcard-heading{margin:0 0 .25rem;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#35B1C9;}' +
 		'.hcp-endcard-title{margin:0 0 .9rem;font-size:1.05rem;font-weight:600;line-height:1.35;color:#fff;}' +
 		'.hcp-endcard-actions{display:flex;flex-wrap:wrap;gap:.5rem;}' +
@@ -24,7 +33,11 @@
 		'.hcp-endcard .hcp-endcard-link:hover{background:#2a96ab!important;border-color:#2a96ab!important;}' +
 		'.hcp-endcard .hcp-endcard-replay{background:transparent!important;border:1px solid rgba(255,255,255,.6)!important;color:#fff!important;}' +
 		'.hcp-endcard .hcp-endcard-replay:hover{border-color:#fff!important;}' +
+		'.hcp-endcard-countdown{display:flex;align-items:center;flex-wrap:wrap;gap:.75rem;margin:0 0 .9rem;font-size:.9rem;color:rgba(255,255,255,.85);}' +
+		'.hcp-endcard-countdown strong{color:#fff;}' +
+		'.hcp-endcard .hcp-endcard-cancel{background:none!important;border:0!important;padding:0!important;margin:0!important;min-height:0!important;height:auto!important;color:#35B1C9!important;font-size:.9rem!important;font-weight:600!important;line-height:1.2!important;text-decoration:underline!important;text-transform:none!important;letter-spacing:normal!important;box-shadow:none!important;cursor:pointer;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-inner{flex-direction:column;text-align:center;gap:.5rem;}' +
+		'.hcp-endcard.is-narrow .hcp-endcard-countdown{justify-content:center;margin-bottom:.6rem;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-thumb{display:none;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-title{font-size:.95rem;margin-bottom:.6rem;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-actions{justify-content:center;}';
@@ -62,11 +75,63 @@
 	function remove(video) {
 		var card = video.parentElement && video.parentElement.querySelector('.hcp-endcard');
 		if (card) {
+			clearInterval(card.hcpTimer);
 			card.remove();
 		}
 	}
 
-	function show(video, data) {
+	function withAutoplay(url) {
+		var u = new URL(url, window.location.href);
+		u.searchParams.set(AUTOPLAY_PARAM, '1');
+		return u.toString();
+	}
+
+	function announce(action, video, url) {
+		document.dispatchEvent(new CustomEvent('hcp-endcard-autoplay', {
+			detail: { action: action, video: video, url: url }
+		}));
+	}
+
+	/**
+	 * Countdown row for an autoplaying card. In preview mode it is drawn but
+	 * never ticks, so the editor can see it without being navigated away.
+	 */
+	function countdown(card, video, data, preview) {
+		var row = el('div', 'hcp-endcard-countdown');
+		var label = el('span');
+		var seconds = AUTOPLAY_SECONDS;
+		var count = el('strong', '', String(seconds));
+		label.appendChild(document.createTextNode('Playing next in '));
+		label.appendChild(count);
+		row.appendChild(label);
+
+		var cancel = el('button', 'hcp-endcard-cancel', 'Cancel autoplay');
+		cancel.type = 'button';
+		cancel.addEventListener('click', function () {
+			clearInterval(card.hcpTimer);
+			row.remove();
+			if (!preview) {
+				announce('cancel', video, data.url);
+			}
+		});
+		row.appendChild(cancel);
+
+		if (!preview) {
+			card.hcpTimer = setInterval(function () {
+				seconds -= 1;
+				count.textContent = String(Math.max(seconds, 0));
+				if (seconds <= 0) {
+					clearInterval(card.hcpTimer);
+					announce('next', video, data.url);
+					window.location.href = withAutoplay(data.url);
+				}
+			}, 1000);
+		}
+		return row;
+	}
+
+	function show(video, data, options) {
+		var preview = !!(options && options.preview);
 		addStyles();
 		remove(video);
 		exitFullscreen(video);
@@ -88,9 +153,12 @@
 		if (data.title) {
 			text.appendChild(el('p', 'hcp-endcard-title', data.title));
 		}
+		if (data.autoplay) {
+			text.appendChild(countdown(card, video, data, preview));
+		}
 
 		var link = el('a', 'hcp-endcard-link', data.label + ' →');
-		link.href = data.url;
+		link.href = data.autoplay ? withAutoplay(data.url) : data.url;
 		link.setAttribute('data-hcp-endcard-link', '');
 		actions.appendChild(link);
 
@@ -128,8 +196,29 @@
 		video.addEventListener('seeking', function () { remove(video); });
 	}
 
+	// Arrived from an autoplay countdown: start the page's video, then drop the
+	// flag from the address so a reload or a shared link does not autoplay.
+	function autoplayOnArrival() {
+		var params = new URLSearchParams(window.location.search);
+		if (!params.has(AUTOPLAY_PARAM)) {
+			return;
+		}
+		params.delete(AUTOPLAY_PARAM);
+		var query = params.toString();
+		window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+
+		var video = document.querySelector('video[data-hcp-video]');
+		if (video) {
+			var attempt = video.play();
+			if (attempt && attempt.catch) {
+				attempt.catch(function () {});
+			}
+		}
+	}
+
 	function init() {
 		document.querySelectorAll('video[data-hcp-endcard]').forEach(bind);
+		autoplayOnArrival();
 	}
 
 	// Used by the edit screen to preview a card over its preview player.

@@ -294,7 +294,7 @@
 			return;
 		}
 		preview.pause();
-		window.hcpEndcard.show(preview, card);
+		window.hcpEndcard.show(preview, card, { preview: true });
 		cardToggle.textContent = 'Hide end card preview';
 	}
 

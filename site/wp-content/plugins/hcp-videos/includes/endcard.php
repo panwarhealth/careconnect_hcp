@@ -10,7 +10,9 @@
  *                                     video if set, else its landing page
  *              standalone video    -> its first playable related video, or
  *                                     episode 1 when that video is in a series
- *            Videos with no file are never suggested.
+ *            Videos with no file are never suggested. Series cards (next
+ *            episode, or the hand-off after the last one) autoplay after a
+ *            short countdown; see assets/player.js.
  *   custom — heading / title / link / button text entered on the video.
  *   off    — no end card.
  */
@@ -20,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The end card for a video, or null when it has none.
  *
- * @return array{heading:string,title:string,url:string,label:string,thumb:string}|null
+ * @return array{heading:string,title:string,url:string,label:string,thumb:string,autoplay?:bool}|null
  */
 function hcp_videos_endcard( int $post_id ): ?array {
 	$mode = (string) get_post_meta( $post_id, 'endcard_mode', true );
@@ -58,12 +60,12 @@ function hcp_videos_endcard_auto( int $post_id ): ?array {
 
 		$next = false !== $position ? ( $episodes[ $position + 1 ] ?? 0 ) : 0;
 		if ( $next && '' !== hcp_videos_src( $next ) ) {
-			return hcp_videos_endcard_for_video( $next, 'Up next' );
+			return hcp_videos_endcard_for_video( $next, 'Up next', true );
 		}
 
 		$after = hcp_videos_series_next_video( $term->term_id );
 		if ( $after && $after !== $post_id && '' !== hcp_videos_src( $after ) ) {
-			return hcp_videos_endcard_for_video( $after, 'Watch next' );
+			return hcp_videos_endcard_for_video( $after, 'Watch next', true );
 		}
 
 		$landing = hcp_videos_series_landing_url( $term->term_id );
@@ -93,8 +95,9 @@ function hcp_videos_endcard_auto( int $post_id ): ?array {
 	return null;
 }
 
-function hcp_videos_endcard_for_video( int $video_id, string $heading ): array {
+function hcp_videos_endcard_for_video( int $video_id, string $heading, bool $autoplay = false ): array {
 	return array(
+		'autoplay' => $autoplay,
 		'heading' => $heading,
 		'title'   => html_entity_decode( hcp_videos_episode_title( $video_id ), ENT_QUOTES, 'UTF-8' ),
 		'url'     => (string) get_permalink( $video_id ),
