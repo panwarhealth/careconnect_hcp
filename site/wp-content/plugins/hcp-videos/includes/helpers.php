@@ -37,13 +37,14 @@ function hcp_videos_vimeo_id( $raw ): string {
  * The video file URL (R2) for a video post, or '' if none is set.
  */
 function hcp_videos_src( int $post_id ): string {
-	return esc_url_raw( trim( (string) get_field( 'video_src', $post_id ) ) );
+	return esc_url_raw( trim( (string) get_post_meta( $post_id, 'video_src', true ) ) );
 }
 
 /**
  * The player for a video post: a native <video> that fills its positioned
- * parent. Without a file it shows the poster with an "unavailable" notice.
- * The data-hcp-video title is what video-analytics.js reports to GA4.
+ * parent, with captions and end-card data when the video has them. Without a
+ * file it shows the poster with an "unavailable" notice. The data-hcp-video
+ * title is what video-analytics.js reports to GA4.
  */
 function hcp_videos_player_html( int $post_id ): string {
 	$fill   = 'position:absolute;inset:0;width:100%;height:100%;background:#000;';
@@ -59,13 +60,25 @@ function hcp_videos_player_html( int $post_id ): string {
 			. '<p style="position:relative;margin:0;padding:1rem;color:#fff;font-weight:600;text-align:center;">This video is temporarily unavailable.</p></div>';
 	}
 
+	$captions = hcp_videos_captions_url( $post_id );
+	$track    = $captions
+		? '<track kind="subtitles" srclang="en" label="English" src="' . esc_url( $captions ) . '">'
+		: '';
+
+	$endcard = hcp_videos_endcard( $post_id );
+	if ( $endcard ) {
+		hcp_videos_enqueue_player_script();
+	}
+
 	return sprintf(
-		'<video src="%s" poster="%s" controls preload="metadata" playsinline controlslist="nodownload" data-hcp-video="%s" title="%s" style="%sobject-fit:contain;"></video>',
+		'<video src="%s" poster="%s" controls preload="metadata" playsinline controlslist="nodownload" data-hcp-video="%s" title="%s"%s style="%sobject-fit:contain;">%s</video>',
 		esc_url( $src ),
 		esc_url( $poster ),
 		esc_attr( $title ),
 		esc_attr( $title ),
-		$fill
+		$endcard ? ' data-hcp-endcard="' . esc_attr( wp_json_encode( $endcard ) ) . '"' : '',
+		$fill,
+		$track
 	);
 }
 

@@ -71,6 +71,8 @@ services:
       AHPRA_PIEWS_PASSWORD: ${AHPRA_PIEWS_PASSWORD}
       SENTRY_DSN: ${SENTRY_DSN}
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+      HCP_R2_ACCESS_KEY_ID: ${HCP_R2_ACCESS_KEY_ID:-}
+      HCP_R2_SECRET_ACCESS_KEY: ${HCP_R2_SECRET_ACCESS_KEY:-}
     volumes:
       # Bind-mount the entire webroot — edits on the host are picked up
       # by PHP on the next request. This is the "hot reload" for WP.

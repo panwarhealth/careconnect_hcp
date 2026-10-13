@@ -2,7 +2,8 @@
 /**
  * ACF field group for the Video CPT, registered in code so it deploys via files.
  *
- * `video_src` is the playable file. The legacy `vimeo` field matches the
+ * The video file, poster and captions are managed by the "Video file" box
+ * (admin-video-file.php), not ACF. The legacy `vimeo` field matches the
  * resources convention (get_field('vimeo')); field KEYS are namespaced to
  * avoid collisions.
  */
@@ -18,13 +19,6 @@ add_action( 'acf/init', function () {
 		'key'      => 'group_hcp_video',
 		'title'    => 'Video Details',
 		'fields'   => array(
-			array(
-				'key'          => 'field_hcpvid_src',
-				'label'        => 'Video file URL',
-				'name'         => 'video_src',
-				'type'         => 'url',
-				'instructions' => 'The MP4 on the Care Connect CDN, e.g. https://cdn-careconnect.panwarhealth.com.au/videos/{slug}/{slug}.mp4',
-			),
 			array(
 				'key'          => 'field_hcpvid_vimeo',
 				'label'        => 'Vimeo URL or ID (legacy)',
@@ -109,4 +103,96 @@ add_action( 'acf/init', function () {
 		'position'   => 'normal',
 		'style'      => 'default',
 	) );
+
+	$custom_only = array( array( array( 'field' => 'field_hcpvid_endcard_mode', 'operator' => '==', 'value' => 'custom' ) ) );
+
+	acf_add_local_field_group( array(
+		'key'      => 'group_hcp_video_endcard',
+		'title'    => 'End card',
+		'fields'   => array(
+			array(
+				'key'           => 'field_hcpvid_endcard_mode',
+				'label'         => 'When the video ends, show',
+				'name'          => 'endcard_mode',
+				'type'          => 'select',
+				'choices'       => array(
+					'auto'   => 'Automatic (next episode, series page or a related video)',
+					'custom' => 'Custom link',
+					'off'    => 'Nothing',
+				),
+				'default_value' => 'auto',
+			),
+			array(
+				'key'               => 'field_hcpvid_endcard_preview',
+				'label'             => 'Automatic end card',
+				'name'              => '',
+				'type'              => 'message',
+				'message'           => '',
+				'conditional_logic' => array( array( array( 'field' => 'field_hcpvid_endcard_mode', 'operator' => '==', 'value' => 'auto' ) ) ),
+			),
+			array(
+				'key'               => 'field_hcpvid_endcard_heading',
+				'label'             => 'Heading',
+				'name'              => 'endcard_heading',
+				'type'              => 'text',
+				'placeholder'       => 'e.g. Want to try it with your patients?',
+				'conditional_logic' => $custom_only,
+			),
+			array(
+				'key'               => 'field_hcpvid_endcard_title',
+				'label'             => 'Title',
+				'name'              => 'endcard_title',
+				'type'              => 'text',
+				'placeholder'       => 'e.g. Order free FESS samples',
+				'conditional_logic' => $custom_only,
+			),
+			array(
+				'key'               => 'field_hcpvid_endcard_url',
+				'label'             => 'Link',
+				'name'              => 'endcard_url',
+				'type'              => 'url',
+				'required'          => 1,
+				'conditional_logic' => $custom_only,
+			),
+			array(
+				'key'               => 'field_hcpvid_endcard_label',
+				'label'             => 'Button text',
+				'name'              => 'endcard_label',
+				'type'              => 'text',
+				'placeholder'       => 'Find out more',
+				'conditional_logic' => $custom_only,
+			),
+		),
+		'location' => array(
+			array(
+				array(
+					'param'    => 'post_type',
+					'operator' => '==',
+					'value'    => 'video',
+				),
+			),
+		),
+		'menu_order' => 1,
+		'position'   => 'normal',
+		'style'      => 'default',
+	) );
+} );
+
+/**
+ * Show what "Automatic" resolves to for the video being edited.
+ */
+add_filter( 'acf/load_field/key=field_hcpvid_endcard_preview', function ( $field ) {
+	$post_id = (int) ( $_GET['post'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only preview.
+	$card    = $post_id ? hcp_videos_endcard_auto( $post_id ) : null;
+
+	$field['message'] = $card
+		? sprintf(
+			'<strong>%s:</strong> %s<br><a href="%s" target="_blank" rel="noopener">%s</a>',
+			esc_html( $card['heading'] ),
+			esc_html( $card['title'] ),
+			esc_url( $card['url'] ),
+			esc_html( $card['url'] )
+		)
+		: 'Nothing yet. Add this video to a series or pick related videos, or choose a custom link.';
+	return $field;
 } );
