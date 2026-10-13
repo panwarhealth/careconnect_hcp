@@ -11,13 +11,19 @@
 	var CSS = '' +
 		'.hcp-endcard{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(10,20,30,.86);color:#fff;text-align:center;}' +
 		'.hcp-endcard-inner{display:flex;align-items:center;gap:1.25rem;max-width:640px;text-align:left;}' +
-		'.hcp-endcard-thumb{flex:0 0 42%;max-width:240px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;}' +
+		// Whole thumbnail on the light panel the listing cards use, never cropped
+		// (some posters are portrait).
+		'.hcp-endcard-thumb{flex:0 0 42%;max-width:240px;aspect-ratio:16/9;box-sizing:border-box;padding:.5rem;background:#F6F9FF;object-fit:contain;border-radius:8px;}' +
 		'.hcp-endcard-heading{margin:0 0 .25rem;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#35B1C9;}' +
 		'.hcp-endcard-title{margin:0 0 .9rem;font-size:1.05rem;font-weight:600;line-height:1.35;color:#fff;}' +
 		'.hcp-endcard-actions{display:flex;flex-wrap:wrap;gap:.5rem;}' +
-		'.hcp-endcard a.hcp-endcard-link{display:inline-block;padding:.55rem 1.1rem;border-radius:9999px;background:#35B1C9;color:#fff;font-weight:600;font-size:.9rem;text-decoration:none;}' +
-		'.hcp-endcard a.hcp-endcard-link:hover{background:#2a96ab;color:#fff;}' +
-		'.hcp-endcard-replay{padding:.55rem 1.1rem;border-radius:9999px;border:1px solid rgba(255,255,255,.6);background:none;color:#fff;font-weight:600;font-size:.9rem;cursor:pointer;}' +
+		// Both buttons sized explicitly: the theme's own button/link rules (scoped
+		// under #app) otherwise make Replay taller than the link.
+		'.hcp-endcard .hcp-endcard-link,.hcp-endcard .hcp-endcard-replay{display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box!important;height:2.75rem!important;min-height:0!important;margin:0!important;padding:0 1.25rem!important;border-radius:9999px!important;font-size:.95rem!important;font-weight:600!important;line-height:1!important;letter-spacing:normal!important;text-transform:none!important;text-decoration:none!important;box-shadow:none!important;cursor:pointer;}' +
+		'.hcp-endcard .hcp-endcard-link{background:#35B1C9!important;border:1px solid #35B1C9!important;color:#fff!important;}' +
+		'.hcp-endcard .hcp-endcard-link:hover{background:#2a96ab!important;border-color:#2a96ab!important;}' +
+		'.hcp-endcard .hcp-endcard-replay{background:transparent!important;border:1px solid rgba(255,255,255,.6)!important;color:#fff!important;}' +
+		'.hcp-endcard .hcp-endcard-replay:hover{border-color:#fff!important;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-inner{flex-direction:column;text-align:center;gap:.5rem;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-thumb{display:none;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-title{font-size:.95rem;margin-bottom:.6rem;}' +
