@@ -148,6 +148,16 @@ add_action( 'acf/init', function () {
 				'placeholder'       => 'Find out more',
 				'conditional_logic' => $custom_only,
 			),
+			array(
+				'key'               => 'field_hcpvid_endcard_autoplay',
+				'label'             => 'Autoplay',
+				'name'              => 'endcard_autoplay',
+				'type'              => 'true_false',
+				'message'           => 'Play the "Watch now" video automatically after a 5-second countdown',
+				'instructions'      => 'Only works when the end card links to a video on this site.',
+				'ui'                => 1,
+				'conditional_logic' => array( array( array( 'field' => 'field_hcpvid_endcard_mode', 'operator' => '!=', 'value' => 'off' ) ) ),
+			),
 		),
 		'location' => array(
 			array(
@@ -196,6 +206,16 @@ add_action( 'acf/init', function () {
 		),
 	) );
 } );
+
+/**
+ * Show the effective Autoplay default on videos where it has never been saved.
+ */
+add_filter( 'acf/load_value/key=field_hcpvid_endcard_autoplay', function ( $value, $post_id ) {
+	if ( is_numeric( $post_id ) && ! metadata_exists( 'post', (int) $post_id, 'endcard_autoplay' ) ) {
+		return hcp_videos_endcard_autoplay_wanted( (int) $post_id ) ? 1 : 0;
+	}
+	return $value;
+}, 10, 2 );
 
 /**
  * Show what "Automatic" resolves to for the video being edited.

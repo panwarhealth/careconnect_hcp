@@ -124,6 +124,7 @@ add_action( 'admin_enqueue_scripts', function ( string $hook ) {
 		'workerUrl'  => add_query_arg( 'ver', (string) filemtime( HCP_VIDEOS_DIR . 'assets/transcode-worker.js' ), plugins_url( 'assets/transcode-worker.js', HCP_VIDEOS_FILE ) ),
 		'libraryUrl' => HCP_VIDEOS_MEDIABUNNY_URL,
 		'autoCard'   => get_the_ID() ? hcp_videos_endcard_auto( (int) get_the_ID() ) : null,
+		'videoBase'  => home_url( '/video/' ),
 	) );
 } );
 

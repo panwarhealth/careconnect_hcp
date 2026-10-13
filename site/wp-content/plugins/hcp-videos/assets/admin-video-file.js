@@ -267,19 +267,27 @@
 
 	function currentCard() {
 		var mode = acfValue('field_hcpvid_endcard_mode') || 'auto';
+		var card;
 		if (mode === 'off') {
 			return null;
 		}
 		if (mode === 'custom') {
-			return {
+			card = {
 				heading: acfValue('field_hcpvid_endcard_heading'),
 				title: acfValue('field_hcpvid_endcard_title'),
 				url: acfValue('field_hcpvid_endcard_url') || '#',
 				label: acfValue('field_hcpvid_endcard_label') || 'Find out more',
 				thumb: ''
 			};
+		} else if (cfg.autoCard) {
+			card = Object.assign({}, cfg.autoCard);
+		} else {
+			return null;
 		}
-		return cfg.autoCard;
+		// Mirrors hcp_videos_endcard(): autoplay only towards a video page here.
+		var tick = document.querySelector('input[type="checkbox"][name="acf[field_hcpvid_endcard_autoplay]"]');
+		card.autoplay = !!(tick && tick.checked) && card.url.indexOf(cfg.videoBase) === 0;
+		return card;
 	}
 
 	function renderCard() {
