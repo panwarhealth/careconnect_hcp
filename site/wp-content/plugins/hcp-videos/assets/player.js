@@ -6,7 +6,8 @@
  *
  * Series cards (data.autoplay) count down and then open the next video with
  * ?hcp_autoplay=1, which starts it on arrival. Cancel stops the countdown.
- * If the browser refuses to autoplay with sound, the page simply waits.
+ * If the browser refuses to start it with sound (it usually will: the new page
+ * has had no click yet), it plays muted with a "Tap to unmute" button.
  *
  * window.hcpEndcard exposes the same rendering for the edit-screen preview,
  * where the countdown is shown but never runs.
@@ -33,11 +34,14 @@
 		'.hcp-endcard .hcp-endcard-link:hover{background:#2a96ab!important;border-color:#2a96ab!important;}' +
 		'.hcp-endcard .hcp-endcard-replay{background:transparent!important;border:1px solid rgba(255,255,255,.6)!important;color:#fff!important;}' +
 		'.hcp-endcard .hcp-endcard-replay:hover{border-color:#fff!important;}' +
-		'.hcp-endcard-countdown{display:flex;align-items:center;flex-wrap:wrap;gap:.75rem;margin:0 0 .9rem;font-size:.9rem;color:rgba(255,255,255,.85);}' +
+		// Countdown sits bottom-centre of the card, where players usually put it.
+		'.hcp-endcard-countdown{position:absolute;left:0;right:0;bottom:3.5rem;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.75rem;margin:0;font-size:.9rem;color:rgba(255,255,255,.85);}' +
 		'.hcp-endcard-countdown strong{color:#fff;}' +
 		'.hcp-endcard .hcp-endcard-cancel{background:none!important;border:0!important;padding:0!important;margin:0!important;min-height:0!important;height:auto!important;color:#35B1C9!important;font-size:.9rem!important;font-weight:600!important;line-height:1.2!important;text-decoration:underline!important;text-transform:none!important;letter-spacing:normal!important;box-shadow:none!important;cursor:pointer;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-inner{flex-direction:column;text-align:center;gap:.5rem;}' +
-		'.hcp-endcard.is-narrow .hcp-endcard-countdown{justify-content:center;margin-bottom:.6rem;}' +
+		'.hcp-endcard.is-narrow .hcp-endcard-countdown{bottom:2.75rem;font-size:.8rem;}' +
+		'.hcp-unmute{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:11;display:inline-flex!important;align-items:center;gap:.5rem;height:3rem!important;min-height:0!important;margin:0!important;padding:0 1.5rem!important;border:0!important;border-radius:9999px!important;background:rgba(10,20,30,.86)!important;color:#fff!important;font-size:1rem!important;font-weight:600!important;line-height:1!important;text-transform:none!important;letter-spacing:normal!important;box-shadow:0 2px 12px rgba(0,0,0,.35)!important;cursor:pointer;}' +
+		'.hcp-unmute:hover{background:#35B1C9!important;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-thumb{display:none;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-title{font-size:.95rem;margin-bottom:.6rem;}' +
 		'.hcp-endcard.is-narrow .hcp-endcard-actions{justify-content:center;}';
@@ -196,6 +200,36 @@
 		video.addEventListener('seeking', function () { remove(video); });
 	}
 
+	/**
+	 * Browsers only allow sound without a click on this page, so a refused
+	 * start falls back to playing muted with a "Tap to unmute" button.
+	 */
+	function startMuted(video) {
+		video.muted = true;
+		var attempt = video.play();
+		if (attempt && attempt.catch) {
+			attempt.catch(function () {});
+		}
+		addStyles();
+		var button = el('button', 'hcp-unmute', '\uD83D\uDD07 Tap to unmute');
+		button.type = 'button';
+		function done() {
+			button.remove();
+			video.removeEventListener('volumechange', onVolume);
+		}
+		function onVolume() {
+			if (!video.muted) {
+				done();
+			}
+		}
+		button.addEventListener('click', function () {
+			video.muted = false;
+			done();
+		});
+		video.addEventListener('volumechange', onVolume);
+		video.parentElement.appendChild(button);
+	}
+
 	// Arrived from an autoplay countdown: start the page's video, then drop the
 	// flag from the address so a reload or a shared link does not autoplay.
 	function autoplayOnArrival() {
@@ -208,11 +242,12 @@
 		window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
 
 		var video = document.querySelector('video[data-hcp-video]');
-		if (video) {
-			var attempt = video.play();
-			if (attempt && attempt.catch) {
-				attempt.catch(function () {});
-			}
+		if (!video) {
+			return;
+		}
+		var attempt = video.play();
+		if (attempt && attempt.catch) {
+			attempt.catch(function () { startMuted(video); });
 		}
 	}
 
