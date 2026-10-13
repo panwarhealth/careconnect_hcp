@@ -56,11 +56,22 @@ function hcp_videos_endcard_custom( int $post_id ): ?array {
 
 /**
  * The video's "Autoplay" tickbox (`endcard_autoplay`). Until someone saves it,
- * series episodes default to on and standalone videos to off.
+ * it defaults to on only for an episode followed by another episode of the
+ * same series: the last episode, and standalone videos, default to off.
  */
 function hcp_videos_endcard_autoplay_wanted( int $post_id ): bool {
 	$set = get_post_meta( $post_id, 'endcard_autoplay', true );
-	return '' === $set ? null !== hcp_videos_series_term( $post_id ) : (bool) (int) $set;
+	return '' === $set ? hcp_videos_has_next_episode( $post_id ) : (bool) (int) $set;
+}
+
+function hcp_videos_has_next_episode( int $post_id ): bool {
+	$term = hcp_videos_series_term( $post_id );
+	if ( ! $term ) {
+		return false;
+	}
+	$episodes = hcp_videos_series_episode_ids( $term->term_id );
+	$position = array_search( $post_id, $episodes, true );
+	return false !== $position && isset( $episodes[ $position + 1 ] );
 }
 
 /**
