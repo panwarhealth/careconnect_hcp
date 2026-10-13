@@ -29,6 +29,7 @@ require_once HCP_VIDEOS_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
 	require_once HCP_VIDEOS_DIR . 'includes/admin-migrations-page.php';
 	require_once HCP_VIDEOS_DIR . 'includes/admin-video-file.php';
+	require_once HCP_VIDEOS_DIR . 'includes/admin-list.php';
 }
 
 /**
