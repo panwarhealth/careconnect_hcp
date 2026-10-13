@@ -2,10 +2,10 @@
 /**
  * ACF field group for the Video CPT, registered in code so it deploys via files.
  *
- * The video file, poster and captions are managed by the "Video file" box
- * (admin-video-file.php), not ACF. The legacy `vimeo` field matches the
- * resources convention (get_field('vimeo')); field KEYS are namespaced to
- * avoid collisions.
+ * The video file, poster, duration and captions are managed by the "Video
+ * file" box (admin-video-file.php), not ACF. The original Vimeo ID stays in
+ * the `vimeo` postmeta (migrations match on it) but is no longer edited.
+ * Field KEYS are namespaced to avoid collisions.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -19,20 +19,6 @@ add_action( 'acf/init', function () {
 		'key'      => 'group_hcp_video',
 		'title'    => 'Video Details',
 		'fields'   => array(
-			array(
-				'key'          => 'field_hcpvid_vimeo',
-				'label'        => 'Vimeo URL or ID (legacy)',
-				'name'         => 'vimeo',
-				'type'         => 'text',
-				'instructions' => 'No longer played. Kept as a record of the original Vimeo upload.',
-			),
-			array(
-				'key'          => 'field_hcpvid_duration',
-				'label'        => 'Duration (optional)',
-				'name'         => 'duration',
-				'type'         => 'text',
-				'instructions' => 'e.g. 2:24. Overrides the stored duration.',
-			),
 			array(
 				'key'           => 'field_hcpvid_listed',
 				'label'         => 'Show in Tools & Videos listing',

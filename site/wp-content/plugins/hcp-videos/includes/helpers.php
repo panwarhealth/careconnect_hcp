@@ -256,14 +256,9 @@ function hcp_videos_format_duration( int $secs ): string {
 }
 
 /**
- * Display duration for a video: the manual ACF field if set, else the
- * auto-fetched value cached in _hcpvid_duration postmeta. Never fetches live.
+ * Display duration for a video, measured from the file when it was uploaded.
  */
 function hcp_videos_duration( int $post_id ): string {
-	$manual = trim( (string) get_field( 'duration', $post_id ) );
-	if ( $manual !== '' ) {
-		return $manual;
-	}
 	return (string) get_post_meta( $post_id, '_hcpvid_duration', true );
 }
 
