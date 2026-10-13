@@ -54,3 +54,12 @@ function hcp_videos_register_cpt(): void {
 	}
 }
 add_action( 'init', 'hcp_videos_register_cpt' );
+
+/**
+ * Videos use the classic edit screen: the title box sits at the top and Publish
+ * is always available. The block editor hid the title in a sidebar menu, and
+ * the page is mostly the Video file / End card boxes anyway.
+ */
+add_filter( 'use_block_editor_for_post_type', function ( $use, $post_type ) {
+	return 'video' === $post_type ? false : $use;
+}, 20, 2 );

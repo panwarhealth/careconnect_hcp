@@ -375,3 +375,16 @@ function hcp_videos_resources_shortcode( $atts ): string {
 		: '<div class="hcp-cards-row grid lg:grid-cols-3 md:grid-cols-2 gap-base">' . $cards . '</div>';
 }
 add_shortcode( 'video_resources', 'hcp_videos_resources_shortcode' );
+
+/**
+ * [hcp_video slug="video-post-slug"] — the video player for a Video post, for
+ * embedding in pages and articles. Renders a <video> that fills its positioned
+ * parent, so place it inside a sized wrapper (e.g. .responsive-iframe).
+ */
+function hcp_videos_player_shortcode( $atts ): string {
+	$atts = shortcode_atts( array( 'slug' => '' ), $atts, 'hcp_video' );
+
+	$post = get_page_by_path( sanitize_title( $atts['slug'] ), OBJECT, 'video' );
+	return $post ? hcp_videos_player_html( $post->ID ) : '';
+}
+add_shortcode( 'hcp_video', 'hcp_videos_player_shortcode' );
