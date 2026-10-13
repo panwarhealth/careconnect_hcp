@@ -3,6 +3,7 @@
  * fullscreen is exited (an overlay cannot sit over native fullscreen) and a
  * clickable card is laid over the player: heading, optional thumbnail, title,
  * a link button and Replay. Playing or seeking again removes the card.
+ * window.hcpEndcard exposes the same rendering for the edit-screen preview.
  */
 (function () {
 	'use strict';
@@ -60,6 +61,7 @@
 	}
 
 	function show(video, data) {
+		addStyles();
 		remove(video);
 		exitFullscreen(video);
 
@@ -121,13 +123,11 @@
 	}
 
 	function init() {
-		var videos = document.querySelectorAll('video[data-hcp-endcard]');
-		if (!videos.length) {
-			return;
-		}
-		addStyles();
-		videos.forEach(bind);
+		document.querySelectorAll('video[data-hcp-endcard]').forEach(bind);
 	}
+
+	// Used by the edit screen to preview a card over its preview player.
+	window.hcpEndcard = { show: show, remove: remove };
 
 	if ('loading' === document.readyState) {
 		document.addEventListener('DOMContentLoaded', init);

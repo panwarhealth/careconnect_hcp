@@ -22,6 +22,9 @@
 	var captionsState = box.querySelector('.hcp-vf-captions-state');
 	var captionsRemove = box.querySelector('.hcp-vf-captions-remove');
 	var inputs = box.querySelectorAll('input[type=file]');
+	var posterImg = box.querySelector('.hcp-vf-poster-img');
+	var posterNone = box.querySelector('.hcp-vf-poster-none');
+	var cardToggle = box.querySelector('.hcp-vf-endcard-toggle');
 	var pageTitle = document.title;
 	var busy = false;
 
@@ -127,6 +130,9 @@
 			.then(function (url) {
 				return post('hcp_videos_save_file', { poster: url }).then(function () {
 					preview.poster = url;
+					posterImg.src = url;
+					posterImg.hidden = false;
+					posterNone.hidden = true;
 					return url;
 				});
 			});
@@ -248,6 +254,78 @@
 				report('Captions removed.', null, 'done');
 			})
 			.catch(fail);
+	});
+
+	// End-card preview over the preview player, following the End card fields
+	// as they are edited (the fields belong to the separate ACF "End card" box).
+	var cardShown = false;
+
+	function acfValue(key) {
+		var el = document.querySelector('[name="acf[' + key + ']"]');
+		return el ? el.value.trim() : '';
+	}
+
+	function currentCard() {
+		var mode = acfValue('field_hcpvid_endcard_mode') || 'auto';
+		if (mode === 'off') {
+			return null;
+		}
+		if (mode === 'custom') {
+			return {
+				heading: acfValue('field_hcpvid_endcard_heading'),
+				title: acfValue('field_hcpvid_endcard_title'),
+				url: acfValue('field_hcpvid_endcard_url') || '#',
+				label: acfValue('field_hcpvid_endcard_label') || 'Find out more',
+				thumb: ''
+			};
+		}
+		return cfg.autoCard;
+	}
+
+	function renderCard() {
+		var card = currentCard();
+		window.hcpEndcard.remove(preview);
+		if (!cardShown) {
+			cardToggle.textContent = 'Preview end card';
+			return;
+		}
+		if (!card) {
+			cardToggle.textContent = 'No end card for this video';
+			return;
+		}
+		preview.pause();
+		window.hcpEndcard.show(preview, card);
+		cardToggle.textContent = 'Hide end card preview';
+	}
+
+	cardToggle.addEventListener('click', function () {
+		cardShown = !cardShown || !currentCard();
+		renderCard();
+	});
+
+	document.addEventListener('input', function (e) {
+		if (e.target.name && e.target.name.indexOf('acf[field_hcpvid_endcard_') === 0) {
+			cardShown = true;
+			renderCard();
+		}
+	});
+	document.addEventListener('change', function (e) {
+		if (e.target.name && e.target.name.indexOf('acf[field_hcpvid_endcard_') === 0) {
+			cardShown = true;
+			renderCard();
+		}
+	});
+
+	preview.addEventListener('play', function () {
+		cardShown = false;
+		renderCard();
+	});
+
+	// The preview card is for looking at: its link must not leave the editor.
+	box.addEventListener('click', function (e) {
+		if (e.target.closest && e.target.closest('a[data-hcp-endcard-link]')) {
+			e.preventDefault();
+		}
 	});
 
 	setBusy(false);

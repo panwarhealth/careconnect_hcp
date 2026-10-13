@@ -32,7 +32,10 @@ function hcp_videos_file_box( WP_Post $post ): void {
 		<?php endif; ?>
 
 		<div class="hcp-vf-preview">
-			<video controls preload="metadata" playsinline <?php echo $src ? 'src="' . esc_url( $src ) . '"' : ''; ?> <?php echo $poster ? 'poster="' . esc_url( $poster ) . '"' : ''; ?>></video>
+			<div class="hcp-vf-stage">
+				<video controls preload="metadata" playsinline <?php echo $src ? 'src="' . esc_url( $src ) . '"' : ''; ?> <?php echo $poster ? 'poster="' . esc_url( $poster ) . '"' : ''; ?>></video>
+			</div>
+			<p><button type="button" class="button hcp-vf-endcard-toggle">Preview end card</button></p>
 			<p class="hcp-vf-current">
 				<?php if ( $src ) : ?>
 					Current file: <a href="<?php echo esc_url( $src ); ?>" target="_blank" rel="noopener"><?php echo esc_html( basename( wp_parse_url( $src, PHP_URL_PATH ) ) ); ?></a>
@@ -51,6 +54,10 @@ function hcp_videos_file_box( WP_Post $post ): void {
 				</label>
 				<span class="description">Any common video format. Files larger than 1080p are converted automatically (Chrome or Edge).</span>
 			</p>
+			<div class="hcp-vf-poster">
+				<img class="hcp-vf-poster-img" alt="Current poster" <?php echo $poster ? 'src="' . esc_url( $poster ) . '"' : 'hidden'; ?>>
+				<span class="hcp-vf-poster-none" <?php echo $poster ? 'hidden' : ''; ?>>No poster yet.</span>
+			</div>
 			<p>
 				<strong>Poster:</strong>
 				<button type="button" class="button hcp-vf-frame" disabled>Use current frame</button>
@@ -86,7 +93,11 @@ add_action( 'admin_enqueue_scripts', function ( string $hook ) {
 		return;
 	}
 
-	$css = '#hcp-vf .hcp-vf-preview video{width:100%;max-width:560px;max-height:315px;background:#000;border-radius:4px;}'
+	$css = '#hcp-vf .hcp-vf-stage{position:relative;width:100%;max-width:560px;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;}'
+		. '#hcp-vf .hcp-vf-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}'
+		. '#hcp-vf .hcp-vf-poster img{display:block;width:240px;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;background:#000;}'
+		. '#hcp-vf .hcp-vf-poster{margin:12px 0 4px;}'
+		. '#hcp-vf .hcp-vf-poster-none{color:#646970;font-style:italic;}'
 		. '#hcp-vf .hcp-vf-controls .button{margin-right:4px;}'
 		. '#hcp-vf .hcp-vf-status{max-width:560px;padding:8px 12px;background:#f6f7f7;border-left:4px solid #2271b1;}'
 		. '#hcp-vf .hcp-vf-status.is-error{border-left-color:#d63638;}'
@@ -97,10 +108,11 @@ add_action( 'admin_enqueue_scripts', function ( string $hook ) {
 	wp_enqueue_style( 'hcp-videos-file' );
 	wp_add_inline_style( 'hcp-videos-file', $css );
 
+	hcp_videos_enqueue_player_script();
 	wp_enqueue_script(
 		'hcp-videos-file',
 		plugins_url( 'assets/admin-video-file.js', HCP_VIDEOS_FILE ),
-		array(),
+		array( 'hcp-videos-player' ),
 		(string) filemtime( HCP_VIDEOS_DIR . 'assets/admin-video-file.js' ),
 		true
 	);
@@ -111,6 +123,7 @@ add_action( 'admin_enqueue_scripts', function ( string $hook ) {
 		'configured' => hcp_videos_r2_configured(),
 		'workerUrl'  => add_query_arg( 'ver', (string) filemtime( HCP_VIDEOS_DIR . 'assets/transcode-worker.js' ), plugins_url( 'assets/transcode-worker.js', HCP_VIDEOS_FILE ) ),
 		'libraryUrl' => HCP_VIDEOS_MEDIABUNNY_URL,
+		'autoCard'   => get_the_ID() ? hcp_videos_endcard_auto( (int) get_the_ID() ) : null,
 	) );
 } );
 
