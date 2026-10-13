@@ -3,7 +3,8 @@
  * using the enhanced-measurement event schema (video_start / video_progress
  * at 25, 50, 75 / video_complete) so they surface in the standard GA4 video
  * reports, plus video_endcard_click for end-card links and
- * video_autoplay_next / video_autoplay_cancel for series autoplay. Media
+ * video_autoplay_next / video_autoplay_cancel for series autoplay, and a
+ * page_view when autoplay swaps the next video page in place. Media
  * events do not bubble, so one capture-phase listener on the document covers
  * players added at any time. gtag is only loaded on first play.
  */
@@ -104,6 +105,18 @@
 			transport_type: 'beacon'
 		});
 	}, true);
+
+	// Series autoplay swaps the next video page in without a page load
+	// (player.js), so record the page view a load would have produced.
+	document.addEventListener('hcp-video-swap', function (e) {
+		ensureGtag();
+		window.gtag('event', 'page_view', {
+			send_to: cfg.measurementId,
+			page_location: e.detail.url,
+			page_title: e.detail.title,
+			page_referrer: e.detail.referrer
+		});
+	});
 
 	// Series autoplay (player.js): the countdown ran out, or the viewer cancelled it.
 	document.addEventListener('hcp-endcard-autoplay', function (e) {

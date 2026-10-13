@@ -4,10 +4,15 @@
  * clickable card is laid over the player: heading, optional thumbnail, title,
  * a link button and Replay. Playing or seeking again removes the card.
  *
- * Series cards (data.autoplay) count down and then open the next video with
- * ?hcp_autoplay=1, which starts it on arrival. Cancel stops the countdown.
- * If the browser refuses to start it with sound (it usually will: the new page
- * has had no click yet), it plays muted with a "Tap to unmute" button.
+ * Series cards (data.autoplay) count down, then swap the next video page's
+ * <main> into this page and play it. Staying on the same page is what lets it
+ * play with sound: browsers only allow sound on a page the viewer has already
+ * clicked, and a freshly loaded page has not been. Cancel stops the countdown;
+ * a plain click on the card's link swaps the same way.
+ *
+ * If the swap cannot be done, it falls back to opening the page with
+ * ?hcp_autoplay=1, which starts the video on arrival, muted with a
+ * "Tap to unmute" button when the browser refuses sound.
  *
  * window.hcpEndcard exposes the same rendering for the edit-screen preview,
  * where the countdown is shown but never runs.
@@ -127,7 +132,7 @@
 				if (seconds <= 0) {
 					clearInterval(card.hcpTimer);
 					announce('next', video, data.url);
-					window.location.href = withAutoplay(data.url);
+					swapTo(data.url);
 				}
 			}, 1000);
 		}
@@ -164,6 +169,16 @@
 		var link = el('a', 'hcp-endcard-link', data.label + ' →');
 		link.href = data.autoplay ? withAutoplay(data.url) : data.url;
 		link.setAttribute('data-hcp-endcard-link', '');
+		if (data.autoplay && !preview) {
+			link.addEventListener('click', function (e) {
+				if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+					return;
+				}
+				e.preventDefault();
+				clearInterval(card.hcpTimer);
+				swapTo(data.url);
+			});
+		}
 		actions.appendChild(link);
 
 		var replay = el('button', 'hcp-endcard-replay', 'Replay');
@@ -230,6 +245,76 @@
 		video.parentElement.appendChild(button);
 	}
 
+	function play(video) {
+		var attempt = video.play();
+		if (attempt && attempt.catch) {
+			attempt.catch(function () { startMuted(video); });
+		}
+	}
+
+	/**
+	 * Load the next video page and swap its <main> in place of this one's, so
+	 * playback can continue with sound. Anything unexpected (a failed request,
+	 * a redirect such as a login gate, a page without a player) falls back to
+	 * a normal page load.
+	 */
+	var swapped = false;
+
+	function swapTo(url) {
+		var target = new URL(url, window.location.href);
+		fetch(target.toString(), { credentials: 'same-origin' })
+			.then(function (response) {
+				if (!response.ok || new URL(response.url).pathname !== target.pathname) {
+					throw new Error('unexpected response');
+				}
+				return response.text();
+			})
+			.then(function (html) {
+				var doc = new DOMParser().parseFromString(html, 'text/html');
+				var next = doc.querySelector('#main');
+				var current = document.querySelector('#main');
+				if (!next || !current || !next.querySelector('video[data-hcp-video]')) {
+					throw new Error('not a video page');
+				}
+
+				var referrer = window.location.href;
+				document.title = doc.title;
+				window.history.pushState({ hcpVideoSwap: true }, '', target.toString());
+				swapped = true;
+				next = document.adoptNode(next);
+				current.replaceWith(next);
+				window.scrollTo(0, 0);
+
+				// Parsed scripts never run; recreate them in the live page so they do.
+				next.querySelectorAll('script').forEach(function (old) {
+					var script = document.createElement('script');
+					Array.prototype.forEach.call(old.attributes, function (a) { script.setAttribute(a.name, a.value); });
+					script.textContent = old.textContent;
+					old.replaceWith(script);
+				});
+
+				var video = document.querySelector('#main video[data-hcp-video]');
+				if (video.hasAttribute('data-hcp-endcard')) {
+					bind(video);
+				}
+				document.dispatchEvent(new CustomEvent('hcp-video-swap', {
+					detail: { url: target.toString(), title: doc.title, referrer: referrer }
+				}));
+				play(video);
+			})
+			.catch(function () {
+				window.location.href = withAutoplay(url);
+			});
+	}
+
+	// Back/forward after a swap: the page in view no longer matches the
+	// address, so load it properly.
+	window.addEventListener('popstate', function () {
+		if (swapped) {
+			window.location.reload();
+		}
+	});
+
 	// Arrived from an autoplay countdown: start the page's video, then drop the
 	// flag from the address so a reload or a shared link does not autoplay.
 	function autoplayOnArrival() {
@@ -242,12 +327,8 @@
 		window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
 
 		var video = document.querySelector('video[data-hcp-video]');
-		if (!video) {
-			return;
-		}
-		var attempt = video.play();
-		if (attempt && attempt.catch) {
-			attempt.catch(function () { startMuted(video); });
+		if (video) {
+			play(video);
 		}
 	}
 

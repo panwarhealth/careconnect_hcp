@@ -99,16 +99,20 @@ get_header(); ?>
 							<button type="button" class="hcp-desc-toggle">Read more</button>
 						</div>
 						<script>
-						document.addEventListener('DOMContentLoaded', function(){
-							var el = document.querySelector('.hcp-clamp');
-							var btn = document.querySelector('.hcp-desc-toggle');
-							if (!el || !btn) return;
-							if (el.scrollHeight <= el.clientHeight + 4) { el.classList.remove('hcp-collapsed'); btn.style.display = 'none'; return; }
-							btn.addEventListener('click', function(){
-								el.classList.toggle('hcp-collapsed');
-								btn.textContent = el.classList.contains('hcp-collapsed') ? 'Read more' : 'Read less';
-							});
-						});
+						(function(){
+							// Also runs when series autoplay swaps this page in, after DOMContentLoaded.
+							function init(){
+								var el = document.querySelector('.hcp-clamp');
+								var btn = document.querySelector('.hcp-desc-toggle');
+								if (!el || !btn) return;
+								if (el.scrollHeight <= el.clientHeight + 4) { el.classList.remove('hcp-collapsed'); btn.style.display = 'none'; return; }
+								btn.addEventListener('click', function(){
+									el.classList.toggle('hcp-collapsed');
+									btn.textContent = el.classList.contains('hcp-collapsed') ? 'Read more' : 'Read less';
+								});
+							}
+							if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+						})();
 						</script>
 					</div>
 
