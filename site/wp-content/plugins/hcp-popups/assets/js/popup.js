@@ -80,7 +80,8 @@
 			});
 		});
 		document.body.classList.add('hcp-popup-open');
-		markSeen();
+		// A blocking pop-up stays until answered, so a reload must bring it back.
+		if (!cfg.blocking) markSeen();
 		report('shown');
 	}
 
@@ -94,6 +95,10 @@
 	}
 
 	var timer = window.setTimeout(show, cfg.delayMs);
+
+	// The pop-up's own content closes it once its job is done (a blocking
+	// pop-up has no other way out).
+	root.addEventListener('hcp-popup:close', function () { close(); });
 
 	root.addEventListener('click', function (ev) {
 		if (ev.target.closest('[data-popup-cta]')) {

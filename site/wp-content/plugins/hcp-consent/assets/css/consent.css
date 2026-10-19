@@ -1,0 +1,114 @@
+/* Marketing consent choice, wherever it sits. Yes and No are the same size so
+   neither answer is the easy one. */
+
+.hcp-consent-choice { text-align: left; }
+
+.hcp-consent-choice__statement {
+	margin: 0 0 1.25rem;
+	font-size: 0.95rem;
+	line-height: 1.55;
+	color: #0e2841;
+}
+
+.hcp-consent-choice__actions {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.hcp-consent-choice__btn {
+	flex: 1 1 0;
+	display: inline-block;
+	min-height: 44px;
+	padding: 0.7rem 1.5rem;
+	border: 2px solid #00b3d6;
+	border-radius: 6px;
+	font-size: 0.95rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.hcp-consent-choice__btn--no { background: #fff; color: #0e2841; }
+
+.hcp-consent-choice__btn--no:hover,
+.hcp-consent-choice__btn--no:focus-visible { background: #e6f7fb; }
+
+.hcp-consent-choice__btn--yes,
+a.hcp-consent-choice__btn--yes { background: #00b3d6; color: #fff; }
+
+.hcp-consent-choice__btn--yes:hover,
+.hcp-consent-choice__btn--yes:focus-visible { background: #0098b8; border-color: #0098b8; color: #fff; }
+
+.hcp-consent-choice__btn:disabled { opacity: 0.6; cursor: wait; }
+
+.hcp-consent-choice__error {
+	margin: 0.75rem 0 0;
+	color: #b42318;
+	font-size: 0.9rem;
+}
+
+.hcp-consent-choice__links {
+	margin: 1rem 0 0;
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+.hcp-consent-choice__links a { color: #0e2841; }
+
+/* In the pop-up */
+.hcp-popup .hcp-consent-choice { margin-top: 0.25rem; }
+
+/* Edit Your Profile */
+.hcp-consent-pref {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid #d9e1e8;
+	max-width: 40rem;
+}
+
+.hcp-consent-pref h2 { margin: 0 0 0.5rem; }
+
+.hcp-consent-pref__status { margin: 0 0 1rem; font-weight: 600; }
+
+.hcp-consent-pref .hcp-consent-choice__links { text-align: left; }
+
+/* /consent-preferences/ (bare page) */
+body.hcp-blank { background: #f3f6f9; }
+
+.hcp-blank__main {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 2rem 1rem;
+}
+
+.hcp-consent-landing {
+	width: 100%;
+	max-width: 34rem;
+	padding: 2rem 1.75rem;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 10px 40px rgba(14, 40, 65, 0.12);
+}
+
+.hcp-consent-landing__title {
+	margin: 0 0 1rem;
+	font-size: 1.5rem;
+	color: #0e2841;
+}
+
+.hcp-consent-landing__done { font-weight: 600; }
+
+.hcp-consent-landing__portal { margin: 1.5rem 0 0; }
+
+.hcp-consent-landing__portal .hcp-consent-choice__btn { width: 100%; }
+
+@media (max-width: 420px) {
+	.hcp-consent-choice__actions { flex-direction: column-reverse; }
+	.hcp-consent-landing { padding: 1.5rem 1.25rem; }
+}

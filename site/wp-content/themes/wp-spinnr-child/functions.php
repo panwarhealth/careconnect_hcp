@@ -1101,31 +1101,7 @@ function valdidate_aphra_register($errors, $values) {
 			]);
 		}
 	}
-	if($values['form_id'] == 129) { // Register with Form RACGP
-		return $errors;
-		if(in_array(site_url(), ['https://hcp.carepharma.com.au', 'http://hcp.carepharma.com.au'])) {
-			$ahpra_data = check_if_aphra_exists_curl($_POST['item_meta'][3985]);
-		}
-		else {
-			$ahpra_data = check_if_aphra_exists_curl($_POST['item_meta'][3985]);
-		}
-		if(isset($ahpra_data) && $ahpra_data['success'] == true && $ahpra_data['data']->AuditDetails->PractitionerCount > 0){
-			// add ahpra_id to database
-			$_POST['item_meta'][94] = $_POST['item_meta'][3985]; // ahpra_id
-			$_POST['item_meta'][95] = json_encode($ahpra_data['data']->ProfessionNumberReplay->Practitioner); // ahpra_details
-		}
-		else {
-			$errors['_error'] = (isset($ahpra_data['message']) && $ahpra_data['message'] != '') ? $ahpra_data['message'] : "Invalid Professional Number!";
-			hcp_sentry_capture('AHPRA validation failed on registration form', \Sentry\Severity::info(), [
-				'form_id' => $values['form_id'],
-				'error'   => $errors['_error'],
-			]);
-		}
-
-		//$racgp_value = sanitize_text_field($_POST["item_meta"][4273] ?? '');
-
-	}
-	else if($values['form_id'] == 22) { // Registration - Hydralyte comp Form
+	if($values['form_id'] == 22) { // Registration - Hydralyte comp Form
 		hcp_check_ahpra_format($_POST['item_meta'][358] ?? '', 22);
 		if($_POST['item_meta'][918] == 'Yes') {
 			if($_POST['item_meta'][422] == '') {
@@ -1373,39 +1349,6 @@ function rcp_register_membership($entry_id, $form_id){
 					'object_id'   => $subscription_id,
 				]);
 			}
-		}
-	} else if($form_id == 129){
-		if(rcp_get_customer_by_user_id($_POST['item_meta'][4065])) {
-			$customer = rcp_get_customer_by_user_id($_POST['item_meta'][4065]);
-			$customer_id = $customer->get_id();
-		} else {
-			$customer_id = rcp_add_customer( array(
-				'user_id' => $_POST['item_meta'][4065] // User ID Field (53)
-			));
-			if ( ! $customer_id ) {
-				hcp_sentry_capture('RCP customer creation failed after registration', \Sentry\Severity::error(), [
-					'form_id' => $form_id,
-				]);
-			}
-		}
-
-		if( substr(strtolower($_POST['item_meta'][3989] ?? ''), 0, 3) == 'pha' ) { // AHPRA Number Field (8)
-			$subscription_id = 54; //Pharmacist
-		} else {
-			$subscription_id = 22; //HCP
-		}
-
-		$membership_id = rcp_add_membership( array(
-			'customer_id' => $customer_id,
-			'object_id'   => $subscription_id,
-			'status'      => 'active'
-		));
-		if ( ! $membership_id ) {
-			hcp_sentry_capture('RCP membership creation failed after registration', \Sentry\Severity::error(), [
-				'form_id'     => $form_id,
-				'customer_id' => $customer_id,
-				'object_id'   => $subscription_id,
-			]);
 		}
 	} else if($form_id == 145){ 
 		
@@ -2553,7 +2496,7 @@ add_action('wp_head', function () {
 
 add_action('wp_enqueue_scripts', 'enqueue_login_popup_assets');
 function enqueue_login_popup_assets() {
-    $is_excluded_page = is_page( array( 'log-in', 'register', 'forgot-password' ) ) || $GLOBALS['pagenow'] === 'wp-login.php';
+    $is_excluded_page = is_page( array( 'log-in', 'register', 'forgot-password', 'consent-preferences' ) ) || $GLOBALS['pagenow'] === 'wp-login.php';
     if (!$is_excluded_page) {
         wp_register_script('login-popup-script', '', ['jquery'], null, true);
         wp_enqueue_script('login-popup-script');
