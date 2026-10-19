@@ -1,0 +1,90 @@
+/* Terms of Use and Privacy Policy. Clause numbers are written into the markup
+   (1, 1.1, (a), (i)) because the text cross-references them ("clause 8.2"). */
+
+.hcp-legal {
+	max-width: 52rem;
+	margin: 0 auto;
+	line-height: 1.65;
+}
+
+.hcp-legal__title {
+	margin: 0.5rem 0 2rem;
+	text-align: center;
+}
+
+.hcp-legal__updated { margin: 0 0 0.5rem; }
+
+.hcp-legal ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.hcp-legal li { margin: 0; }
+
+.hcp-legal__l0 > li + li { margin-top: 2rem; }
+
+.hcp-legal__heading {
+	display: flex;
+	gap: 0.75rem;
+	margin: 0 0 0.75rem;
+	font-size: 1.25rem;
+	line-height: 1.35;
+}
+
+.hcp-legal__l1 > li,
+.hcp-legal__l2 > li,
+.hcp-legal__l3 > li {
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 0.6rem;
+}
+
+.hcp-legal__num {
+	flex: 0 0 auto;
+	min-width: 2.25rem;
+	font-weight: 600;
+}
+
+.hcp-legal__heading .hcp-legal__num { min-width: 2.25rem; }
+
+.hcp-legal__body {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.hcp-legal__body > p { margin: 0.6rem 0 0; }
+
+.hcp-legal__subhead {
+	margin: 1.25rem 0 0;
+	font-size: 1rem;
+	font-style: italic;
+}
+
+/* Open questions for the client. Removed by the go-live migration. */
+.hcp-legal__query {
+	background: #fff3a3;
+	color: inherit;
+	padding: 0 0.15em;
+}
+
+.hcp-legal__query-block {
+	margin: 2rem 0;
+	padding: 1rem 1.25rem;
+	border-left: 4px solid #e0c200;
+	background: #fffbe0;
+}
+
+.hcp-legal__query-block > mark { background: none; padding: 0; font-weight: 600; }
+
+.hcp-legal__query-note { margin: 0.5rem 0 0; }
+
+.hcp-legal__query-note mark { background: none; padding: 0; }
+
+@media (max-width: 640px) {
+	.hcp-legal__num { min-width: 1.9rem; }
+	.hcp-legal__l1 > li,
+	.hcp-legal__l2 > li,
+	.hcp-legal__l3 > li { gap: 0.5rem; }
+}

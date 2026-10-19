@@ -30,6 +30,8 @@ function hcp_seo_noise_slugs(): array {
 		'allergic-rhinitis-chart',
 		// Logged-in chooser between the legacy and 2026 clinical audit; 302s for anonymous visitors.
 		'clinical-audit',
+		// Terms update email landing page.
+		'consent-preferences',
 	];
 }
 

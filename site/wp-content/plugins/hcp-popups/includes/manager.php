@@ -28,7 +28,9 @@ const HCP_POPUPS_SEEN_TTL = DAY_IN_SECONDS;
  *     @type int      $priority Lower wins. 10 = blocking/compliance, 50 = promotional.
  *     @type callable $eligible Returns bool for the current request.
  *     @type callable $render   Echoes the dialog markup.
- *     @type bool     $blocking Page cannot be used until answered. Default false.
+ *     @type bool     $blocking Page cannot be used until answered: no close
+ *                              button, no dismissal, no seen cookie. Default false.
+ *     @type int      $delay_ms Dwell before it appears. Default 3000.
  * }
  */
 function hcp_popups_add( array $popup ): void {
@@ -37,6 +39,7 @@ function hcp_popups_add( array $popup ): void {
 		array(
 			'priority' => 50,
 			'blocking' => false,
+			'delay_ms' => 3000,
 		)
 	);
 }
@@ -134,7 +137,7 @@ function hcp_popups_enqueue(): void {
 				'id'            => $popup['id'],
 				'blocking'      => (bool) $popup['blocking'],
 				'measurementId' => hcp_popups_ga4_measurement_id(),
-				'delayMs'    => 3000,
+				'delayMs'    => (int) $popup['delay_ms'],
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
 				'endpoint'   => rest_url( 'hcp-popups/v1/event' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
@@ -161,9 +164,14 @@ function hcp_popups_render(): void {
 		esc_attr( $popup['id'] ),
 		esc_attr( $popup['id'] )
 	);
-	echo '<div class="hcp-popup__backdrop" data-popup-dismiss></div>';
-	echo '<div class="hcp-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="hcp-popup-title">';
-	echo '<button type="button" class="hcp-popup__close" data-popup-dismiss aria-label="Close">&times;</button>';
+	if ( $popup['blocking'] ) {
+		echo '<div class="hcp-popup__backdrop"></div>';
+		echo '<div class="hcp-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="hcp-popup-title">';
+	} else {
+		echo '<div class="hcp-popup__backdrop" data-popup-dismiss></div>';
+		echo '<div class="hcp-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="hcp-popup-title">';
+		echo '<button type="button" class="hcp-popup__close" data-popup-dismiss aria-label="Close">&times;</button>';
+	}
 	call_user_func( $popup['render'] );
 	echo '</div></div>';
 }

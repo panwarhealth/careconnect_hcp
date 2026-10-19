@@ -29,6 +29,7 @@ const HCP_POPUPS_EXCLUDED_PATHS = array(
 	'/checkout',
 	'/privacy-policy',
 	'/terms',
+	'/consent-preferences',
 );
 
 /** The MCA activity: both halves of the redirect pair, plus its courseware. */
