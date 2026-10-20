@@ -32,6 +32,12 @@ parser.add_argument("--title", default=None, help="add a cover page with this ti
 parser.add_argument("--subtitle", default="Course review copy")
 parser.add_argument("--append", nargs="*", default=[], help="extra PDFs to append, in order")
 parser.add_argument(
+    "--narrow-width",
+    type=float,
+    default=330,
+    help="points wide to draw phone-width captures at, centred on the page, instead of stretching them to A4 width",
+)
+parser.add_argument(
     "--after",
     nargs=2,
     action="append",
@@ -71,6 +77,16 @@ def place(src_doc):
         return
 
     scale = A4_WIDTH / src.rect.width
+
+    # A phone capture stretched to A4 width prints its text at three times desktop size.
+    narrow = src.rect.width < A4_WIDTH and args.narrow_width < A4_WIDTH
+    if args.paper == "a4" and narrow:
+        scale = args.narrow_width / src.rect.width
+        height = src.rect.height * scale
+        page = doc.new_page(width=A4_WIDTH, height=height + 40)
+        left = (A4_WIDTH - args.narrow_width) / 2
+        page.show_pdf_page(fitz.Rect(left, 20, left + args.narrow_width, 20 + height), src_doc, 0)
+        return
 
     if args.paper == "a4":
         page = doc.new_page(width=A4_WIDTH, height=src.rect.height * scale)
