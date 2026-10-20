@@ -72,6 +72,10 @@ function hcp_consent_reg_button_script(): void {
 		return;
 	}
 	?>
+	<style>
+	/* The tick box label takes the form's option style; its links shouldn't be bigger. */
+	#frm_field_<?php echo (int) $field_id; ?>_container label a { font-size: inherit; font-weight: 600; }
+	</style>
 	<script>
 	(function () {
 		var name = 'item_meta[<?php echo (int) $field_id; ?>][]';

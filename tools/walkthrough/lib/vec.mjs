@@ -8,7 +8,7 @@ function slug(label) {
 }
 
 /** Waits for the things that make a page render short or blank if you print too early. */
-async function settlePage(page, settle) {
+async function settlePage(page, settle, { keepFixed = false } = {}) {
   await page.emulateMedia({ media: 'screen' });
   await page.waitForLoadState('networkidle').catch(() => {});
   await page
@@ -33,6 +33,11 @@ async function settlePage(page, settle) {
   // scrolled (opening a record does that) and covered the question underneath it. Scrolling back
   // is the direct fix; unsticking is the guard, and it costs no layout because a sticky element
   // already occupies its place in the flow.
+  if (keepFixed) {
+    await page.waitForTimeout(settle);
+    return;
+  }
+
   await page
     .evaluate(() => {
       window.scrollTo(0, 0);
@@ -56,15 +61,22 @@ export function createRecorder(outDir, { width = 1280, settle = 1400 } = {}) {
   return {
     manifest,
 
-    async shot(page, label, { section = null, group = null } = {}) {
+    /**
+     * viewport: capture only what is on screen, with fixed elements left in place. For modals
+     * and overlays, which the full-height capture would flatten into the page flow.
+     */
+    async shot(page, label, { section = null, group = null, viewport = false } = {}) {
       const n = manifest.length + 1;
-      await settlePage(page, settle);
-      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      await settlePage(page, settle, { keepFixed: viewport });
+      const height = viewport
+        ? page.viewportSize().height
+        : await page.evaluate(() => document.documentElement.scrollHeight);
+      const pageWidth = viewport ? page.viewportSize().width : width;
       const file = `${String(n).padStart(3, '0')}_${slug(label)}.pdf`;
       await page.pdf({
         path: path.join(outDir, file),
-        width: `${width}px`,
-        height: `${height + 4}px`,
+        width: `${pageWidth}px`,
+        height: `${height + (viewport ? 0 : 4)}px`,
         printBackground: true,
         pageRanges: '1'
       });

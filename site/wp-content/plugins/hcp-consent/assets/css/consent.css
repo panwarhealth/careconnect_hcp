@@ -104,6 +104,28 @@ body.hcp-blank { background: #f3f6f9; }
 
 .hcp-consent-landing__done { font-weight: 600; }
 
+/* RCP login form on the bare page, where the theme's form styles don't reach. */
+.hcp-consent-landing #rcp_login_form { margin-top: 1rem; }
+
+.hcp-consent-landing #rcp_login_form input[type="text"],
+.hcp-consent-landing #rcp_login_form input[type="password"] { width: 100%; }
+
+.hcp-consent-landing #rcp_login_submit {
+	width: 100%;
+	min-height: 44px;
+	margin-top: 0.5rem;
+	border: 0;
+	border-radius: 6px;
+	background: #00b3d6;
+	color: #fff;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	cursor: pointer;
+}
+
+.hcp-consent-landing #rcp_login_submit:hover,
+.hcp-consent-landing #rcp_login_submit:focus-visible { background: #0098b8; }
+
 .hcp-consent-landing__portal { margin: 1.5rem 0 0; }
 
 .hcp-consent-landing__portal .hcp-consent-choice__btn { width: 100%; }
