@@ -47,6 +47,8 @@
 		var done = scope.querySelector('[data-hcp-consent-saved]');
 		if (done) {
 			choice.hidden = true;
+			var intro = scope.querySelector('.hcp-consent-intro');
+			if (intro) intro.hidden = true;
 			done.hidden = false;
 		}
 	}

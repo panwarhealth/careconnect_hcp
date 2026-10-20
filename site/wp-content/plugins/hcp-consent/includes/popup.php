@@ -52,8 +52,6 @@ function hcp_consent_popup_enqueue(): void {
 }
 
 function hcp_consent_popup_render(): void {
-	?>
-	<h2 class="hcp-popup__title" id="hcp-popup-title">Communication preferences</h2>
-	<?php
-	echo hcp_consent_choice_html( 'in-portal-modal' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builder.
+	// phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builders.
+	echo hcp_consent_intro_html( 'h2' ) . hcp_consent_choice_html( 'in-portal-modal' );
 }

@@ -29,19 +29,22 @@ function hcp_consent_landing_shortcode(): string {
 
 	ob_start();
 	echo '<div class="hcp-consent-landing">';
-	echo '<h1 class="hcp-consent-landing__title">Communication preferences</h1>';
+
+	$title = '<h1 class="hcp-consent-landing__title">Communication preferences</h1>';
 
 	if ( ! $user_id ) {
+		echo $title; // phpcs:ignore WordPress.Security.EscapeOutput -- literal.
 		echo '<p>Please log in to set your communication preferences.</p>';
 		echo do_shortcode( '[login_form redirect="' . esc_url( get_permalink() ) . '"]' );
 	} else {
 		$status = hcp_consent_marketing_status( $user_id );
 		if ( $status ) {
+			echo $title; // phpcs:ignore WordPress.Security.EscapeOutput -- literal.
 			echo '<p class="hcp-consent-landing__done">Thank you, your preference is saved. ' . esc_html( hcp_consent_status_text( $status ) ) . '</p>';
 			echo '<p>You can change it at any time on your <a href="' . esc_url( home_url( '/edit-your-profile/' ) ) . '">profile page</a>.</p>';
 			echo $portal; // phpcs:ignore WordPress.Security.EscapeOutput -- built above.
 		} else {
-			echo hcp_consent_choice_html( 'consent-page' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builder.
+			echo hcp_consent_intro_html( 'h1' ) . hcp_consent_choice_html( 'consent-page' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builders.
 			echo '<div class="hcp-consent-landing__saved" data-hcp-consent-saved hidden>';
 			echo '<p class="hcp-consent-landing__done">Thank you, your preference is saved.</p>';
 			echo $portal; // phpcs:ignore WordPress.Security.EscapeOutput -- built above.

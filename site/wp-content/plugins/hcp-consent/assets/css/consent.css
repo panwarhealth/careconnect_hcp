@@ -1,13 +1,62 @@
 /* Marketing consent choice, wherever it sits. Yes and No are the same size so
    neither answer is the easy one. */
 
-.hcp-consent-choice { text-align: left; }
+.hcp-consent-intro,
+.hcp-consent-choice { text-align: left; color: #0e2841; }
 
+.hcp-consent-intro[hidden],
+.hcp-consent-choice[hidden] { display: none; }
+
+/* Welcome: what they'd get, ahead of the legal wording. */
+.hcp-consent-intro__logo {
+	display: block;
+	width: auto;
+	height: 44px;
+	margin: 0 0 1.25rem;
+}
+
+.hcp-consent-intro__title {
+	margin: 0 0 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1.25;
+	color: #0e2841;
+}
+
+.hcp-consent-intro__lede {
+	margin: 0 0 1.1rem;
+	font-size: 1rem;
+	line-height: 1.55;
+	color: #3d5368;
+}
+
+.hcp-consent-intro__benefits {
+	list-style: none;
+	margin: 0 0 1.5rem;
+	padding: 0;
+}
+
+.hcp-consent-intro__benefits li {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	margin: 0 0 0.55rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.hcp-consent-intro__benefits svg { flex: 0 0 auto; color: #00a3c4; }
+
+/* The lawyers' statement, set apart as the declaration being agreed to. */
 .hcp-consent-choice__statement {
 	margin: 0 0 1.25rem;
-	font-size: 0.95rem;
-	line-height: 1.55;
-	color: #0e2841;
+	padding: 0.9rem 1rem;
+	border-radius: 8px;
+	background: #f3f6f9;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	color: #3d5368;
 }
 
 .hcp-consent-choice__actions {
@@ -18,18 +67,18 @@
 .hcp-consent-choice__btn {
 	flex: 1 1 0;
 	display: inline-block;
-	min-height: 44px;
-	padding: 0.7rem 1.5rem;
+	min-height: 48px;
+	padding: 0.75rem 1.5rem;
 	border: 2px solid #00b3d6;
-	border-radius: 6px;
-	font-size: 0.95rem;
+	border-radius: 8px;
+	font-size: 1rem;
 	font-weight: 700;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.3px;
 	line-height: 1.2;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
-	transition: background 0.15s ease, color 0.15s ease;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .hcp-consent-choice__btn--no { background: #fff; color: #0e2841; }
@@ -51,16 +100,32 @@ a.hcp-consent-choice__btn--yes { background: #00b3d6; color: #fff; }
 	font-size: 0.9rem;
 }
 
-.hcp-consent-choice__links {
+.hcp-consent-choice__note {
 	margin: 1rem 0 0;
+	font-size: 0.85rem;
+	color: #3d5368;
+	text-align: center;
+}
+
+.hcp-consent-choice__note a,
+.hcp-consent-choice__links a { font-size: inherit; font-weight: 600; }
+
+.hcp-consent-choice__note a { color: #0e2841; }
+
+.hcp-consent-choice__links {
+	margin: 0.4rem 0 0;
 	font-size: 0.8rem;
 	text-align: center;
 }
 
-.hcp-consent-choice__links a { color: #0e2841; }
+.hcp-consent-choice__links a { color: #3d5368; }
 
-/* In the pop-up */
-.hcp-popup .hcp-consent-choice { margin-top: 0.25rem; }
+/* In the pop-up: wider and roomier than the promotional pop-ups. */
+#hcp-popup-caph0085-marketing-consent .hcp-popup__dialog {
+	max-width: 540px;
+	padding: 2rem 2.25rem 1.5rem;
+	text-align: left;
+}
 
 /* Edit Your Profile */
 .hcp-consent-pref {
@@ -130,7 +195,11 @@ body.hcp-blank { background: #f3f6f9; }
 
 .hcp-consent-landing__portal .hcp-consent-choice__btn { width: 100%; }
 
-@media (max-width: 420px) {
-	.hcp-consent-choice__actions { flex-direction: column-reverse; }
+@media (max-width: 480px) {
+	#hcp-popup-caph0085-marketing-consent .hcp-popup__dialog { padding: 1.5rem 1.25rem 1.25rem; }
+	.hcp-consent-intro__logo { height: 38px; margin-bottom: 1rem; }
+	.hcp-consent-intro__title { font-size: 1.3rem; }
+	.hcp-consent-intro__lede { font-size: 0.95rem; margin-bottom: 0.9rem; }
+	.hcp-consent-intro__benefits { margin-bottom: 1.1rem; }
 	.hcp-consent-landing { padding: 1.5rem 1.25rem; }
 }
