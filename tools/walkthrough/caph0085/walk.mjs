@@ -23,7 +23,7 @@ const STATEMENT = 'Yes, I consent to receiving electronic communications from Ca
 // PDF order. Capture order differs (logged-out screens first), so the manifest is sorted by this.
 const GROUPS = ['Terms of Use and Privacy Policy', 'Registration', 'Consent pop-up', 'Edit Your Profile', 'Consent update email: /consent-preferences/', 'Admin: Users > Marketing consent'];
 // Shown on every page of the section, so a reviewer landing on any one of them knows why it is plain.
-const EDM = 'Consent update email landing page (/consent-preferences/). No logos or marketing content, so the email can go to every registered user. ';
+const EDM = 'The landing pages for the Consent update email. These pages have no logos or marketing content, so the email can legally be sent to all registered users. ';
 
 if (!isLocal(SITE)) throw new Error('Local only: the walk clears consent answers via the local container.');
 
