@@ -22,7 +22,7 @@ const MCA_SITE = (args['mca-site'] || 'https://hcp-staging-app.azurewebsites.net
 const STATEMENT = 'Yes, I consent to receiving electronic communications from Care Pharmaceuticals';
 // PDF order. Capture order differs (logged-out screens first), so the manifest is sorted by this.
 const GROUPS = ['Terms of Use and Privacy Policy', 'Registration', 'Consent pop-up', 'Edit Your Profile', 'Consent update email: /consent-preferences/', 'Admin: Users > Marketing consent'];
-// Shown on every page of the section, so a reviewer landing on any one of them knows why it is plain.
+// Section intro, on the first page of the section only.
 const EDM = 'The landing pages for the Consent update email url links. These pages have no logos or marketing content, so the email can legally be sent to all registered users. ';
 
 if (!isLocal(SITE)) throw new Error('Local only: the walk clears consent answers via the local container.');
@@ -107,16 +107,16 @@ async function main() {
   check('Consent page: no pop-up on it', (await page.locator('.hcp-popup').count()) === 0);
   check('Consent page: asks the question', (await page.locator('[data-hcp-consent-choice]').count()) === 1);
   check('Consent page: no logo or benefits', (await page.locator('.hcp-consent-intro, .hcp-consent-landing img').count()) === 0);
-  await rec.shot(page, 'Logged in, not answered yet', { group: 'Consent update email: /consent-preferences/', caption: EDM + 'Shows when: logged in, not answered yet.' });
+  await rec.shot(page, 'Logged in, not answered yet', { group: 'Consent update email: /consent-preferences/', caption: 'Shows when: logged in, not answered yet.' });
 
   await page.click('[data-hcp-consent-choice] [data-answer="yes"]');
   await page.waitForSelector('[data-hcp-consent-saved]:not([hidden])', { timeout: 8000 }).catch(() => {});
   check('Consent page: saved confirmation', await page.locator('[data-hcp-consent-saved]').isVisible());
-  await rec.shot(page, 'Straight after answering', { group: 'Consent update email: /consent-preferences/', caption: EDM + 'Shows when: straight after they click Yes or No.' });
+  await rec.shot(page, 'Straight after answering', { group: 'Consent update email: /consent-preferences/', caption: 'Shows when: straight after they click Yes or No.' });
 
   await goto(page, '/consent-preferences/');
   check('Consent page: answered state on return', (await page.locator('.hcp-consent-landing__done').count()) === 1);
-  await rec.shot(page, 'Already answered', { group: 'Consent update email: /consent-preferences/', caption: EDM + 'Shows when: they open the link again after answering.' });
+  await rec.shot(page, 'Already answered', { group: 'Consent update email: /consent-preferences/', caption: 'Shows when: they open the link again after answering.' });
 
   await page.goto(SITE + '/wp-admin/users.php?page=hcp-consent', { waitUntil: 'load' });
   // Plugin nags and update notices aren't part of this page.
