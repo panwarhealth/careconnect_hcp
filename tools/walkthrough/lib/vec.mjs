@@ -33,6 +33,8 @@ async function settlePage(page, settle, { keepFixed = false } = {}) {
   // scrolled (opening a record does that) and covered the question underneath it. Scrolling back
   // is the direct fix; unsticking is the guard, and it costs no layout because a sticky element
   // already occupies its place in the flow.
+  await flattenGradients(page).catch((e) => console.log('  ! gradient flatten:', e.message));
+
   if (keepFixed) {
     await page.waitForTimeout(settle);
     return;
@@ -51,6 +53,45 @@ async function settlePage(page, settle, { keepFixed = false } = {}) {
     .catch(() => {});
 
   await page.waitForTimeout(settle);
+}
+
+/**
+ * CSS gradients print as PDF shading patterns, which Acrobat drops once the capture is scaled
+ * onto A4 (the blue Register panel came out white). Swap each gradient for a screenshot of
+ * itself, taken with its contents hidden, so it prints as an ordinary image in every viewer.
+ * The element's text and children stay vector.
+ */
+async function flattenGradients(page) {
+  const count = await page.evaluate(() => {
+    let n = 0;
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.closest('.hcp-popup')) continue;
+      const bg = getComputedStyle(el).backgroundImage;
+      if (bg && bg.includes('gradient(') && el.getClientRects().length) el.setAttribute('data-vec-gradient', String(n++));
+    }
+    return n;
+  });
+  for (let i = 0; i < count; i++) {
+    const handle = await page.$(`[data-vec-gradient="${i}"]`);
+    if (!handle) continue;
+    const box = await handle.boundingBox();
+    if (!box || box.width < 2 || box.height < 2) continue;
+    await handle.evaluate((el) => {
+      el.dataset.vecColor = el.style.color;
+      el.style.color = 'transparent';
+      for (const child of el.children) child.style.setProperty('visibility', 'hidden', 'important');
+    });
+    const png = await handle.screenshot({ type: 'png' }).catch(() => null);
+    await handle.evaluate((el, data) => {
+      el.style.color = el.dataset.vecColor;
+      for (const child of el.children) child.style.removeProperty('visibility');
+      if (data) {
+        el.style.setProperty('background-image', `url(data:image/png;base64,${data})`, 'important');
+        el.style.setProperty('background-size', '100% 100%', 'important');
+        el.style.setProperty('background-repeat', 'no-repeat', 'important');
+      }
+    }, png ? png.toString('base64') : null);
+  }
 }
 
 export function createRecorder(outDir, { width = 1280, settle = 1400 } = {}) {
