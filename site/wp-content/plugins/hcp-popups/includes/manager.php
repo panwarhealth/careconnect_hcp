@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 const HCP_POPUPS_SEEN_COOKIE    = 'hcp_popup_seen';
 const HCP_POPUPS_SESSION_COOKIE = 'hcp_popup_sid';
+const HCP_POPUPS_COOLDOWN_COOKIE = 'hcp_popup_cooldown';
 
 // How long a dismissal suppresses a pop-up. The seen cookie is a session
 // cookie whose entries carry a dismissal timestamp; entries older than this
@@ -31,6 +32,9 @@ const HCP_POPUPS_SEEN_TTL = DAY_IN_SECONDS;
  *     @type bool     $blocking Page cannot be used until answered: no close
  *                              button, no dismissal, no seen cookie. Default false.
  *     @type int      $delay_ms Dwell before it appears. Default 3000.
+ *     @type int      $cooldown Seconds after this pop-up last appeared during
+ *                              which no non-blocking pop-up shows, so one
+ *                              doesn't follow straight on from another. Default 0.
  * }
  */
 function hcp_popups_add( array $popup ): void {
@@ -40,6 +44,7 @@ function hcp_popups_add( array $popup ): void {
 			'priority' => 50,
 			'blocking' => false,
 			'delay_ms' => 3000,
+			'cooldown' => 0,
 		)
 	);
 }
@@ -96,8 +101,14 @@ function hcp_popups_resolve(): ?array {
 		}
 	}
 
+	// Unix time until which only blocking pop-ups may show.
+	$cooling = (int) ( $_COOKIE[ HCP_POPUPS_COOLDOWN_COOKIE ] ?? 0 ) > time();
+
 	foreach ( hcp_popups_all() as $popup ) {
 		if ( in_array( $popup['id'], $seen, true ) ) {
+			continue;
+		}
+		if ( $cooling && ! $popup['blocking'] ) {
 			continue;
 		}
 		if ( is_callable( $popup['eligible'] ) && call_user_func( $popup['eligible'] ) ) {
@@ -138,6 +149,8 @@ function hcp_popups_enqueue(): void {
 				'blocking'      => (bool) $popup['blocking'],
 				'measurementId' => hcp_popups_ga4_measurement_id(),
 				'delayMs'    => (int) $popup['delay_ms'],
+				'cooldown'       => (int) $popup['cooldown'],
+				'cooldownCookie' => HCP_POPUPS_COOLDOWN_COOKIE,
 				'seenCookie' => HCP_POPUPS_SEEN_COOKIE,
 				'endpoint'   => rest_url( 'hcp-popups/v1/event' ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
