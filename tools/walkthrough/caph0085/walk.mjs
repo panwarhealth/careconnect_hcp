@@ -21,7 +21,8 @@ const MCA_LANDING = '/anal-fissures-breaking-the-cycle-and-the-stigma-landing/';
 const MCA_SITE = (args['mca-site'] || 'https://hcp-staging-app.azurewebsites.net').replace(/\/$/, '');
 const STATEMENT = 'Yes, I consent to receiving electronic communications from Care Pharmaceuticals';
 // PDF order. Capture order differs (logged-out screens first), so the manifest is sorted by this.
-const GROUPS = ['Terms of Use and Privacy Policy', 'Registration', 'Consent pop-up', 'Edit Your Profile', 'Consent preferences page (email link)'];
+const GROUPS = ['Terms of Use and Privacy Policy', 'Registration', 'Consent pop-up', 'Edit Your Profile', 'eDM link: /consent-preferences/', 'Admin: Users > Marketing consent'];
+const EDM = 'eDM link (/consent-preferences/). ';
 
 if (!isLocal(SITE)) throw new Error('Local only: the walk clears consent answers via the local container.');
 
@@ -76,7 +77,7 @@ async function main() {
 
   await goto(page, '/consent-preferences/');
   check('Consent page (logged out): login form, no site header', (await page.locator('#rcp_user_login').count()) === 1 && (await page.locator('header').count()) === 0);
-  await rec.shot(page, 'Consent preferences page: logged out', { group: 'Consent preferences page (email link)' });
+  await rec.shot(page, 'Logged out', { group: 'eDM link: /consent-preferences/', caption: EDM + 'Shows when the HCP is not logged in: log in, then they come back to this page.' });
 
   // Logged in, no answer on file
   await login(page, args);
@@ -104,16 +105,23 @@ async function main() {
   await goto(page, '/consent-preferences/');
   check('Consent page: no pop-up on it', (await page.locator('.hcp-popup').count()) === 0);
   check('Consent page: asks the question', (await page.locator('[data-hcp-consent-choice]').count()) === 1);
-  await rec.shot(page, 'Consent preferences page: logged in, not answered', { group: 'Consent preferences page (email link)' });
+  await rec.shot(page, 'Logged in, not answered yet', { group: 'eDM link: /consent-preferences/', caption: EDM + 'Shows when they are logged in and have not answered the consent question yet.' });
 
   await page.click('[data-hcp-consent-choice] [data-answer="yes"]');
   await page.waitForSelector('[data-hcp-consent-saved]:not([hidden])', { timeout: 8000 }).catch(() => {});
   check('Consent page: saved confirmation', await page.locator('[data-hcp-consent-saved]').isVisible());
-  await rec.shot(page, 'Consent preferences page: answer saved', { group: 'Consent preferences page (email link)' });
+  await rec.shot(page, 'Straight after answering', { group: 'eDM link: /consent-preferences/', caption: EDM + 'Shows straight after they click Yes or No.' });
 
   await goto(page, '/consent-preferences/');
   check('Consent page: answered state on return', (await page.locator('.hcp-consent-landing__done').count()) === 1);
-  await rec.shot(page, 'Consent preferences page: already answered', { group: 'Consent preferences page (email link)' });
+  await rec.shot(page, 'Already answered', { group: 'eDM link: /consent-preferences/', caption: EDM + 'Shows if they open the link again after answering.' });
+
+  await page.goto(SITE + '/wp-admin/users.php?page=hcp-consent', { waitUntil: 'load' });
+  // Plugin nags and update notices aren't part of this page.
+  await page.addStyleTag({ content: '#wpbody-content .notice, #wpbody-content .update-nag, #wpbody-content .updated, #wpbody-content .error, #wpbody-content [class*="rank-math"], #wpbody-content > div:not(.wrap):not(.clear) { display: none !important; }' });
+  check('Admin: export page counts the Yes', /Yes \(on the send list\)\s*1\b/.test(await page.locator('.wrap table').innerText()));
+  check('Admin: both download buttons', (await page.locator('.wrap a.button[href*="hcp_consent_export"]').count()) === 2);
+  await rec.shot(page, 'Counts and CSV downloads', { group: 'Admin: Users > Marketing consent', caption: 'wp-admin > Users > Marketing consent (admins only). Send list = current Yes answers, for the eDM mailer.' });
 
   await goto(page, '/');
   await sleep(4000); // longer than the MCA pop-up's dwell

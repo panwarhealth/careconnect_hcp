@@ -103,10 +103,11 @@ export function createRecorder(outDir, { width = 1280, settle = 1400 } = {}) {
     manifest,
 
     /**
+     * caption: a line printed above the screen in the PDF, e.g. when the screen shows.
      * viewport: capture only what is on screen, with fixed elements left in place. For modals
      * and overlays, which the full-height capture would flatten into the page flow.
      */
-    async shot(page, label, { section = null, group = null, viewport = false } = {}) {
+    async shot(page, label, { section = null, group = null, viewport = false, caption = null } = {}) {
       const n = manifest.length + 1;
       await settlePage(page, settle, { keepFixed: viewport });
       const height = viewport
@@ -125,7 +126,7 @@ export function createRecorder(outDir, { width = 1280, settle = 1400 } = {}) {
       try {
         route = new URL(page.url()).pathname;
       } catch {}
-      manifest.push({ file, label, group, section, url: page.url() });
+      manifest.push({ file, label, group, section, caption, url: page.url() });
       console.log(`  [${String(n).padStart(3, '0')}] ${label}  <- ${route}  (h=${height})`);
       return file;
     },
