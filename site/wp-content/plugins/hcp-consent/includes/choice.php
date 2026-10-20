@@ -31,7 +31,7 @@ function hcp_consent_intro_html( string $tag = 'h2' ): string {
 	<div class="hcp-consent-intro">
 		<img class="hcp-consent-intro__logo" src="<?php echo esc_url( home_url( '/wp-content/uploads/2021/10/CARE_CONNECT_LOGO-190.png' ) ); ?>" alt="Care Connect" width="190" height="64" />
 		<<?php echo tag_escape( $tag ); ?> class="hcp-consent-intro__title" id="hcp-popup-title">Stay up to date</<?php echo tag_escape( $tag ); ?>>
-		<p class="hcp-consent-intro__lede">Hear about new resources and education from Care&nbsp;Pharmaceuticals, delivered to your inbox.</p>
+		<p class="hcp-consent-intro__lede">Hear about new resources and education from Care Pharmaceuticals, delivered to your inbox.</p>
 		<ul class="hcp-consent-intro__benefits">
 			<?php foreach ( $benefits as $benefit ) : ?>
 				<li>
