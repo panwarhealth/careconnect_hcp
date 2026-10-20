@@ -65,6 +65,14 @@
 			+ '; path=/; SameSite=Lax';
 	}
 
+	// Persistent, not a session cookie: closing the browser shouldn't let the
+	// next pop-up in early. The value is the end time the server checks.
+	function startCooldown() {
+		var until = Math.floor(Date.now() / 1000) + cfg.cooldown;
+		document.cookie = cfg.cooldownCookie + '=' + until + '; max-age=' + cfg.cooldown
+			+ '; path=/; SameSite=Lax';
+	}
+
 	function show() {
 		if (shown) return;
 		shown = true;
@@ -82,6 +90,7 @@
 		document.body.classList.add('hcp-popup-open');
 		// A blocking pop-up stays until answered, so a reload must bring it back.
 		if (!cfg.blocking) markSeen();
+		if (cfg.cooldown > 0) startCooldown();
 		report('shown');
 	}
 

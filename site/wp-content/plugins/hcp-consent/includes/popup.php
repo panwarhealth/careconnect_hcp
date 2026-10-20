@@ -4,7 +4,9 @@
  *
  * Registered with hcp-popups above everything else and blocking, so promotional
  * pop-ups stand down until it is answered and it cannot be closed without an
- * answer. Shows straight away rather than after the usual dwell.
+ * answer. Shows straight away rather than after the usual dwell, and holds
+ * other pop-ups back for a day after it last appeared, so answering it isn't
+ * followed by another one on the next page.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -23,6 +25,7 @@ function hcp_consent_register_popup(): void {
 			'priority' => 10,
 			'blocking' => true,
 			'delay_ms' => 0,
+			'cooldown' => DAY_IN_SECONDS,
 			'eligible' => 'hcp_consent_popup_eligible',
 			'render'   => 'hcp_consent_popup_render',
 		)
