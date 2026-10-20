@@ -24,6 +24,7 @@ require_once HCP_CONSENT_DIR . 'includes/registration.php';
 require_once HCP_CONSENT_DIR . 'includes/migrations.php';
 if ( is_admin() ) {
 	require_once HCP_CONSENT_DIR . 'includes/admin-migrations-page.php';
+	require_once HCP_CONSENT_DIR . 'includes/admin-export.php';
 }
 
 register_activation_hook(
