@@ -62,26 +62,6 @@
 	font-style: italic;
 }
 
-/* Open questions for the client. Removed by the go-live migration. */
-.hcp-legal__query {
-	background: #fff3a3;
-	color: inherit;
-	padding: 0 0.15em;
-}
-
-.hcp-legal__query-block {
-	margin: 2rem 0;
-	padding: 1rem 1.25rem;
-	border-left: 4px solid #e0c200;
-	background: #fffbe0;
-}
-
-.hcp-legal__query-block > mark { background: none; padding: 0; font-weight: 600; }
-
-.hcp-legal__query-note { margin: 0.5rem 0 0; }
-
-.hcp-legal__query-note mark { background: none; padding: 0; }
-
 @media (max-width: 640px) {
 	.hcp-legal__num { min-width: 1.9rem; }
 	.hcp-legal__l1 > li,

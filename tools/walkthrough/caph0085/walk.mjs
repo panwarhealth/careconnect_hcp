@@ -43,12 +43,12 @@ async function main() {
   // Logged out
   await goto(page, '/terms-of-use/');
   check('Terms: clause 8.2 numbered', (await page.locator('.hcp-legal__num', { hasText: /^8\.2$/ }).count()) === 1);
-  check('Terms: Jodi URL notes highlighted', (await page.locator('.hcp-legal__query').count()) === 2);
+  check('Terms: no review notes left', !/Jodi/.test(await page.locator('.hcp-legal').innerText()));
   await rec.shot(page, 'Terms of Use', { group: 'Terms of Use and Privacy Policy' });
 
   await goto(page, '/privacy-policy/');
   check('Privacy: Last Updated set', /Last Updated: \d+\/\d+\/\d+/.test(await page.locator('.hcp-legal__updated').innerText()));
-  check('Privacy: Consumer Advisory question shown', (await page.locator('.hcp-legal__query-block').count()) === 1);
+  check('Privacy: no review notes left', !/Jodi/.test(await page.locator('.hcp-legal').innerText()));
   await rec.shot(page, 'Privacy Policy', { group: 'Terms of Use and Privacy Policy' });
 
   await goto(page, '/register/');

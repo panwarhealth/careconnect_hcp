@@ -16,6 +16,38 @@ function hcp_legal_version(): string {
 	return (string) get_option( HCP_LEGAL_VERSION_OPTION, '' );
 }
 
+/**
+ * Writes migrations/content/<slug>.html into each legal page and sets the
+ * version. Overwrites the page body, so it is safe to run again; WordPress
+ * keeps the previous text as a revision.
+ *
+ * @return string What was updated, for the migration log.
+ */
+function hcp_legal_publish( string $version ): string {
+	$log = array();
+	foreach ( HCP_LEGAL_PAGE_SLUGS as $slug ) {
+		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		if ( ! $page ) {
+			throw new RuntimeException( "Page /{$slug}/ not found." );
+		}
+
+		$content = file_get_contents( HCP_CONSENT_DIR . "migrations/content/{$slug}.html" );
+		if ( false === $content || '' === trim( $content ) ) {
+			throw new RuntimeException( "Content for /{$slug}/ missing." );
+		}
+
+		$result = wp_update_post( array( 'ID' => $page->ID, 'post_content' => $content ), true );
+		if ( is_wp_error( $result ) ) {
+			throw new RuntimeException( $result->get_error_message() );
+		}
+		$log[] = "/{$slug}/ (page {$page->ID})";
+	}
+
+	update_option( HCP_LEGAL_VERSION_OPTION, $version );
+
+	return 'Updated ' . implode( ', ', $log ) . "; legal version {$version}.";
+}
+
 add_shortcode( 'hcp_legal_last_updated', 'hcp_legal_last_updated_shortcode' );
 function hcp_legal_last_updated_shortcode(): string {
 	$version = hcp_legal_version();
