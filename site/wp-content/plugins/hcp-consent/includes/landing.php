@@ -1,6 +1,10 @@
 <?php
 /**
- * /consent-preferences/ — where the Terms update email sends people.
+ * /consent-preferences/ — where the consent update email sends people.
+ *
+ * Deliberately plain: no logos, no benefits, nothing promotional, so the page
+ * the email links to is not marketing and the email can go to every
+ * registered user. The in-portal pop-up carries the friendlier intro.
  *
  * A bare page (no site header, nav or footer) carrying [hcp_consent_landing]:
  * logged out it shows the login form and comes back here; logged in with no
@@ -44,7 +48,7 @@ function hcp_consent_landing_shortcode(): string {
 			echo '<p>You can change it at any time on your <a href="' . esc_url( home_url( '/edit-your-profile/' ) ) . '">profile page</a>.</p>';
 			echo $portal; // phpcs:ignore WordPress.Security.EscapeOutput -- built above.
 		} else {
-			echo hcp_consent_intro_html( 'h1' ) . hcp_consent_choice_html( 'consent-page' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builders.
+			echo $title . hcp_consent_choice_html( 'consent-page' ); // phpcs:ignore WordPress.Security.EscapeOutput -- literal + escaped in the builder.
 			echo '<div class="hcp-consent-landing__saved" data-hcp-consent-saved hidden>';
 			echo '<p class="hcp-consent-landing__done">Thank you, your preference is saved.</p>';
 			echo $portal; // phpcs:ignore WordPress.Security.EscapeOutput -- built above.

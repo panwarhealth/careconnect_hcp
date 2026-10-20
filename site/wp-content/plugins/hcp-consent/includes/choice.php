@@ -13,11 +13,11 @@ defined( 'ABSPATH' ) || exit;
 const HCP_CONSENT_STATEMENT = 'Yes, I consent to receiving electronic communications from Care Pharmaceuticals about their products, services, promotions, competitions, surveys, polls, continuing education courses, and other information that may be of interest to me based upon data, including analytic data, that I consent to be collected and used';
 
 /**
- * The welcome above the question, where the question is the point of the
- * screen (pop-up, /consent-preferences/): what they'd get, before the legal
- * wording. Not used on Edit Your Profile, where they've already met it.
+ * The welcome above the question in the pop-up: what they'd get, before the
+ * legal wording. Not on /consent-preferences/, which stays free of branding
+ * and promotion, nor on Edit Your Profile.
  *
- * @param string $tag Heading element; h2 in the pop-up, h1 on its own page.
+ * @param string $tag Heading element.
  */
 function hcp_consent_intro_html( string $tag = 'h2' ): string {
 	$benefits = array(
