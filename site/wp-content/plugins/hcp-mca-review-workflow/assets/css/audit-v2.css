@@ -1,8 +1,11 @@
 /* 2026 Clinical Audit: case study blocks, check feedback, generated statements. */
 
+/* Body copy size throughout: Formidable sets HTML fields to its smaller description size. */
 .hcp-case {
 	border: 1px solid #cfdcde;
 	border-radius: 0.5rem;
+	font-size: 1rem;
+	line-height: 1.5;
 	margin: 0 0 1.5rem;
 	overflow: hidden;
 }
@@ -81,6 +84,54 @@
 
 .with_frm_style .clinicalform .hcp-cs__detail {
 	padding-left: 3rem;
+}
+
+/* Finished patient collapsed to its heading. */
+.with_frm_style .clinicalform.frm-show-form .hcp-cs--complete > h3 {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+}
+.hcp-cs__title {
+	flex-grow: 1;
+}
+.hcp-cs__status {
+	background: #e6f7fb;
+	border-radius: 999px;
+	color: #002a48;
+	font-size: 0.875rem;
+	font-weight: 600;
+	padding: 0.125rem 0.75rem;
+}
+.hcp-cs__toggle {
+	background: none;
+	border: 0;
+	color: #00b3d6;
+	cursor: pointer;
+	font-size: 1rem;
+	font-weight: 600;
+	padding: 0;
+	text-decoration: underline;
+}
+.hcp-cs__done {
+	display: inline-block;
+	margin: 0 0 1.5rem;
+	width: auto;
+}
+.hcp-cs--collapsed > :not(h3) {
+	display: none !important;
+}
+
+/* Step 1B question 3 area checkboxes: room for the checkbox shadow at the left edge. */
+.with_frm_style .clinicalform .mgt_practices .frm_opt_container {
+	padding-left: 5px;
+}
+
+/* Divider between questions that share one Formidable section (Step 2B question 1). */
+.with_frm_style .clinicalform .hcp-q-divider {
+	border-top: 1px solid #cfdcde;
+	padding-top: 1rem;
 }
 
 .hcp-auto-statement {
