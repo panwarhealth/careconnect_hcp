@@ -26,6 +26,7 @@ function hcp_mca_variant_definitions(): array {
 			'key'          => HCP_MCA_VARIANT_LEGACY,
 			'label'        => 'Mini Clinical Audit (legacy)',
 			'short_label'  => 'Mini Clinical Audit, legacy',
+			'id_label'     => 'Mini Clinical Audit',
 			'activity_id'  => '1460044',
 			'hours_mo'     => '6.5',
 			'hours_rp'     => '1.0',
@@ -47,10 +48,11 @@ function hcp_mca_variant_definitions(): array {
 		],
 		HCP_MCA_VARIANT_V2     => [
 			'key'          => HCP_MCA_VARIANT_V2,
-			'label'        => 'Clinical Audit: Anal Fissure Management',
+			'label'        => 'Mini Clinical Audit (new)',
 			'short_label'  => 'Clinical Audit: Anal Fissure Management',
-			// Placeholder until RACGP accredits the 2026 audit; this is the only place to change it.
-			'activity_id'  => 'XXX',
+			// Label beside the activity ID on the activity homepage and landing page.
+			'id_label'     => 'Mini Clinical Audit',
+			'activity_id'  => '1735802',
 			'hours_mo'     => '3.0',
 			'hours_rp'     => '2.0',
 			// Blank artwork: title, activity ID and hours are drawn at render time (see certificate.php).
@@ -103,10 +105,10 @@ function hcp_mca_variants( bool $reload = false ): array {
 /**
  * "3.0 hours Measuring Outcomes + 2.0 hours Reviewing Performance".
  */
-function hcp_mca_hours_sentence( array $variant ): string {
+function hcp_mca_hours_sentence( array $variant, string $join = ' + ' ): string {
 	$unit = fn( string $n ) => ( (float) $n === 1.0 ) ? 'hour' : 'hours';
 	return sprintf(
-		'%s %s Measuring Outcomes + %s %s Reviewing Performance',
+		'%s %s Measuring Outcomes' . $join . '%s %s Reviewing Performance',
 		$variant['hours_mo'], $unit( $variant['hours_mo'] ),
 		$variant['hours_rp'], $unit( $variant['hours_rp'] )
 	);

@@ -142,19 +142,23 @@ function hcp_mca_render_variant_card( int $user_id, array $variant, bool $is_old
 	$state = hcp_mca_get_state( $user_id, $variant );
 
 	$note = $is_older
-		? 'You began this version before the audit was updated. You can finish it, or start the updated version. Both versions can be completed.'
+		? 'You may choose to finish this version, or switch to the new version. If continuing with this version, you will have until 31 December 2026 to complete it.'
 		: 'The current version of the audit, with updated case study assessments.';
 
-	return '<div class="card column border-l-4" style="border-left-color:#00B3D6">'
-		. '<div class="card-body content-block shadow-md">'
+	// Each card spans the chooser grid's seven rows as a subgrid, so title, rule,
+	// note, details and button line up across cards whatever their lengths.
+	$subgrid = 'display:grid;grid-row:span 7;grid-template-rows:subgrid;row-gap:0;';
+
+	return '<div class="card column border-l-4" style="border-left-color:#00B3D6;' . $subgrid . '">'
+		. '<div class="card-body content-block shadow-md" style="' . $subgrid . '">'
 		. '<h3 class=" ">' . esc_html( $variant['label'] ) . '</h3>'
 		. '<hr class=" " />'
 		. '<p class=" ">' . esc_html( $note ) . '</p>'
-		. '<p class="font-bold mb-0">RACGP Activity ID: ' . esc_html( $variant['activity_id'] ) . '</p>'
-		. '<p class="font-bold">Approved RACGP CPD hours:<br />' . esc_html( $variant['hours'] ) . '</p>'
+		. '<p class="font-bold">RACGP Activity ID: ' . esc_html( $variant['activity_id'] ) . '</p>'
+		. '<p class="font-bold">Approved RACGP CPD hours:<br />' . nl2br( esc_html( hcp_mca_hours_sentence( $variant, "\n+ " ) ) ) . '</p>'
 		. '<p class=" "><span class="font-bold">Your status:</span> ' . esc_html( hcp_mca_variant_status_text( $user_id, $variant, $state ) ) . '</p>'
 		. sprintf(
-			'<a class="btn cta mt-0" href="%s">%s this version</a>',
+			'<a class="btn cta mt-0" style="justify-self:start;align-self:start;" href="%s">%s this version</a>',
 			esc_url( get_permalink( (int) $variant['course'] ) ),
 			esc_html( hcp_mca_state_button_label( $state ) )
 		)
@@ -243,14 +247,14 @@ function hcp_mca_render_learning_module_button(): string {
 /**
  * Activity ID and hours for copy that must follow the registry.
  *
- * [hcp_mca_activity_id variant="v2"]          -> XXX (or the accredited ID once set)
+ * [hcp_mca_activity_id variant="v2"]          -> 1735802
  * [hcp_mca_activity_id]                        -> resolved from the course_id request
  *                                                 var (certificate pages) or the course
  *                                                 being viewed
  * [hcp_mca_hours variant="v2" type="mo|rp"]    -> 3.0 / 2.0
- * [hcp_mca_activity_ids]                       -> "1460034 (Online Learning Module),
- *                                                 1460044 (Mini Clinical Audit, legacy) and
- *                                                 XXX (Clinical Audit: Anal Fissure Management)"
+ * [hcp_mca_activity_ids]                       -> "1460034 (Online Learning Module)<br />
+ *                                                 1735802 (Mini Clinical Audit)": the module
+ *                                                 plus the current audit, one per line
  */
 add_shortcode( 'hcp_mca_activity_id', 'hcp_mca_shortcode_activity_id' );
 add_shortcode( 'hcp_mca_hours', 'hcp_mca_shortcode_hours' );
@@ -282,10 +286,10 @@ function hcp_mca_shortcode_hours( $atts ): string {
 }
 
 function hcp_mca_shortcode_activity_ids(): string {
-	$parts = [ '<b>' . esc_html( HCP_MCA_LEARNING_ACTIVITY_ID ) . '</b> (Online Learning Module)' ];
-	foreach ( hcp_mca_variants() as $variant ) {
-		$parts[] = '<b>' . esc_html( $variant['activity_id'] ) . '</b> (' . esc_html( $variant['short_label'] ) . ')';
+	$lines   = [ '<b>' . esc_html( HCP_MCA_LEARNING_ACTIVITY_ID ) . '</b> (Online Learning Module)' ];
+	$current = hcp_mca_default_variant();
+	if ( $current ) {
+		$lines[] = '<b>' . esc_html( $current['activity_id'] ) . '</b> (' . esc_html( $current['id_label'] ) . ')';
 	}
-	$last = array_pop( $parts );
-	return $parts ? implode( ', ', $parts ) . ' and ' . $last : $last;
+	return implode( '<br />', $lines );
 }

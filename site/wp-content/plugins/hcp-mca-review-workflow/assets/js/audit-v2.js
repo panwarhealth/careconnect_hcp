@@ -218,9 +218,9 @@
 		var diagnosed = number('v2-9962s');
 		if (!isNaN(total) && !isNaN(diagnosed) && total > 0) {
 			var pct = diagnosed / total * 100;
-			setAuto('prevalence', pct < 10 ? 'lower' : (pct > 15 ? 'higher' : 'similar'));
+			setAuto('prevalence', pct < 10 ? 'lower than' : (pct > 15 ? 'higher than' : 'similar to'));
 		} else {
-			setAuto('prevalence', '[lower / similar / higher]');
+			setAuto('prevalence', '[lower than / similar to / higher than]');
 		}
 
 		var ages = [
@@ -265,7 +265,8 @@
 	// Case study stages: everything after a Check that has not been pressed
 	// stays hidden, so later findings and recommendations cannot be read
 	// ahead of answering.
-	// A later patient stays hidden until the previous patient is finished.
+	// A later patient stays hidden until the previous patient is finished
+	// and the user has pressed its Continue button.
 	function revealStages() {
 		var hideSection = false;
 		$('.frm_section_heading').has('.hcp-check').each(function () {
@@ -279,9 +280,69 @@
 					hide = true;
 				}
 			});
-			if (hide) {
+			if (hide || ($(this).hasClass('hcp-cs') && !$(this).data('hcpContinued'))) {
 				hideSection = true;
 			}
+		});
+	}
+
+	// A finished patient collapses to its heading to save scrolling; the
+	// heading toggles it open again. Finished patients start collapsed (and
+	// count as continued) when the page loads, unless Formidable flagged an
+	// error inside one.
+	function caseComplete($section) {
+		var $checks = $section.find('.hcp-check');
+		return $checks.length > 0 && !$checks.filter(function () {
+			return !$(this).find('.hcp-check__feedback').hasClass('is-open');
+		}).length;
+	}
+
+	function setCollapsed($section, collapsed) {
+		$section.toggleClass('hcp-cs--collapsed', collapsed);
+		$section.find('.hcp-cs__toggle')
+			.text(collapsed ? 'Show answers' : 'Hide answers')
+			.attr('aria-expanded', String(!collapsed));
+	}
+
+	function initCollapse(onLoad) {
+		var $sections = $('.frm_section_heading.hcp-cs');
+		$sections.each(function (i) {
+			var $section = $(this);
+			if ($section.data('hcpCollapse') || !caseComplete($section)) {
+				return;
+			}
+			$section.data('hcpCollapse', true).addClass('hcp-cs--complete');
+			var $h3 = $section.children('h3');
+			var title = $.trim($h3.text()).replace(/\s+of\s+\d+$/, '');
+			var $next = $sections.eq(i + 1);
+			$h3.wrapInner('<span class="hcp-cs__title"></span>')
+				.append('<span class="hcp-cs__status">Completed</span>')
+				.append('<button type="button" class="hcp-cs__toggle"></button>');
+			$('<button type="button" class="btn cta hcp-cs__done"></button>')
+				.text($next.length ? 'Continue to ' + $.trim($next.children('h3').text()).replace(/\s+of\s+\d+$/, '') : 'Collapse ' + title)
+				.appendTo($section);
+			if (onLoad) {
+				$section.data('hcpContinued', true);
+			}
+			setCollapsed($section, onLoad && !$section.find('.frm_error, .frm_blank_field').length);
+		});
+	}
+
+	function bindCollapse() {
+		$(document).on('click', '.hcp-cs__toggle', function () {
+			var $section = $(this).closest('.hcp-cs');
+			setCollapsed($section, !$section.hasClass('hcp-cs--collapsed'));
+		});
+		$(document).on('click', '.hcp-cs__done', function () {
+			var $section = $(this).closest('.hcp-cs');
+			$section.data('hcpContinued', true);
+			setCollapsed($section, true);
+			revealStages();
+			var $target = $section.nextAll('.hcp-cs').not('.hcp-stage-hidden').first();
+			if (!$target.length) {
+				$target = $section;
+			}
+			$('html, body').animate({ scrollTop: $target.offset().top - 120 }, 300);
 		});
 	}
 
@@ -308,6 +369,7 @@
 				$check.find('.hcp-check__prompt').removeClass('is-open');
 				$check.find('.hcp-check__feedback').addClass('is-open');
 				revealStages();
+				initCollapse(false);
 			});
 		});
 	}
@@ -388,6 +450,15 @@
 			}
 			e.preventDefault();
 			e.stopImmediatePropagation();
+			// The next unanswered patient may still be waiting on Continue: open it so the scroll lands somewhere visible.
+			$('.frm_section_heading.hcp-cs').each(function () {
+				var $section = $(this);
+				if (caseComplete($section) && !$section.data('hcpContinued')) {
+					$section.data('hcpContinued', true);
+					setCollapsed($section, true);
+				}
+			});
+			revealStages();
 			$pending.first().addClass('is-pending');
 			$('<p class="frm_error hcp-check-gate" role="alert">Press Check on every question before continuing.</p>')
 				.insertBefore($form().find('.frm_submit').first());
@@ -421,6 +492,7 @@
 		renderStatements();
 		renderAreas();
 		initChecks();
+		initCollapse(true);
 		revealStages();
 	}
 
@@ -428,6 +500,7 @@
 		refresh();
 		gateNext();
 		blockImplicitSubmit();
+		bindCollapse();
 		$(document).on('frmPageChanged frmFormComplete', refresh);
 		$(document).on('input change', 'form.frm-show-form input, form.frm-show-form textarea, form.frm-show-form select', function () {
 			checkLimits();
