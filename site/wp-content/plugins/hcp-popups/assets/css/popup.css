@@ -79,8 +79,6 @@ body.hcp-popup-open { overflow: hidden; }
 	color: #0e2841;
 }
 
-.hcp-popup__live { color: #00a2c4; }
-
 .hcp-popup__highlight { color: #00a2c4; }
 
 /* Widow control. The copy binds its own last two words with non-breaking spaces,
@@ -142,6 +140,21 @@ body.hcp-popup-open { overflow: hidden; }
 
 .hcp-popup__plus { font-weight: 400; color: #0e2841; }
 
+/* Full-width yellow band, matching the NEW tag on the Allergic Rhinitis chart page:
+   negative side margins cancel the dialog's padding so it runs edge to edge. */
+.hcp-popup__banner {
+	margin: 0 -1.75rem 1rem;
+	padding: 0.7rem 1.75rem;
+	background: #fffd55;
+	color: #0e2841;
+	font-size: 0.92rem;
+	font-weight: 600;
+	line-height: 1.45;
+	text-wrap: pretty;
+}
+
+.hcp-popup__banner strong { font-weight: 800; letter-spacing: 0.04em; }
+
 .hcp-popup__accreditation {
 	display: block;
 	width: 100%;
@@ -180,6 +193,7 @@ body.hcp-popup-open { overflow: hidden; }
 	.hcp-popup__title { margin-bottom: 0.5rem; }
 	.hcp-popup__lede { margin-bottom: 0.65rem; line-height: 1.45; }
 	.hcp-popup__parts { margin-bottom: 0.65rem; padding: 0.5rem; }
+	.hcp-popup__banner { margin: 0 -1.15rem 0.75rem; padding: 0.55rem 1.15rem; }
 	.hcp-popup__accreditation { max-width: 195px; margin-bottom: 0.75rem; }
 	.hcp-popup__cta { padding: 0.7rem 1.75rem; }
 	.hcp-popup__footnote { margin-top: 0.7rem; font-size: 0.62rem; }
@@ -193,6 +207,7 @@ body.hcp-popup-open { overflow: hidden; }
 	.hcp-popup__title { font-size: 1rem; margin-bottom: 0.35rem; }
 	.hcp-popup__lede { font-size: 0.82rem; margin-bottom: 0.5rem; line-height: 1.4; }
 	.hcp-popup__parts { flex-direction: row; margin-bottom: 0.5rem; padding: 0.4rem; font-size: 0.82rem; }
+	.hcp-popup__banner { margin: 0 -1.25rem 0.5rem; padding: 0.45rem 1.25rem; font-size: 0.82rem; }
 	.hcp-popup__accreditation { max-width: 150px; margin-bottom: 0.6rem; }
 	.hcp-popup__cta { padding: 0.6rem 1.5rem; font-size: 0.88rem; }
 	.hcp-popup__footnote { margin-top: 0.55rem; font-size: 0.58rem; }
@@ -203,6 +218,7 @@ body.hcp-popup-open { overflow: hidden; }
 	.hcp-popup__dialog { padding: 1.5rem 1.15rem 1.15rem; }
 	.hcp-popup__title { font-size: 1.02rem; padding: 0 1.75rem; }
 	.hcp-popup__lede { font-size: 0.88rem; }
+	.hcp-popup__banner { margin: 0 -1.15rem 0.9rem; padding: 0.65rem 1.15rem; font-size: 0.88rem; }
 	.hcp-popup__accreditation { max-width: 230px; }
 
 	/* Stack the parts so neither wraps mid-label and the "+" sits between. */

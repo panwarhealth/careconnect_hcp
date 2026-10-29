@@ -81,11 +81,14 @@ function hcp_popups_mca_user_has_activity( int $user_id ): bool {
 }
 
 function hcp_popups_mca_render(): void {
-	$img = HCP_POPUPS_URL . 'assets/img/';
+	$img   = HCP_POPUPS_URL . 'assets/img/';
+	$audit = hcp_mca_variant( HCP_MCA_VARIANT_V2 );
+	// Whole activity: the 1.0-hour learning module plus the current audit's hours, from the audit registry.
+	$total = number_format( 1.0 + (float) $audit['hours_mo'] + (float) $audit['hours_rp'], 1 );
 	?>
-	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO 8.5 CPD&nbsp;HOURS</h2>
+	<h2 class="hcp-popup__title" id="hcp-popup-title">GPs: EARN UP TO <?php echo esc_html( $total ); ?> CPD&nbsp;HOURS</h2>
 
-	<p class="hcp-popup__lede"><strong class="hcp-popup__live">Live Now:</strong> A free, RACGP-accredited, two-part educational activity to improve the identification and <strong class="hcp-popup__highlight">management of anal fissures in general&nbsp;practice:</strong></p>
+	<p class="hcp-popup__lede">Access a free, RACGP-accredited, two-part educational activity to improve the identification and <strong class="hcp-popup__highlight">management of anal fissures in general&nbsp;practice:</strong></p>
 
 	<ul class="hcp-popup__parts">
 		<li><img src="<?php echo esc_url( $img . 'icon-monitor.png' ); ?>" alt="" width="22" height="20" /><span>Online Learning Module</span></li>
@@ -93,10 +96,15 @@ function hcp_popups_mca_render(): void {
 		<li><img src="<?php echo esc_url( $img . 'icon-checklist.png' ); ?>" alt="" width="20" height="23" /><span>Mini Clinical Audit</span></li>
 	</ul>
 
-	<p class="hcp-popup__lede">Progress at your own pace and maximise hours across all CPD&nbsp;categories</p>
+	<p class="hcp-popup__banner"><strong>NEW STREAMLINED AUDIT ACTIVITY</strong> now live – maximise your hours across all CPD&nbsp;categories</p>
 
-	<img class="hcp-popup__accreditation" src="<?php echo esc_url( $img . 'racgp-logo.png' ); ?>" width="400" height="267"
-		alt="RACGP CPD Approved Activity: 1.0 hours Educational Activities, 1.0 hours Reviewing Performance, 6.5 hours Measuring Outcomes" />
+	<?php
+	echo do_shortcode( sprintf(
+		'[hcp_mca_cpd_logo variant="v2" type="total" class="hcp-popup__accreditation" alt="RACGP CPD Approved Activity: 1.0 hours Educational Activities, %s hours Reviewing Performance, %s hours Measuring Outcomes"]',
+		esc_attr( $audit['hours_rp'] ),
+		esc_attr( $audit['hours_mo'] )
+	) );
+	?>
 
 	<a class="hcp-popup__cta" href="<?php echo esc_url( home_url( HCP_POPUPS_MCA_CTA_URL ) ); ?>" data-popup-cta>SEE FULL ACTIVITY</a>
 
