@@ -55,11 +55,11 @@ export function createChecks() {
   };
 }
 
-/** Desktop browser with the admin bar and off-canvas mobile menu kept out of the captures. */
-export async function launch({ headed = false, width = 1280, height = 900 } = {}) {
-  const browser = await chromium.launch({ headless: !headed });
-  const context = await browser.newContext({ viewport: { width, height } });
-  // The recorder turns fixed elements static, so these would otherwise print inline.
+/**
+ * Keeps the admin bar and the off-canvas mobile menu out of the captures. The recorder turns
+ * fixed elements static, so these would otherwise print inline. Use on every extra context.
+ */
+export async function prepareContext(context) {
   await context.addInitScript(() => {
     document.addEventListener('DOMContentLoaded', () => {
       const style = document.createElement('style');
@@ -67,6 +67,13 @@ export async function launch({ headed = false, width = 1280, height = 900 } = {}
       document.head.appendChild(style);
     });
   });
+  return context;
+}
+
+/** Desktop browser, prepared for capture. */
+export async function launch({ headed = false, width = 1280, height = 900 } = {}) {
+  const browser = await chromium.launch({ headless: !headed });
+  const context = await prepareContext(await browser.newContext({ viewport: { width, height } }));
   const page = await context.newPage();
   page.on('pageerror', (e) => console.log('  ! page error:', e.message));
   return { browser, context, page };

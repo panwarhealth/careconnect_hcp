@@ -32,6 +32,12 @@ parser.add_argument("--title", default=None, help="add a cover page with this ti
 parser.add_argument("--subtitle", default="Course review copy")
 parser.add_argument("--append", nargs="*", default=[], help="extra PDFs to append, in order")
 parser.add_argument(
+    "--narrow-width",
+    type=float,
+    default=330,
+    help="points wide to draw phone-width captures at, centred on the page, instead of stretching them to A4 width",
+)
+parser.add_argument(
     "--after",
     nargs=2,
     action="append",
@@ -63,18 +69,48 @@ def cover(title, subtitle):
     page.insert_text((60, 380), date.today().strftime("%d %B %Y"), fontname="helv", fontsize=11)
 
 
-def place(src_doc):
+CAPTION_HEIGHT = 58  # room for two lines
+
+
+def caption_band(page, text):
+    """A labelled strip across the top of the page, above the screen."""
+    page.draw_rect(fitz.Rect(0, 0, page.rect.width, CAPTION_HEIGHT), color=None, fill=(0.93, 0.97, 0.99))
+    # insert_textbox draws nothing at all when the text overflows, so check and shrink.
+    for size in (10.5, 9.5, 8.5):
+        if page.insert_textbox(
+            fitz.Rect(24, 14, page.rect.width - 24, CAPTION_HEIGHT - 6), text, fontname="hebo", fontsize=size, color=(0.05, 0.16, 0.25)
+        ) >= 0:
+            return
+    print(f"  ! caption too long: {text[:60]}")
+
+
+def place(src_doc, caption=None):
     """Draw one captured screen into the output at the chosen paper size, staying vector."""
     src = src_doc[0]
+    top = CAPTION_HEIGHT if caption else 0
     if args.paper == "native":
         doc.insert_pdf(src_doc)
         return
 
     scale = A4_WIDTH / src.rect.width
 
+    # A phone capture stretched to A4 width prints its text at three times desktop size.
+    narrow = src.rect.width < A4_WIDTH and args.narrow_width < A4_WIDTH
+    if args.paper == "a4" and narrow:
+        scale = args.narrow_width / src.rect.width
+        height = src.rect.height * scale
+        page = doc.new_page(width=A4_WIDTH, height=top + height + 40)
+        left = (A4_WIDTH - args.narrow_width) / 2
+        page.show_pdf_page(fitz.Rect(left, top + 20, left + args.narrow_width, top + 20 + height), src_doc, 0)
+        if caption:
+            caption_band(page, caption)
+        return
+
     if args.paper == "a4":
-        page = doc.new_page(width=A4_WIDTH, height=src.rect.height * scale)
-        page.show_pdf_page(page.rect, src_doc, 0)
+        page = doc.new_page(width=A4_WIDTH, height=top + src.rect.height * scale)
+        page.show_pdf_page(fitz.Rect(0, top, A4_WIDTH, page.rect.height), src_doc, 0)
+        if caption:
+            caption_band(page, caption)
         return
 
     # a4-pages: slice the tall capture into A4-high bands, in source coordinates.
@@ -100,7 +136,7 @@ for screen in screens:
         continue
     start = len(doc) + 1
     with fitz.open(path) as src_doc:
-        place(src_doc)
+        place(src_doc, screen.get("caption"))
 
     group = screen.get("group")
     if group and group != current_group:
