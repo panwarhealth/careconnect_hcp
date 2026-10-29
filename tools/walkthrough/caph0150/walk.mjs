@@ -159,7 +159,10 @@ async function main() {
 
   // 1. Chooser (this user has legacy progress, so both cards show).
   await goto(page, '/clinical-audit/');
-  check('chooser shows both audit cards', await page.locator('text=Mini Clinical Audit (legacy)').count() > 0 && await page.locator('text=Clinical Audit: Anal Fissure Management').count() > 0);
+  check('chooser shows both audit cards', await page.locator('text=Mini Clinical Audit (legacy)').count() > 0 && await page.locator('text=Mini Clinical Audit (new)').count() > 0);
+  check('chooser intro announces the new audit', await page.locator('text=A new, streamlined version of the Mini Clinical Audit is now available').count() > 0);
+  check('chooser shows activity ID 1735802', await page.locator('text=RACGP Activity ID: 1735802').count() > 0);
+  check('legacy card gives the 31 December deadline', await page.locator('text=until 31 December 2026 to complete it').count() > 0);
   await rec.shot(page, 'Module chooser');
 
   // 2. Course page.
@@ -177,6 +180,8 @@ async function main() {
   await fillPage(page);
   check('1B intro bolds total patient cohort', await page.locator('em strong:has-text("total patient cohort")').count() > 0);
   check('1B count intro says leave the box blank', await page.locator('text=leave the box blank').count() > 0);
+  check('1B prevalence reads "higher than"', (await page.locator('.hcp-auto-prevalence strong').first().textContent()) === 'higher than');
+  check('1B areas copy says at least three', await page.locator('text=identify at least three areas').count() > 0);
   // Group sum check fires on Next only, then clears on edit.
   const f = await fieldMap(page);
   await page.fill(`input[name^="item_meta[${f['v2-knwub']}]"]:visible`, '4');
@@ -207,7 +212,17 @@ async function main() {
   for (let i = 0; i < 60; i++) {
     await fillPage(page);
     const pending = page.locator('.hcp-check:not(:has(.hcp-check__feedback.is-open)) .hcp-check__btn:visible');
-    if (!(await pending.count())) break;
+    if (!(await pending.count())) {
+      // A finished patient waits on Continue before the next one appears.
+      const cont = page.locator('.hcp-cs__done:visible');
+      if (!(await cont.count())) break;
+      if (!(await page.locator('.hcp-cs--complete').count() > 1)) {
+        check('2A next patient hidden until Continue', (await page.locator('.frm_section_heading.hcp-cs.hcp-stage-hidden').count()) >= 1);
+      }
+      await cont.first().click();
+      await sleep(600);
+      continue;
+    }
     const btn = pending.first();
     const open = await page.evaluate(() => [...document.querySelectorAll('.hcp-check')].filter((c) => c.querySelector('.hcp-check__feedback.is-open')).length);
     await btn.click();
@@ -228,11 +243,20 @@ async function main() {
   const openChecks = await page.locator('.hcp-check__feedback.is-open').count();
   check('2A every Check pressed', totalChecks > 0 && openChecks === totalChecks, `${openChecks}/${totalChecks}`);
   check('2A nothing left hidden', (await page.locator('.hcp-stage-hidden').count()) === 0);
+  check('2A Continue collapsed patients 1 and 2', (await page.locator('.hcp-cs--collapsed').count()) === 2);
+  // Expand every patient for the review capture.
+  for (let i = 0; i < 3 && (await page.locator('.hcp-cs--collapsed').count()); i++) {
+    await page.locator('.hcp-cs--collapsed .hcp-cs__toggle').first().click();
+    await sleep(200);
+  }
+  check('2A all patients expanded for capture', (await page.locator('.hcp-cs--collapsed').count()) === 0);
+  const caseSize = await page.locator('.hcp-case__body li').first().evaluate((el) => getComputedStyle(el).fontSize);
+  check('2A case table bullets at body size', caseSize === '16px', caseSize);
   check('2A BMI uses superscript', (await page.locator('text=kg/m²').count()) >= 2);
   check('2A follow-up call says glyceryl trinitrate', (await page.locator('text=starting the glyceryl trinitrate').count()) > 0);
   const fbStyle = await page.locator('.hcp-check__feedback.is-open').first().evaluate((el) => { const s = getComputedStyle(el); return s.backgroundColor + ' | ' + s.borderTopColor + ' | ' + s.color; });
   check('2A feedback box white, teal keyline, black text', fbStyle === 'rgb(255, 255, 255) | rgb(0, 147, 147) | rgb(0, 0, 0)', fbStyle);
-  await rec.shot(page, 'Step 2A');
+  await rec.shot(page, 'Step 2A', { caption: "Each patient's next question appears once Check is pressed. When a patient is finished, Continue collapses it (Completed, Show answers) and opens the next patient. All three are shown expanded here for review." });
   check('Step 2A advances', await next(page));
 
   // 6. Step 2B.
@@ -254,6 +278,7 @@ async function main() {
   // 8. Evaluation.
   await goto(page, QUIZ);
   check('evaluation names the audit', (await page.locator('text=Anal Fissures: Breaking the Cycle and the Stigma').count()) > 0);
+  check('evaluation shows activity ID 1735802', (await page.locator('text=1735802').count()) > 0);
   await fillPage(page);
   await rec.shot(page, 'Activity evaluation');
   await Promise.all([
