@@ -75,7 +75,10 @@ return [
 				$post->post_content
 			);
 			if ( $new !== $post->post_content ) {
-				wp_update_post( [ 'ID' => $page_id, 'post_content' => $new ] );
+				// Unfiltered save: the landing page carries inline <script> blocks and javascript: links.
+				kses_remove_filters();
+				wp_update_post( [ 'ID' => $page_id, 'post_content' => wp_slash( $new ) ] );
+				kses_init_filters();
 				$notes[] = "page {$page_id} activity IDs now from registry";
 			} else {
 				$notes[] = "page {$page_id} " . ( false !== strpos( $post->post_content, '[hcp_mca_activity_ids]' ) ? 'already updated' : 'pattern not found' );
