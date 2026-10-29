@@ -45,15 +45,9 @@ function hcp_mca_state_button_label( array $state ): string {
 	}
 }
 
+// A draft counts only once it holds a real answer: auto-saved calculated fields alone are not progress.
 function hcp_mca_user_has_draft( int $user_id, ?array $variant ): bool {
-	global $wpdb;
-	if ( $user_id <= 0 || null === $variant ) {
-		return false;
-	}
-	return (bool) $wpdb->get_var( $wpdb->prepare(
-		"SELECT 1 FROM {$wpdb->prefix}frm_items WHERE user_id = %d AND form_id = %d AND is_draft = 1 LIMIT 1",
-		$user_id, (int) $variant['audit_form']
-	) );
+	return $user_id > 0 && null !== $variant && hcp_mca_furthest_draft_step( $user_id, $variant ) > 0;
 }
 
 /**

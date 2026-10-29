@@ -2585,6 +2585,7 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 require_once get_stylesheet_directory() . '/inc/ungate.php';
+require_once get_stylesheet_directory() . '/inc/quiz-analytics.php';
 
 // Priority 20 so parent theme has already registered wp-spinnr-custom-js-body (priority 10, loads after child)
 add_action( 'wp_enqueue_scripts', 'hcp_output_ungate_data', 20 );

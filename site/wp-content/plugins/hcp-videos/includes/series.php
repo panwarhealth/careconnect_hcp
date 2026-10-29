@@ -18,6 +18,8 @@
  *                     Falls back to the number of published episodes.
  *   _series_landing — permalink of the series landing page, used by the
  *                     "Video N of M" link on each video page.
+ * plus `series_next_video` (ACF field on the term's edit screen): the video
+ * the last episode's end card hands over to.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -121,6 +123,13 @@ function hcp_videos_series_total( int $term_id ): int {
 
 function hcp_videos_series_landing_url( int $term_id ): string {
 	return (string) get_term_meta( $term_id, '_series_landing', true );
+}
+
+/**
+ * The video the series hands over to after its last episode, or 0.
+ */
+function hcp_videos_series_next_video( int $term_id ): int {
+	return (int) get_term_meta( $term_id, 'series_next_video', true );
 }
 
 /**

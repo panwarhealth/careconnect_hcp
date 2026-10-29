@@ -2,13 +2,13 @@
 /**
  * Single Video template (CAPH0138) — YouTube-style layout.
  *
- * Main column: responsive Vimeo player + title + audience + description.
+ * Main column: responsive video player + title + audience + description.
  * Sidebar:     300x250 ad slot, then related videos.
  * Responsive:  single column by default (sidebar stacks under description);
  *              splits to main + sidebar at lg.
  *
  * Gating: when logged out, the whole section carries `logged_in_users_only` so
- * the footer login/register overlay covers the entire page. The Vimeo embed URL
+ * the footer login/register overlay covers the entire page. The video file URL
  * and all authenticated content (description, related videos, ad) are only
  * rendered for logged-in users. Registration is AHPRA-gated so logged-in == HCP.
  * A campaign ungate window (see inc/ungate.php) drops the gate for everyone
@@ -32,8 +32,7 @@ get_header(); ?>
 				: get_the_title();
 
 			if ( ! $gated ) {
-				$vimeo_id = function_exists( 'hcp_videos_vimeo_id' ) ? hcp_videos_vimeo_id( get_field( 'vimeo' ) ) : '';
-				$player   = function_exists( 'hcp_videos_player_url' ) ? hcp_videos_player_url( $vimeo_id ) : '';
+				$player   = function_exists( 'hcp_videos_player_html' ) ? hcp_videos_player_html( $post_id ) : '';
 				$audience = function_exists( 'hcp_videos_audience_label' ) ? hcp_videos_audience_label( $post_id ) : '';
 				$duration = function_exists( 'hcp_videos_duration' ) ? hcp_videos_duration( $post_id ) : '';
 				$related  = function_exists( 'hcp_videos_related_ids' ) ? hcp_videos_related_ids( $post_id, 3 ) : array();
@@ -72,14 +71,7 @@ get_header(); ?>
 					<div class="column lg:col-span-8">
 
 						<div class="relative w-full rounded-lg overflow-hidden bg-black" style="aspect-ratio:16/9;">
-							<?php if ( ! empty( $player ) ) : ?>
-								<iframe src="<?php echo esc_url( $player ); ?>"
-									class="absolute inset-0 w-full h-full"
-									frameborder="0"
-									allow="autoplay; fullscreen; picture-in-picture"
-									allowfullscreen
-									title="<?php echo esc_attr( get_the_title() ); ?>"></iframe>
-							<?php endif; ?>
+							<?php echo $player; // Escaped in hcp_videos_player_html(). ?>
 						</div>
 
 						<?php if ( ! empty( $audience ) || ! empty( $duration ) ) : ?>
@@ -107,16 +99,20 @@ get_header(); ?>
 							<button type="button" class="hcp-desc-toggle">Read more</button>
 						</div>
 						<script>
-						document.addEventListener('DOMContentLoaded', function(){
-							var el = document.querySelector('.hcp-clamp');
-							var btn = document.querySelector('.hcp-desc-toggle');
-							if (!el || !btn) return;
-							if (el.scrollHeight <= el.clientHeight + 4) { el.classList.remove('hcp-collapsed'); btn.style.display = 'none'; return; }
-							btn.addEventListener('click', function(){
-								el.classList.toggle('hcp-collapsed');
-								btn.textContent = el.classList.contains('hcp-collapsed') ? 'Read more' : 'Read less';
-							});
-						});
+						(function(){
+							// Also runs when series autoplay swaps this page in, after DOMContentLoaded.
+							function init(){
+								var el = document.querySelector('.hcp-clamp');
+								var btn = document.querySelector('.hcp-desc-toggle');
+								if (!el || !btn) return;
+								if (el.scrollHeight <= el.clientHeight + 4) { el.classList.remove('hcp-collapsed'); btn.style.display = 'none'; return; }
+								btn.addEventListener('click', function(){
+									el.classList.toggle('hcp-collapsed');
+									btn.textContent = el.classList.contains('hcp-collapsed') ? 'Read more' : 'Read less';
+								});
+							}
+							if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+						})();
 						</script>
 					</div>
 

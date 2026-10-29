@@ -1,8 +1,12 @@
 /**
- * Forwards Vimeo player events to GA4 for every Vimeo iframe on the page,
+ * Forwards events from every hcp-videos <video> player on the page to GA4,
  * using the enhanced-measurement event schema (video_start / video_progress
  * at 25, 50, 75 / video_complete) so they surface in the standard GA4 video
- * reports. The Vimeo SDK and gtag are only loaded once an iframe is found.
+ * reports, plus video_endcard_click for end-card links and
+ * video_autoplay_next / video_autoplay_cancel for series autoplay, and a
+ * page_view when autoplay swaps the next video page in place. Media
+ * events do not bubble, so one capture-phase listener on the document covers
+ * players added at any time. gtag is only loaded on first play.
  */
 (function () {
 	'use strict';
@@ -12,82 +16,121 @@
 		return;
 	}
 
-	function loadScript(src, onload) {
-		var s = document.createElement('script');
-		s.src = src;
-		s.async = true;
-		s.onload = onload;
-		document.head.appendChild(s);
-	}
+	var sentByVideo = new WeakMap();
+	var gtagReady = false;
 
 	function ensureGtag() {
+		if (gtagReady) {
+			return;
+		}
+		gtagReady = true;
 		window.dataLayer = window.dataLayer || [];
 		if (!window.gtag) {
 			window.gtag = function () { window.dataLayer.push(arguments); };
 			window.gtag('js', new Date());
-			loadScript('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(cfg.measurementId));
+			var s = document.createElement('script');
+			s.async = true;
+			s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(cfg.measurementId);
+			document.head.appendChild(s);
 		}
 		window.gtag('config', cfg.measurementId, { send_page_view: false });
 	}
 
-	function track(iframe) {
-		var player = new window.Vimeo.Player(iframe);
-		var title = iframe.title || '';
-		var sent = {};
-
-		player.getVideoTitle().then(function (t) { title = t || title; }).catch(function () {});
-
-		function send(name, percent, data) {
-			if (sent[name + percent]) {
-				return;
-			}
-			sent[name + percent] = true;
-			window.gtag('event', name, {
-				send_to: cfg.measurementId,
-				video_provider: 'vimeo',
-				video_title: title,
-				video_url: iframe.src.split('?')[0],
-				video_percent: percent,
-				video_current_time: Math.round((data && data.seconds) || 0),
-				video_duration: Math.round((data && data.duration) || 0)
-			});
+	function send(video, name, percent) {
+		var sent = sentByVideo.get(video) || {};
+		if (sent[name + percent]) {
+			return;
 		}
+		sent[name + percent] = true;
+		sentByVideo.set(video, sent);
 
-		player.on('play', function (data) {
-			send('video_start', 0, data);
-		});
-
-		player.on('timeupdate', function (data) {
-			var pct = Math.floor((data.percent || 0) * 100);
-			[25, 50, 75].forEach(function (mark) {
-				if (pct >= mark) {
-					send('video_progress', mark, data);
-				}
-			});
-		});
-
-		player.on('ended', function (data) {
-			send('video_complete', 100, data);
+		ensureGtag();
+		window.gtag('event', name, {
+			send_to: cfg.measurementId,
+			video_provider: 'r2',
+			video_title: video.getAttribute('data-hcp-video') || '',
+			video_url: (video.currentSrc || video.src || '').split('?')[0],
+			video_percent: percent,
+			video_current_time: Math.round(video.currentTime || 0),
+			video_duration: Math.round(video.duration || 0)
 		});
 	}
 
-	function init() {
-		var iframes = document.querySelectorAll('iframe[src*="player.vimeo.com"]');
-		if (!iframes.length) {
+	function player(e) {
+		var el = e.target;
+		return el instanceof HTMLVideoElement && el.hasAttribute('data-hcp-video') ? el : null;
+	}
+
+	document.addEventListener('play', function (e) {
+		var video = player(e);
+		if (video) {
+			send(video, 'video_start', 0);
+		}
+	}, true);
+
+	document.addEventListener('timeupdate', function (e) {
+		var video = player(e);
+		if (!video || !video.duration) {
+			return;
+		}
+		var pct = Math.floor((video.currentTime / video.duration) * 100);
+		[25, 50, 75].forEach(function (mark) {
+			if (pct >= mark) {
+				send(video, 'video_progress', mark);
+			}
+		});
+	}, true);
+
+	document.addEventListener('ended', function (e) {
+		var video = player(e);
+		if (video) {
+			send(video, 'video_complete', 100);
+		}
+	}, true);
+
+	// End-card clicks (cards are added by player.js next to their <video>).
+	document.addEventListener('click', function (e) {
+		var link = e.target.closest && e.target.closest('a[data-hcp-endcard-link]');
+		var video = link && link.closest('.hcp-endcard').parentElement.querySelector('video[data-hcp-video]');
+		if (!video) {
 			return;
 		}
 		ensureGtag();
-		var bind = function () { iframes.forEach(track); };
-		if (window.Vimeo && window.Vimeo.Player) {
-			bind();
-		} else {
-			loadScript('https://player.vimeo.com/api/player.js', bind);
-		}
-	}
+		window.gtag('event', 'video_endcard_click', {
+			send_to: cfg.measurementId,
+			video_provider: 'r2',
+			video_title: video.getAttribute('data-hcp-video') || '',
+			link_url: link.href.replace(/[?&]hcp_autoplay=1/, ''),
+			link_text: link.textContent.replace(/\s*→$/, ''),
+			transport_type: 'beacon'
+		});
+	}, true);
 
-	if ('loading' === document.readyState) {
-		document.addEventListener('DOMContentLoaded', init);
-	} else {
-		init();
-	}
+	// Series autoplay swaps the next video page in without a page load
+	// (player.js), so record the page view a load would have produced.
+	document.addEventListener('hcp-video-swap', function (e) {
+		ensureGtag();
+		window.gtag('event', 'page_view', {
+			send_to: cfg.measurementId,
+			page_location: e.detail.url,
+			page_title: e.detail.title,
+			page_referrer: e.detail.referrer
+		});
+	});
+
+	// Series autoplay (player.js): the countdown ran out, or the viewer cancelled it.
+	document.addEventListener('hcp-endcard-autoplay', function (e) {
+		var video = e.detail && e.detail.video;
+		if (!video) {
+			return;
+		}
+		ensureGtag();
+		window.gtag('event', e.detail.action === 'next' ? 'video_autoplay_next' : 'video_autoplay_cancel', {
+			send_to: cfg.measurementId,
+			video_provider: 'r2',
+			video_title: video.getAttribute('data-hcp-video') || '',
+			link_url: e.detail.url,
+			transport_type: 'beacon'
+		});
+	});
 })();

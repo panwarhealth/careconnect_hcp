@@ -1,18 +1,18 @@
 <?php
 /**
- * GA4 play tracking for every Vimeo embed on the site.
+ * GA4 play tracking for every video player on the site.
  *
  * GA4's built-in video tracking only covers YouTube, so a sitewide script
- * scans each page for Vimeo iframes and forwards player events to GA4 using
- * the enhanced-measurement schema (video_start / video_progress /
- * video_complete). Video titles come from the Vimeo API at runtime, so new
- * embeds — video pages, article embeds, future content — are tracked with no
- * per-video wiring.
+ * listens for events from every <video data-hcp-video> and forwards them to
+ * GA4 using the enhanced-measurement schema (video_start / video_progress /
+ * video_complete). Titles come from the data-hcp-video attribute, so new
+ * embeds — video pages, [hcp_video] in articles, future content — are tracked
+ * with no per-video wiring.
  *
- * The script is a few hundred bytes; the Vimeo SDK and gtag are only loaded
- * by it after it finds at least one Vimeo iframe. Delivery matches
- * hcp-popups: gtag configured with send_page_view disabled, events addressed
- * with send_to, so pageviews are never inflated alongside the GTM container.
+ * The script is a few hundred bytes; gtag is only loaded by it on first play.
+ * Delivery matches hcp-popups: gtag configured with send_page_view disabled,
+ * events addressed with send_to, so pageviews are never inflated alongside
+ * the GTM container.
  */
 
 defined( 'ABSPATH' ) || exit;
