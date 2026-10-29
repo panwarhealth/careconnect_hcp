@@ -44,7 +44,9 @@ function hcp_mca_render_audit_button(): string {
 			break;
 		case HCP_MCA_STATE_NOT_STARTED:
 		default:
-			$label = __( 'Start Mini Clinical Audit', 'hcp-mca-review' );
+			$label = $state['has_audit_draft']
+				? __( 'Resume Mini Clinical Audit', 'hcp-mca-review' )
+				: __( 'Start Mini Clinical Audit', 'hcp-mca-review' );
 			break;
 	}
 

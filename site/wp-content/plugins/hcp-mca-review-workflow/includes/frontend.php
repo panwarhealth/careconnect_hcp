@@ -20,6 +20,18 @@ function hcp_mca_hide_start_survey_button(): void {
 
 add_filter( 'frm_submit_button_html', 'hcp_mca_resubmit_button_label', 10, 2 );
 
+// LearnDash only counts its own ticks, so a saved draft shows 0%. The audit
+// course reports progress from the audit's steps instead.
+add_filter( 'learndash-course-progress-stats', 'hcp_mca_audit_progress_stats' );
+add_filter( 'learndash-focus-progress-stats', 'hcp_mca_audit_progress_stats' );
+function hcp_mca_audit_progress_stats( $progress ) {
+	$user_id = get_current_user_id();
+	if ( ! is_array( $progress ) || ! $user_id || HCP_MCA_COURSE_ID !== (int) learndash_get_course_id() ) {
+		return $progress;
+	}
+	return array_merge( $progress, hcp_mca_audit_progress( $user_id ) );
+}
+
 /**
  * Change the submit button to "Resubmit" on form 161 when the user already has an entry.
  */
@@ -41,7 +53,8 @@ function hcp_mca_resubmit_button_label( $html, $args ): string {
 
 	$state = hcp_mca_get_state( $user_id );
 
-	if ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
+	// Only a real submission earns "Resubmit"; a LearnDash lesson tick is not proof of one.
+	if ( $state['has_audit_entry'] ) {
 		$html = str_replace( '>Submit<', '>Resubmit<', $html );
 		$html = str_replace( '>Update<', '>Resubmit<', $html );
 	}
@@ -66,7 +79,7 @@ function hcp_mca_audit_banner_copy( $field_array, $field ) {
 
 	if ( hcp_mca_has_approval( $user_id ) ) {
 		$field_array['description'] = hcp_mca_approved_banner_html( 'center' );
-	} elseif ( $state['has_audit_entry'] || $state['lesson_complete'] ) {
+	} elseif ( $state['has_audit_entry'] ) {
 		$field_array['description'] = '<blockquote class="p-base bg-recto-green text-white rounded-lg">'
 			. '<p class="text-center text-lg font-semibold mb-0">'
 			. 'Your audit has been submitted for review. Provided there are no issues with your responses, '

@@ -17,6 +17,7 @@ const HCP_MCA_CONTACT_FORM_ID     = 113;   // "Course Contact Form" — name, em
 const HCP_MCA_PRE_SURVEY_FORM_ID  = 81;    // "Pre-learning survey"
 const HCP_MCA_POST_SURVEY_FORM_ID = 97;    // "Post-learning survey"
 const HCP_MCA_AUDIT_FORM_ID       = 161;   // "Retrospective analysis Form" — the 5-step, 397-field clinical audit
+const HCP_MCA_AUDIT_STEP_BREAKS   = [ 79, 387, 537, 605 ]; // form 161 page-break field_order values: Step 1A | 1B | 2A | 2B | 3
 const HCP_MCA_REPEATER_FORM_ID    = 177;   // "Repeater" — per-patient records, child form of 161
 const HCP_MCA_EVAL_FORM_ID        = 209;   // "Activity evaluation" — post-audit CPD feedback survey
 
