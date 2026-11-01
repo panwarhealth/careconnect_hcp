@@ -162,6 +162,6 @@ Version:        1.0
    an unused builder column sits under the form; hide both so their padding
    doesn't open a gap above the brand logos. */
 .post-145 .section:not(:has(*)),
-.post-145 .column:not(:has(img, form, input, h1, h2, h3, h4, a)) {
+.post-145 .column:not(:has(img, form, input, h1, h2, h3, h4, a, .frm_message)) {
     display: none;
 }

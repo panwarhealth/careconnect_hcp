@@ -18,6 +18,16 @@ function hcp_mca_hide_start_survey_button(): void {
 	echo '<style>.ld-content-actions { display: none !important; }</style>';
 }
 
+add_filter( 'frm_pro_field_should_show_label', 'hcp_order_samples_cards_logo_only', 10, 2 );
+
+/**
+ * Order Samples brand cards (field 1756) show only the logo on the form. The
+ * field shows its label elsewhere, so the order email names each brand.
+ */
+function hcp_order_samples_cards_logo_only( $show, $args ) {
+	return 1756 === (int) ( $args['field']['id'] ?? 0 ) ? false : $show;
+}
+
 add_filter( 'frm_submit_button_html', 'hcp_mca_resubmit_button_label', 10, 2 );
 
 // LearnDash only counts its own ticks, so a saved draft shows 0%. The audit
