@@ -28,6 +28,7 @@ const HCP_MCA_STATE_COMPLETE        = 'D';
  *   @type bool        $has_audit_entry     True if user has any audit form submission.
  *   @type int|null    $audit_entry_id      Most recent audit entry ID, or null.
  *   @type string|null $audit_submitted_at  MySQL datetime of most recent audit submission.
+ *   @type bool        $has_audit_draft     True if user has a saved, unsubmitted audit draft with real answers.
  *   @type bool        $has_eval_entry      True if user has any eval form submission.
  *   @type int|null    $eval_entry_id       Most recent eval entry ID, or null.
  *   @type string|null $eval_submitted_at   MySQL datetime of most recent eval submission.
@@ -50,6 +51,7 @@ function hcp_mca_get_state( int $user_id, $variant = HCP_MCA_VARIANT_LEGACY ): a
 		'has_audit_entry'    => false,
 		'audit_entry_id'     => null,
 		'audit_submitted_at' => null,
+		'has_audit_draft'    => false,
 		'has_eval_entry'     => false,
 		'eval_entry_id'      => null,
 		'eval_submitted_at'  => null,
@@ -77,6 +79,8 @@ function hcp_mca_get_state( int $user_id, $variant = HCP_MCA_VARIANT_LEGACY ): a
 		$snapshot['audit_entry_id']     = (int) $audit_row->id;
 		$snapshot['audit_submitted_at'] = $audit_row->updated_at;
 	}
+
+	$snapshot['has_audit_draft'] = hcp_mca_furthest_draft_step( $user_id, $variant ) > 0;
 
 	$eval_row = $wpdb->get_row( $wpdb->prepare(
 		"SELECT id, updated_at FROM {$wpdb->prefix}frm_items
@@ -138,4 +142,81 @@ function hcp_mca_activity_complete( int $user_id, int $post_id, string $type ): 
 	) );
 
 	return 1 === $status;
+}
+
+/**
+ * Audit course progress in parts: the five audit steps plus the evaluation.
+ *
+ * Formidable only lets a user leave a step once it validates, so answers on a
+ * step mean every step before it is done. A submitted audit counts all five.
+ *
+ * @return array { completed, total, percentage } in LearnDash's progress shape.
+ */
+function hcp_mca_audit_progress( int $user_id, array $variant ): array {
+	$state = hcp_mca_get_state( $user_id, $variant );
+	$steps = count( HCP_MCA_AUDIT_STEP_BREAKS ) + 1;
+	$total = $steps + 1;
+
+	if ( $state['course_complete'] ) {
+		$done = $total;
+	} else {
+		$done  = $state['has_audit_entry'] ? $steps : max( 0, hcp_mca_furthest_draft_step( $user_id, $variant ) - 1 );
+		$done += $state['has_eval_entry'] ? 1 : 0;
+	}
+
+	return [
+		'completed'  => $done,
+		'total'      => $total,
+		'percentage' => (int) round( $done / $total * 100 ),
+	];
+}
+
+/**
+ * Furthest audit step (1-based) holding a real answer in the user's latest draft, 0 if none.
+ * Calculated fields and the user ID field are saved automatically, so they are not answers.
+ * Both audit forms share HCP_MCA_AUDIT_STEP_BREAKS.
+ * Cached per request: hcp_mca_get_state() is called several times per page.
+ */
+function hcp_mca_furthest_draft_step( int $user_id, array $variant ): int {
+	global $wpdb;
+	static $cache = [];
+
+	$form_id = (int) $variant['audit_form'];
+	$key     = $user_id . ':' . $form_id;
+	if ( isset( $cache[ $key ] ) ) {
+		return $cache[ $key ];
+	}
+
+	$rows = $wpdb->get_results( $wpdb->prepare(
+		"SELECT f.field_order, f.type, f.field_options FROM {$wpdb->prefix}frm_item_metas m
+		 JOIN {$wpdb->prefix}frm_fields f ON f.id = m.field_id
+		 WHERE m.item_id = (
+			SELECT id FROM {$wpdb->prefix}frm_items
+			WHERE user_id = %d AND form_id = %d AND is_draft = 1 AND parent_item_id = 0
+			ORDER BY updated_at DESC LIMIT 1
+		 )
+		 AND f.form_id = %d AND f.type <> 'user_id' AND TRIM(m.meta_value) <> ''",
+		$user_id, $form_id, $form_id
+	) );
+
+	$max_order = null;
+	foreach ( $rows as $row ) {
+		$opts = maybe_unserialize( $row->field_options );
+		if ( ! empty( $opts['calc'] ) ) {
+			continue;
+		}
+		$max_order = max( (int) $max_order, (int) $row->field_order );
+	}
+	$step = 0;
+	if ( null !== $max_order ) {
+		$step = 1;
+		foreach ( HCP_MCA_AUDIT_STEP_BREAKS as $break ) {
+			if ( $max_order > $break ) {
+				$step++;
+			}
+		}
+	}
+
+	$cache[ $key ] = $step;
+	return $step;
 }

@@ -46,10 +46,11 @@ add_filter( 'learndash-course-progress-stats', 'hcp_mca_audit_progress_stats' );
 add_filter( 'learndash-focus-progress-stats', 'hcp_mca_audit_progress_stats' );
 function hcp_mca_audit_progress_stats( $progress ) {
 	$user_id = get_current_user_id();
-	if ( ! is_array( $progress ) || ! $user_id || HCP_MCA_COURSE_ID !== (int) learndash_get_course_id() ) {
+	$variant = $user_id ? hcp_mca_variant_for_course( (int) learndash_get_course_id() ) : null;
+	if ( ! is_array( $progress ) || null === $variant ) {
 		return $progress;
 	}
-	return array_merge( $progress, hcp_mca_audit_progress( $user_id ) );
+	return array_merge( $progress, hcp_mca_audit_progress( $user_id, $variant ) );
 }
 
 /**
