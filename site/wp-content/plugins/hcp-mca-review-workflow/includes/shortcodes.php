@@ -136,7 +136,7 @@ function hcp_mca_render_variant_card( int $user_id, array $variant, bool $is_old
 	$state = hcp_mca_get_state( $user_id, $variant );
 
 	$note = $is_older
-		? 'You may choose to finish this version, or switch to the new version. If continuing with this version, you will have until 31 December 2026 to complete it.'
+		? 'You began this version before the audit was updated. You may choose to finish this version, or switch to the new version. If continuing with this version, you will have until 31 December 2026 to complete it.'
 		: 'The current version of the audit, with updated case study assessments.';
 
 	// Each card spans the chooser grid's seven rows as a subgrid, so title, rule,
