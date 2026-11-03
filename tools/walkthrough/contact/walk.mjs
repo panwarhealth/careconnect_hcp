@@ -1,0 +1,40 @@
+// Records the Contact page with Care Pharma's new wording and the Customer Care and Order Samples links.
+//   node walk.mjs [--site http://localhost:8080] [--out out] [--headed]
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createRecorder } from '../lib/vec.mjs';
+import { parseArgs, createChecks, launch, prepareContext, goto as open } from '../lib/session.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const args = parseArgs();
+const SITE = args.site;
+const OUT = path.resolve(here, args.out || 'out');
+
+async function main() {
+  const { check, write: writeChecks } = createChecks();
+  const rec = createRecorder(OUT);
+  const { browser, page } = await launch({ headed: args.headed });
+
+  await open(page, SITE + '/contact/');
+  const text = await page.locator('main, body').first().innerText();
+  check('Banner: new question line', text.includes('Have a question about our healthcare professional resources, educational materials, marketing programs or other HCP initiatives?'));
+  check('Banner: HCP Marketing team line', text.includes('Complete the form below and our HCP Marketing team will respond to your inquiry.'));
+  check('Customer Care link', (await page.locator('a[href="https://carepharmaceuticals.com.au/contact-us/"]', { hasText: 'Customer Care team' }).count()) === 1);
+  check('Order samples link', (await page.locator('a[href="/order-samples/"]', { hasText: 'Order samples online' }).count()) === 1);
+  check('Adverse event box kept', text.includes('Reporting an adverse event?'));
+  await rec.shot(page, 'Contact page: desktop', { group: 'Contact page' });
+
+  const mobileContext = await prepareContext(await browser.newContext({ viewport: { width: 390, height: 844 } }));
+  const mobile = await mobileContext.newPage();
+  await open(mobile, SITE + '/contact/');
+  await mobile.locator('text=To submit a product complaint').first().scrollIntoViewIfNeeded();
+  await rec.shot(mobile, 'Contact page: mobile', { group: 'Contact page', viewport: true });
+  await mobileContext.close();
+
+  rec.write();
+  const failed = writeChecks(OUT);
+  await browser.close();
+  process.exitCode = failed ? 1 : 0;
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
