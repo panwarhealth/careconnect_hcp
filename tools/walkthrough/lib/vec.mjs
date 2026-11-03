@@ -127,7 +127,24 @@ export function createRecorder(outDir, { width = 1280, settle = 1400 } = {}) {
       try {
         route = new URL(page.url()).pathname;
       } catch {}
-      manifest.push({ file, label, group, section, caption, url: page.url() });
+      // For a phone capture, where each element sits, so the assembler can split it between them.
+      const nocut = phone
+        ? await page.evaluate(() => {
+            const solid = 'input, textarea, select, button, img, svg, video, iframe, p, h1, h2, h3, h4, h5, h6, label, li, a, table';
+            const out = [];
+            for (const el of document.querySelectorAll('body *')) {
+              const cs = getComputedStyle(el);
+              if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+              const boxed = parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== 'none' && parseFloat(cs.borderBottomWidth) > 0;
+              if (!el.matches(solid) && !boxed) continue;
+              const r = el.getBoundingClientRect();
+              if (r.height < 1 || r.width < 1) continue;
+              out.push([r.top + scrollY, r.bottom + scrollY]);
+            }
+            return out;
+          })
+        : null;
+      manifest.push({ file, label, group, section, caption, url: page.url(), ...(nocut ? { nocut, css_width: pageWidth } : {}) });
       console.log(`  [${String(n).padStart(3, '0')}] ${label}  <- ${route}  (h=${height})`);
       return file;
     },

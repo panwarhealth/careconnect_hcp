@@ -38,6 +38,11 @@ parser.add_argument(
     help="points wide to draw phone-width captures at, centred on the page, instead of stretching them to A4 width",
 )
 parser.add_argument(
+    "--narrow-pages",
+    action="store_true",
+    help="split a tall phone-width capture across A4-high pages, cutting at blank rows, instead of one long strip",
+)
+parser.add_argument(
     "--after",
     nargs=2,
     action="append",
@@ -84,7 +89,57 @@ def caption_band(page, text):
     print(f"  ! caption too long: {text[:60]}")
 
 
-def place(src_doc, caption=None):
+def free_spans(nocut, height):
+    """Stretches of the capture that no element crosses, as (start, end), from the walk's nocut list."""
+    spans, y = [], 0
+    for top, bottom in sorted(nocut):
+        if top > y:
+            spans.append((y, top))
+        y = max(y, bottom)
+    if y < height:
+        spans.append((y, height))
+    return spans
+
+
+def place_narrow_pages(src_doc, caption, screen):
+    """A tall phone capture on as many A4 pages as it needs, cut only between elements."""
+    src = src_doc[0]
+    scale = args.narrow_width / src.rect.width
+    margin = 30
+    css = src.rect.width / screen["css_width"] if screen.get("nocut") else 1
+    runs = [(a * css, b * css) for a, b in free_spans(screen.get("nocut") or [], src.rect.height / css)]
+    y = 0
+    first = True
+    while y < src.rect.height - 1:
+        top = CAPTION_HEIGHT if (caption and first) else 0
+        room = (A4_HEIGHT - top - 2 * margin) / scale
+        end = src.rect.height
+        if y + room < end:
+            # The lowest gap between elements that still fits on the page, so pages come out full.
+            # Tiny gaps (a label and its field) don't count.
+            fits = [min((st + e) / 2, y + room) for st, e in runs if e - st >= 14 * css and y + room * 0.4 < st < y + room]
+            end = max(fits) if fits else y + room
+        # Nearly fits: shrink the last page a touch rather than leave a scrap on a page of its own.
+        squeeze = 1
+        if src.rect.height - y <= room * 1.12:
+            end = src.rect.height
+            squeeze = min(1, room / (end - y))
+        page = doc.new_page(width=A4_WIDTH, height=A4_HEIGHT)
+        width = args.narrow_width * squeeze
+        x = (A4_WIDTH - width) / 2
+        page.show_pdf_page(
+            fitz.Rect(x, top + margin, x + width, top + margin + (end - y) * scale * squeeze),
+            src_doc,
+            0,
+            clip=fitz.Rect(0, y, src.rect.width, end),
+        )
+        if caption and first:
+            caption_band(page, caption)
+        first = False
+        y = end
+
+
+def place(src_doc, caption=None, screen=None):
     """Draw one captured screen into the output at the chosen paper size, staying vector."""
     src = src_doc[0]
     top = CAPTION_HEIGHT if caption else 0
@@ -96,6 +151,10 @@ def place(src_doc, caption=None):
 
     # A phone capture stretched to A4 width prints its text at three times desktop size.
     narrow = src.rect.width < A4_WIDTH and args.narrow_width < A4_WIDTH
+    if args.paper == "a4" and narrow and args.narrow_pages:
+        place_narrow_pages(src_doc, caption, screen or {})
+        return
+
     if args.paper == "a4" and narrow:
         scale = args.narrow_width / src.rect.width
         height = src.rect.height * scale
@@ -136,7 +195,7 @@ for screen in screens:
         continue
     start = len(doc) + 1
     with fitz.open(path) as src_doc:
-        place(src_doc, screen.get("caption"))
+        place(src_doc, screen.get("caption"), screen)
 
     group = screen.get("group")
     if group and group != current_group:
