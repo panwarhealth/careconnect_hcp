@@ -4,7 +4,7 @@
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 lib="$here/../lib"
-name=CAPH0085_Consent_and_Legal_Pages_Walkthrough
+name=CAPH00135_Consent_and_Legal_Pages_Walkthrough
 cd "$here"
 node walk.mjs "$@"
 python3 "$lib/assemble.py" --dir out --out "out/$name.pdf"

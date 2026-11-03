@@ -50,6 +50,7 @@ async function main() {
 
   await goto(page, '/privacy-policy/');
   check('Privacy: Last Updated set', /Last Updated: \d+\/\d+\/\d+/.test(await page.locator('.hcp-legal__updated').innerText()));
+  check('Privacy: 5(d) reads "on its services"', /on its services/.test(await page.locator('.hcp-legal').innerText()));
   check('Privacy: no review notes left', !/Jodi/.test(await page.locator('.hcp-legal').innerText()));
   await rec.shot(page, 'Privacy Policy', { group: 'Terms of Use and Privacy Policy' });
 
@@ -85,6 +86,7 @@ async function main() {
   await goto(page, '/');
   check('Pop-up: consent pop-up shows', (await popupOpen(page)) === 1 && (await page.locator('#hcp-popup-caph0085-marketing-consent').count()) === 1);
   check('Pop-up: no close button', (await page.locator('.hcp-popup.is-open .hcp-popup__close').count()) === 0);
+  check('Pop-up: preferences note wording', /You can update your preferences at any time via your profile page\./.test(await page.locator('.hcp-popup .hcp-consent-choice__note').innerText()));
   check('Pop-up: lawyers\' statement', (await page.locator('.hcp-popup .hcp-consent-choice__statement').innerText()).startsWith(STATEMENT));
   check('Pop-up: MCA pop-up held back', (await page.locator('#hcp-popup-caph0150-mca-activity').count()) === 0);
   await page.keyboard.press('Escape');
@@ -132,12 +134,14 @@ async function main() {
   await goto(page, '/edit-your-profile/');
   const status = await page.locator('[data-hcp-consent-status]').innerText();
   check('Profile: shows the answer on file', /You answered Yes on/.test(status), status);
+  check('Profile: saved answer blue, other white', (await page.locator('.hcp-consent-pref [data-answer="yes"][aria-pressed="true"]').count()) === 1 && (await page.locator('.hcp-consent-pref [data-answer="no"][aria-pressed="false"]').count()) === 1);
   await page.locator('.hcp-consent-pref').scrollIntoViewIfNeeded();
   await rec.shot(page, 'Edit Your Profile: communication preferences', { group: 'Edit Your Profile' });
 
   await page.click('.hcp-consent-pref [data-answer="no"]');
   await page.waitForFunction(() => /answered No/.test(document.querySelector('[data-hcp-consent-status]').textContent), null, { timeout: 8000 }).catch(() => {});
   check('Profile: change to No updates the status', /You answered No on/.test(await page.locator('[data-hcp-consent-status]').innerText()));
+  check('Profile: No now blue', (await page.locator('.hcp-consent-pref [data-answer="no"][aria-pressed="true"]').count()) === 1);
   await rec.shot(page, 'Edit Your Profile: changed to No', { group: 'Edit Your Profile' });
 
   rec.manifest.sort((a, b) => GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group));
