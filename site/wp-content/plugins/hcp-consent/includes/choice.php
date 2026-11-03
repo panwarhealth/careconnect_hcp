@@ -46,9 +46,10 @@ function hcp_consent_intro_html( string $tag = 'h2' ): string {
 }
 
 /**
- * @param string $method One of HCP_CONSENT_METHODS; recorded with the answer.
+ * @param string      $method   One of HCP_CONSENT_METHODS; recorded with the answer.
+ * @param string|null $selected 'yes' or 'no' marks the answer on file, '' marks none; null keeps the default Yes-led buttons.
  */
-function hcp_consent_choice_html( string $method ): string {
+function hcp_consent_choice_html( string $method, ?string $selected = null ): string {
 	hcp_consent_enqueue_choice();
 
 	ob_start();
@@ -56,12 +57,13 @@ function hcp_consent_choice_html( string $method ): string {
 	<div class="hcp-consent-choice" data-hcp-consent-choice data-method="<?php echo esc_attr( $method ); ?>">
 		<p class="hcp-consent-choice__statement"><?php echo esc_html( HCP_CONSENT_STATEMENT ); ?></p>
 		<div class="hcp-consent-choice__actions">
-			<button type="button" class="hcp-consent-choice__btn hcp-consent-choice__btn--no" data-answer="no">No</button>
-			<button type="button" class="hcp-consent-choice__btn hcp-consent-choice__btn--yes" data-answer="yes">Yes</button>
+			<?php foreach ( array( 'no' => 'No', 'yes' => 'Yes' ) as $answer => $label ) : ?>
+				<button type="button" class="hcp-consent-choice__btn hcp-consent-choice__btn--<?php echo esc_attr( $answer ); ?>" data-answer="<?php echo esc_attr( $answer ); ?>"<?php echo null === $selected ? '' : ' aria-pressed="' . ( $answer === $selected ? 'true' : 'false' ) . '"'; ?>><?php echo esc_html( $label ); ?></button>
+			<?php endforeach; ?>
 		</div>
 		<p class="hcp-consent-choice__error" role="alert" hidden>Sorry, your answer could not be saved. Please try again.</p>
 		<?php if ( 'account-settings' !== $method ) : ?>
-			<p class="hcp-consent-choice__note">You can change your answer at any time on your <a href="<?php echo esc_url( home_url( '/edit-your-profile/' ) ); ?>">profile page</a>.</p>
+			<p class="hcp-consent-choice__note">You can update your preferences at any time via your <a href="<?php echo esc_url( home_url( '/edit-your-profile/' ) ); ?>">profile page</a>.</p>
 		<?php endif; ?>
 		<p class="hcp-consent-choice__links">
 			<a href="<?php echo esc_url( home_url( '/terms-of-use/' ) ); ?>" target="_blank" rel="noopener">Terms of Use</a>

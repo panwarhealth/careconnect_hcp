@@ -94,6 +94,17 @@ a.hcp-consent-choice__btn--yes { background: #00b3d6; color: #fff; }
 .hcp-consent-choice__btn--yes:hover,
 .hcp-consent-choice__btn--yes:focus-visible { background: #0098b8; border-color: #0098b8; color: #fff; }
 
+/* On Edit Your Profile the answer on file is blue and the other is white;
+   with no answer yet both are white. */
+.hcp-consent-choice__btn[aria-pressed] { background: #fff; border-color: #00b3d6; color: #0e2841; }
+
+.hcp-consent-choice__btn[aria-pressed]:hover,
+.hcp-consent-choice__btn[aria-pressed]:focus-visible { background: #e6f7fb; border-color: #00b3d6; color: #0e2841; }
+
+.hcp-consent-choice__btn[aria-pressed="true"],
+.hcp-consent-choice__btn[aria-pressed="true"]:hover,
+.hcp-consent-choice__btn[aria-pressed="true"]:focus-visible { background: #00b3d6; border-color: #00b3d6; color: #fff; }
+
 .hcp-consent-choice__btn:disabled { opacity: 0.6; cursor: wait; }
 
 .hcp-consent-choice__error {
