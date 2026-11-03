@@ -9,11 +9,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const args = parseArgs();
 const SITE = args.site;
 const OUT = path.resolve(here, args.out || 'out');
+// The form's invisible reCAPTCHA shows a domain error box on localhost; on the live site it is only the corner badge.
+// The theme's empty image lightbox prints a stray close button under the footer; not part of this change.
+const HIDE_CAPTCHA = '.frm-g-recaptcha, .grecaptcha-badge, #lightboxModal { display: none !important; }';
 
 async function main() {
   const { check, write: writeChecks } = createChecks();
   const rec = createRecorder(OUT);
-  const { browser, page } = await launch({ headed: args.headed });
+  const { browser, page } = await launch({ headed: args.headed, height: 1000 });
 
   await open(page, SITE + '/contact/');
   const text = await page.locator('main, body').first().innerText();
@@ -22,13 +25,15 @@ async function main() {
   check('Customer Care link', (await page.locator('a[href="https://carepharmaceuticals.com.au/contact-us/"]', { hasText: 'Customer Care team' }).count()) === 1);
   check('Order samples link', (await page.locator('a[href="/order-samples/"]', { hasText: 'Order samples online' }).count()) === 1);
   check('Adverse event box kept', text.includes('Reporting an adverse event?'));
-  await rec.shot(page, 'Contact page: desktop', { group: 'Contact page' });
+  await page.addStyleTag({ content: HIDE_CAPTCHA });
+  await rec.shot(page, 'Contact page: desktop, top of page (the changes)', { group: 'Contact page', viewport: true });
+  await rec.shot(page, 'Contact page: desktop, full page', { group: 'Contact page' });
 
   const mobileContext = await prepareContext(await browser.newContext({ viewport: { width: 390, height: 844 } }));
   const mobile = await mobileContext.newPage();
   await open(mobile, SITE + '/contact/');
-  await mobile.locator('text=To submit a product complaint').first().scrollIntoViewIfNeeded();
-  await rec.shot(mobile, 'Contact page: mobile', { group: 'Contact page', viewport: true });
+  await mobile.addStyleTag({ content: HIDE_CAPTCHA });
+  await rec.shot(mobile, 'Contact page: mobile, full page', { group: 'Contact page', phone: true });
   await mobileContext.close();
 
   rec.write();
