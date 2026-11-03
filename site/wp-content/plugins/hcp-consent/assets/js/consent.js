@@ -28,17 +28,21 @@
 				if (!res.ok) throw new Error('HTTP ' + res.status);
 				return res.json();
 			})
-			.then(function (data) { saved(choice, data); })
+			.then(function (data) { saved(choice, btn, data); })
 			.catch(function () { error.hidden = false; })
 			.then(function () { buttons.forEach(function (b) { b.disabled = false; }); });
 	});
 
-	function saved(choice, data) {
+	function saved(choice, btn, data) {
 		var popup = choice.closest('.hcp-popup');
 		if (popup) {
 			popup.dispatchEvent(new CustomEvent('hcp-popup:close'));
 			return;
 		}
+
+		choice.querySelectorAll('[aria-pressed]').forEach(function (b) {
+			b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+		});
 
 		var scope = choice.parentNode;
 		var status = scope.querySelector('[data-hcp-consent-status]');

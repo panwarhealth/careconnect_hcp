@@ -22,7 +22,7 @@ function hcp_consent_preference_shortcode(): string {
 	<section class="hcp-consent-pref" aria-labelledby="hcp-consent-pref-title">
 		<h2 id="hcp-consent-pref-title">Communication preferences</h2>
 		<p class="hcp-consent-pref__status" data-hcp-consent-status><?php echo esc_html( $status ? hcp_consent_status_text( $status ) : 'You have not answered yet.' ); ?></p>
-		<?php echo hcp_consent_choice_html( 'account-settings' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builder. ?>
+		<?php echo hcp_consent_choice_html( 'account-settings', $status ? ( HCP_CONSENT_OPTED_IN === $status['response'] ? 'yes' : 'no' ) : '' ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in the builder. ?>
 	</section>
 	<?php
 	return (string) ob_get_clean();
