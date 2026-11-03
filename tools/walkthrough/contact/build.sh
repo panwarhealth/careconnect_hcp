@@ -6,6 +6,6 @@ lib="$here/../lib"
 name=Contact_Page_Wording
 cd "$here"
 node walk.mjs "$@"
-python3 "$lib/assemble.py" --dir out --out "out/$name.pdf" --narrow-pages --narrow-width 440
+python3 "$lib/assemble.py" --dir out --out "out/$name.pdf"
 dest="/mnt/c/Users/User/Downloads/${name}_$(date +%Y-%m-%d).pdf"
 cp "out/$name.pdf" "$dest" && echo "copied to $dest"

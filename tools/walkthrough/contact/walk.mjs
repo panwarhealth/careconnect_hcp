@@ -3,7 +3,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRecorder } from '../lib/vec.mjs';
-import { parseArgs, createChecks, launch, prepareContext, goto as open } from '../lib/session.mjs';
+import { parseArgs, createChecks, launch, goto as open } from '../lib/session.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const args = parseArgs();
@@ -26,15 +26,7 @@ async function main() {
   check('Order samples link', (await page.locator('a[href="/order-samples/"]', { hasText: 'Order samples online' }).count()) === 1);
   check('Adverse event box kept', text.includes('Reporting an adverse event?'));
   await page.addStyleTag({ content: HIDE_CAPTCHA });
-  await rec.shot(page, 'Contact page: desktop, top of page (the changes)', { group: 'Contact page', viewport: true });
-  await rec.shot(page, 'Contact page: desktop, full page', { group: 'Contact page' });
-
-  const mobileContext = await prepareContext(await browser.newContext({ viewport: { width: 390, height: 844 } }));
-  const mobile = await mobileContext.newPage();
-  await open(mobile, SITE + '/contact/');
-  await mobile.addStyleTag({ content: HIDE_CAPTCHA });
-  await rec.shot(mobile, 'Contact page: mobile, full page', { group: 'Contact page', phone: true });
-  await mobileContext.close();
+  await rec.shot(page, 'Contact page', { group: 'Contact page' });
 
   rec.write();
   const failed = writeChecks(OUT);
