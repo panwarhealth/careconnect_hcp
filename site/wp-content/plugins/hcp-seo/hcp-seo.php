@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: HCP SEO Guards
- * Description: Hard noindex safety net for membership-gated content and auth/system pages, plus sitemap exclusions. In-house.
- * Version: 1.0.0
+ * Description: Hard noindex safety net for membership-gated content and auth/system pages, sitemap exclusions, and campaign tags kept through internal redirects. In-house.
+ * Version: 1.1.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -119,3 +119,41 @@ add_filter( 'rank_math/sitemap/entry', function ( $entry, $type, $object ) {
 	}
 	return $entry;
 }, 10, 3 );
+
+/**
+ * Carry utm_* tags from a front-end GET request onto any same-site redirect
+ * (login gates, landing-page bounces), so GA4 still attributes the session.
+ * Off-site targets and targets that already carry utm_* tags are untouched.
+ */
+function hcp_seo_keep_campaign_tags( $location ) {
+	if ( ! is_string( $location ) || '' === $location || is_admin() || wp_doing_ajax()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+		return $location;
+	}
+
+	$tags = [];
+	foreach ( $_GET as $key => $value ) {
+		if ( is_string( $key ) && 0 === strpos( $key, 'utm_' ) && is_string( $value ) && '' !== $value ) {
+			$tags[ sanitize_key( $key ) ] = rawurlencode( sanitize_text_field( wp_unslash( $value ) ) );
+		}
+	}
+	if ( ! $tags ) {
+		return $location;
+	}
+
+	$host = wp_parse_url( $location, PHP_URL_HOST );
+	if ( false === $host || ( null !== $host && 0 !== strcasecmp( $host, (string) wp_parse_url( home_url(), PHP_URL_HOST ) ) ) ) {
+		return $location;
+	}
+
+	parse_str( (string) wp_parse_url( $location, PHP_URL_QUERY ), $existing );
+	foreach ( array_keys( $existing ) as $key ) {
+		if ( 0 === strpos( (string) $key, 'utm_' ) ) {
+			return $location;
+		}
+	}
+
+	return add_query_arg( $tags, $location );
+}
+add_filter( 'wp_redirect', 'hcp_seo_keep_campaign_tags' );
