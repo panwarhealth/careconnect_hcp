@@ -288,8 +288,22 @@
     let misses = 0;
     let locked = false;
     let suppressClick = false;
+    let idle = 0;
+
+    // The tip leads with how many cards are still to place, so stopping after one card per
+    // column reads as unfinished.
+    const tip = $('.cs-pool__tip', pool);
+    const left = document.createElement('strong');
+    left.className = 'cs-pool__left';
+    left.setAttribute('aria-live', 'polite');
+    tip.prepend(left, ' ');
 
     function refresh() {
+      const n = cards.filter((c) => !c.classList.contains('is-correct')).length;
+      left.textContent = n === cards.length ? 'Place all ' + n + ' cards to continue.'
+        : n === 1 ? '1 card left to place.'
+        : n ? n + ' cards left to place.' : 'All cards placed.';
+      left.classList.toggle('is-started', n < cards.length);
       cols.forEach((col) => {
         const n = list(col).children.length;
         $('[data-cs-count]', col).textContent = n + '/' + max;
@@ -302,6 +316,7 @@
       if (locked || !zone || zone === zoneOf(card)) return;
       list(zone).appendChild(card);
       refresh();
+      armNudge();
       if (zone === pool) return;
       if (zone.dataset.csCol !== card.dataset.answer) {
         misses++;
@@ -310,7 +325,21 @@
       }
       card.classList.add('is-correct');
       card.disabled = true;
+      refresh();
       if (cards.every((c) => c.classList.contains('is-correct'))) complete();
+    }
+
+    // After a pause mid-activity, the cards still in the list pulse once.
+    function armNudge() {
+      clearTimeout(idle);
+      if (!locked) idle = setTimeout(nudge, 8000);
+    }
+
+    function nudge() {
+      const waiting = Array.from(list(pool).children).concat(left);
+      if (locked || waiting.length === 1) return;
+      waiting.forEach((el) => el.classList.add('is-nudge'));
+      setTimeout(() => waiting.forEach((el) => el.classList.remove('is-nudge')), 1600);
     }
 
     // Shows the card as wrong where it was dropped, then returns it to the list.
@@ -327,6 +356,7 @@
 
     function complete() {
       locked = true;
+      clearTimeout(idle);
       sort.classList.add('is-locked');
       track('case_study_answer', { cs_step: stepOf(sort), cs_result: 'correct', cs_attempt: misses + 1 });
       // A short pause lets the last tick show before the pop-up covers it.
@@ -433,6 +463,10 @@
       window.addEventListener('pointerup', end);
       window.addEventListener('pointercancel', end);
     }));
+
+    // Armed by the first move, then reset by every touch or click inside the activity.
+    sort.addEventListener('pointerdown', () => { if (idle) armNudge(); });
+    sort.addEventListener('click', () => { if (idle) armNudge(); });
 
     refresh();
   });

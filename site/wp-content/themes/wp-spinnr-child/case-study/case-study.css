@@ -267,6 +267,15 @@
   transition: background-color .15s ease, box-shadow .15s ease;
 }
 #hcp-cs .cs-sec .cs-pool__tip { margin: 0 0 .75rem; font-size: .9rem; color: var(--cs-muted); }
+#hcp-cs .cs-pool__left { display: block; margin-bottom: .2rem; font-size: 1rem; color: var(--cs-ink); }
+#hcp-cs .cs-pool__left.is-started { color: var(--cs-orange-d); }
+#hcp-cs .cs-pool__left.is-nudge { animation: cs-nudge-text 1.6s ease; }
+#hcp-cs .cs-pool .cs-card.is-nudge { border-color: var(--cs-orange); animation: cs-nudge 1.6s ease; }
+@keyframes cs-nudge { 0%, 100% { transform: none; } 15%, 45% { transform: translateY(-4px); } 30%, 60% { transform: none; } }
+@keyframes cs-nudge-text { 0%, 100% { transform: none; } 20%, 50% { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) {
+  #hcp-cs .cs-pool__left.is-nudge, #hcp-cs .cs-pool .cs-card.is-nudge { animation: none; }
+}
 #hcp-cs .cs-pool__list { display: flex; flex-wrap: wrap; gap: .5rem; min-height: 44px; }
 #hcp-cs .cs-pool.is-empty .cs-pool__list::before { content: "All cards placed."; align-self: center; font-size: .9rem; font-style: italic; color: #8A827C; }
 #hcp-cs .cs-pool__drop { display: none; margin-top: .75rem; }
