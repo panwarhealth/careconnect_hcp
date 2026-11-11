@@ -51,6 +51,15 @@ class Period:
             spec += f"Q{self.quarter}"
         return resolve(spec)
 
+    @property
+    def previous_quarter(self) -> "Period":
+        """The immediately preceding quarter — for QoQ comparisons."""
+        if not self.quarter:
+            raise ValueError("previous_quarter is only defined for quarter periods")
+        if self.quarter == 1:
+            return resolve(f"FY{(self.fy - 1) % 100:02d}Q4")
+        return resolve(f"FY{self.fy % 100:02d}Q{self.quarter - 1}")
+
 
 def _last_day(year: int, month: int) -> int:
     return monthrange(year, month)[1]

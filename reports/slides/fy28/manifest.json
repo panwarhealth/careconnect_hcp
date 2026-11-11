@@ -1,0 +1,203 @@
+[
+ {
+  "f": "caph0068",
+  "i": 1,
+  "r": [
+   [
+    "Insights & Recommendations",
+    "FY27 Recap & FY28 Plan"
+   ]
+  ]
+ },
+ {
+  "f": "fy27",
+  "i": 4,
+  "r": [
+   [
+    "Key learnings from FY26",
+    "Key learnings from FY27"
+   ]
+  ]
+ },
+ {
+  "f": "new",
+  "i": 1,
+  "tag": "FY27 TO DATE  ·  APR TO SEP 2026"
+ },
+ {
+  "f": "jas",
+  "i": 12,
+  "tag": "FY27 TO DATE  ·  APR TO SEP 2026"
+ },
+ {
+  "f": "jas",
+  "i": 4,
+  "r": [
+   [
+    "JAS is the biggest quarter of the year, with major multi-audience campaigns across FESS, Hydralyte and Zaditen.",
+    "What we delivered: multi-audience campaigns across FESS, Hydralyte, Zaditen and Rectogesic all year."
+   ]
+  ],
+  "tag": "FY27 TO DATE  ·  APR TO SEP 2026"
+ },
+ {
+  "f": "new",
+  "i": 2,
+  "tag": "FY27 TO DATE  ·  APR TO NOV 2026"
+ },
+ {
+  "f": "new",
+  "i": 4,
+  "tag": "FY27 TO DATE  ·  APR TO SEP 2026"
+ },
+ {
+  "f": "new",
+  "i": 5,
+  "tag": "STATUS AT 10 NOV 2026"
+ },
+ {
+  "f": "new",
+  "i": 6,
+  "tag": "FY27 TO DATE  ·  APR TO NOV 2026"
+ },
+ {
+  "f": "jas",
+  "i": 57,
+  "r": [
+   [
+    "Considerations for future planning:",
+    "Key learnings from FY27:"
+   ],
+   [
+    "Continue testing different short-form, GEO-friendly content",
+    "Simple, practical clinical tools (charts, plans, leaflets) outperform video and quizzes"
+   ],
+   [
+    " – particularly patient resources",
+    ""
+   ]
+  ],
+  "b": [
+   "Simple, practical clinical tools"
+  ],
+  "tag": "FY27 TO DATE"
+ },
+ {
+  "f": "new",
+  "i": 14,
+  "tag": "FY27 SECOND HALF  ·  OCT 2026 TO MAR 2027"
+ },
+ {
+  "f": "fy27",
+  "i": 13,
+  "r": [
+   [
+    "Our approach to FY27",
+    "Our FY28 recommendations"
+   ]
+  ]
+ },
+ {
+  "f": "caph0068",
+  "i": 4
+ },
+ {
+  "f": "new",
+  "i": 10
+ },
+ {
+  "f": "new",
+  "i": 11
+ },
+ {
+  "f": "new",
+  "i": 12
+ },
+ {
+  "f": "caph0068",
+  "i": 5,
+  "badge": [
+   "~100 HRS",
+   "Needs consent live"
+  ],
+  "r": [
+   [
+    "RECOMMENDATION 1",
+    "RECOMMENDATION 2"
+   ],
+   [
+    "Three automated plays to establish presence, retain new sign-ups, and re-engage dormant HCPs.",
+    "Automated emails from Care Connect, triggered by what HCPs do (a new sign-up, new content, going quiet) and sent only to HCPs who've opted in, matched to the topics they chose."
+   ],
+   [
+    "New article / resource auto-fire",
+    "New article / resource email"
+   ],
+   [
+    "7-day onboarding sequence",
+    "7-day onboarding emails"
+   ],
+   [
+    "Dormancy re-engagement",
+    "Re-engagement email"
+   ]
+  ]
+ },
+ {
+  "f": "caph0068",
+  "i": 6,
+  "badge": [
+   "~90 HRS",
+   "Needs per-user analytics data"
+  ],
+  "r": [
+   [
+    "RECOMMENDATION 2",
+    "RECOMMENDATION 3"
+   ]
+  ]
+ },
+ {
+  "f": "caph0068",
+  "i": 3,
+  "tag": "FY26  ·  APR 2025 TO MAR 2026"
+ },
+ {
+  "f": "caph0068",
+  "i": 7,
+  "badge": [
+   "~70 HRS",
+   "Audit ~20 hrs, fixes ~50 hrs"
+  ],
+  "r": [
+   [
+    "RECOMMENDATION 3",
+    "RECOMMENDATION 4"
+   ],
+   [
+    "An ‘audit-then-fix’ sprint to close the gap between mobile and desktop to improve engagement at scale.",
+    "Mobile HCPs stay half as long as desktop users. An audit-then-fix sprint closes the gap."
+   ]
+  ]
+ },
+ {
+  "f": "new",
+  "i": 13
+ },
+ {
+  "f": "new",
+  "i": 7
+ },
+ {
+  "f": "new",
+  "i": 8
+ },
+ {
+  "f": "new",
+  "i": 9
+ },
+ {
+  "f": "caph0068",
+  "i": 10
+ }
+]

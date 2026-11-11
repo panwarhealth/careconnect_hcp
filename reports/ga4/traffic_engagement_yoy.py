@@ -2,9 +2,10 @@
 
     python reports/ga4/traffic_engagement_yoy.py --period FY27Q1
 
-Pulls the period and the same quarter one FY earlier, and writes a single
-comparison CSV: active users, total users, sessions, pageviews, and average
-engaged time per active user.
+Pulls the period, the same quarter one FY earlier, and (for a quarter) the
+immediately preceding quarter, and writes a single comparison CSV: active
+users, total users, sessions, pageviews, and average engaged time per active
+user, with YoY and QoQ change rows.
 """
 from __future__ import annotations
 
@@ -40,8 +41,12 @@ def main() -> None:
     prior = cur.prior_year
     c = ga4.client()
 
+    compare = [("YoY change", prior)]
+    if cur.quarter:
+        compare.append(("QoQ change", cur.previous_quarter))
+
     rows = []
-    for p in (prior, cur):
+    for p in [prior] + [q for _, q in compare[1:]] + [cur]:
         t = totals(c, p)
         rows.append({
             "period": p.label, "start": p.start, "end": p.end,
@@ -53,14 +58,12 @@ def main() -> None:
             "avg_engaged_time_per_user": fmt_mmss(t["engaged_s_per_active_user"]),
         })
 
-    a, b = rows
-    pct = {k: f"+{(b[k] - a[k]) / a[k] * 100:.0f}%" if a[k] else ""
-           for k in ("active_users", "total_users", "sessions", "pageviews", "avg_engaged_time_per_user_s")}
-    rows.append({"period": "YoY change", "start": "", "end": "",
-                 "active_users": pct["active_users"], "total_users": pct["total_users"],
-                 "sessions": pct["sessions"], "pageviews": pct["pageviews"],
-                 "avg_engaged_time_per_user_s": pct["avg_engaged_time_per_user_s"],
-                 "avg_engaged_time_per_user": ""})
+    b = rows[-1]
+    keys = ("active_users", "total_users", "sessions", "pageviews", "avg_engaged_time_per_user_s")
+    for label, base in compare:
+        a = next(r for r in rows if r["period"] == base.label)
+        change = {k: f"{(b[k] - a[k]) / a[k] * 100:+.0f}%" if a[k] else "" for k in keys}
+        rows.append({"period": label, "start": "", "end": "", **change, "avg_engaged_time_per_user": ""})
 
     path = io.write_dicts(io.out_dir(args.outdir) / f"traffic_yoy_{cur.slug}.csv", rows)
     for r in rows:

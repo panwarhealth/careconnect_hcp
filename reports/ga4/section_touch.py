@@ -51,8 +51,10 @@ SECTIONS: list[tuple[str, list[str], str]] = [
     (
         "Resources",
         ["/resources/*", "/factsheet*", "/patient-resource*", "/clinical-paper*",
-         "/guide*", "/wp-content/uploads/*.pdf"],
-        r"^/(resources|factsheet|patient-resource|clinical-paper|guide)|wp-content/uploads.*\.pdf",
+         "/guide*", "/wp-content/uploads/*.pdf",
+         "/*-chart, /*-leaflet, /*-factsheet, /*-detailer, /hydralyte-sick-days (PDF redirect pages)"],
+        r"^/(resources|factsheet|patient-resource|clinical-paper|guide)|wp-content/uploads.*\.pdf"
+        r"|^/[a-z0-9-]*-(chart|leaflet|factsheet|detailer)(/|$)|^/hydralyte-sick-days(/|$)",
     ),
     (
         "The Course (module + MCA)",
@@ -73,13 +75,15 @@ SECTIONS: list[tuple[str, list[str], str]] = [
         r"^/(order-samples|order-patient-demo|product-demo)",
     ),
     (
-        "Tools",
+        "Tools & Videos",
         ["/allergy-analyser-tool", "/interactive-model*", "/rectogesic-3d-model",
          "/fess-demonstration", "/interactivetools/*", "/tools-and-videos",
+         "/video/*", "/videos", "/*clinical-bites (Clinical Bites landing pages)",
          "/section1*, /section2*, ... (interactive tool steps)",
          "/tip1, /tip2, ... (tool tips)", "/option1, /option2, ...",
          "/bake, /clues, /chart, /detection, /mist (allergy analyser sub-pages)"],
-        r"^/(allergy-analyser|interactive-model|rectogesic-3d-model|fess-demonstration|interactivetools|tools-and-videos|section\d|tip\d|option\d|bake|clues|chart|detection|mist)",
+        r"^/(allergy-analyser|interactive-model|rectogesic-3d-model|fess-demonstration|interactivetools|tools-and-videos|section\d|tip\d|option\d|bake|clues|chart|detection|mist)"
+        r"|^/(video|videos)(/|$)|^/[a-z0-9-]*clinical-bites(/|$)",
     ),
 ]
 SECTION_NAMES = [s[0] for s in SECTIONS]
