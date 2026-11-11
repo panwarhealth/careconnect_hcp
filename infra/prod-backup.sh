@@ -10,13 +10,13 @@
 #   - infra/.prod-secrets exists (copy from .prod-secrets.example) with PROD_PASS set
 #
 # What it does:
-#   1. SSH into prod and mysqldump hcp_care → gzip → upload to blob as db/YYYY-MM-DD-HHMM.sql.gz
+#   1. SSH into prod and mysqldump the prod DB → gzip → upload to blob as db/YYYY-MM-DD-HHMM.sql.gz
 #   2. SSH into prod and tar wp-content (excl. cache/upgrade/uploads) → upload as site-essentials/YYYY-MM-DD.tar.gz
 #   3. Prunes: keeps last 7 DB dumps and last 4 site-essentials tarballs
 #
 # Restore:
-#   DB:    az storage blob download ... → gunzip → mysql -h 127.0.0.1 -P 9306 -u hcp_care -p hcp_care < dump.sql
-#   Files: az storage blob download ... → tar -xzf site-essentials.tar.gz -C /var/www/hcp.carepharma.com.au/httpdocs/
+#   DB:    az storage blob download ... → gunzip → mysql -h 127.0.0.1 -P 9306 -u hcp_carepharma -p hcp_care_4cygunle < dump.sql
+#   Files: az storage blob download ... → tar -xzf site-essentials.tar.gz -C /var/www/hcp-carepharma/httpdocs/
 
 set -euo pipefail
 
@@ -28,10 +28,10 @@ fi
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/.prod-secrets"
 
-PROD_HOST="www9.stratus.ayuda.net.au"
-PROD_PORT="9022"
-PROD_USER="rob.hcp.carepharma.com.au"
-PROD_WEB="/var/www/hcp.carepharma.com.au/httpdocs"
+PROD_HOST="${PROD_HOST:-www5.stratus.ayuda.net.au}"
+PROD_PORT="${PROD_PORT:-9022}"
+PROD_USER="${PROD_USER:-rob.hcp-carepharma}"
+PROD_WEB="/var/www/hcp-carepharma/httpdocs"
 
 STORAGE_ACCOUNT="stcareconnect"
 CONTAINER="backups"

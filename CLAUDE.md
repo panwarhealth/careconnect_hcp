@@ -235,8 +235,8 @@ Uploads to `stcareconnect/backups`:
 - `db/prod-YYYY-MM-DD-HHMM.sql.gz` — full mysqldump (keeps last 7)
 - `site-essentials/site-essentials-YYYY-MM-DD.tar.gz` — wp-content excl. cache/upgrade/wflogs (keeps last 4)
 
-**Restore DB:** download blob → `gunzip | mysql -h 127.0.0.1 -P 9306 -u hcp_care -p hcp_care`
-**Restore files:** download blob → `tar -xzf site-essentials.tar.gz -C /var/www/hcp.carepharma.com.au/httpdocs/`
+**Restore DB:** download blob → `gunzip | mysql -h 127.0.0.1 -P 9306 -u hcp_carepharma -p hcp_care_4cygunle`
+**Restore files:** download blob → `tar -xzf site-essentials.tar.gz -C /var/www/hcp-carepharma/httpdocs/`
 
 ### Taking a fresh local dump (e.g. for staging seed)
 
