@@ -598,14 +598,14 @@ def slide_dietitians(prs, layout):
     rect(s, 0.42, 4.6, 4.95, 2.1, fill=SOFT_GREEN, line=None, radius=0.08)
     bullets(s, 0.6, 4.7, 4.65, 1.95, [
         "Their own section on Care Connect",
-        "Content approved for them by Panwar's medical team (GLP-1 and Hydralyte are the obvious start)",
+        "Content chosen for them by Panwar (GLP-1 and Hydralyte are the obvious start)",
         "A ready audience for a Dietitian Connection partnership",
     ], size=11, gap=5)
-    label(s, 5.52, 4.3, 5.0, "TO CONFIRM WITH CARE")
+    label(s, 5.52, 4.3, 5.0, "QUESTIONS FOR CARE")
     rect(s, 5.52, 4.6, 4.95, 2.1, fill=SOFT_AMBER, line=None, radius=0.08)
     bullets(s, 5.7, 4.7, 4.65, 1.95, [
-        "Which content dietitians can see: Panwar's medical team to recommend, Care to agree",
-        "CPD: dietitians log CPD with Dietitians Australia, so courses need separate accreditation",
+        "Which content can dietitians see?",
+        "Do we want CPD for dietitians? It needs separate accreditation, as they log CPD with Dietitians Australia.",
     ], size=11, gap=5)
     rect(s, 10.62, 4.6, 2.3, 2.1, fill=PINK, line=None, radius=0.08)
     text(s, 10.62, 4.85, 2.3, 0.8, "~11 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)

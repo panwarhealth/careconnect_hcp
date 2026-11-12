@@ -175,3 +175,8 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - Step 2: "Straight in" / "No AHPRA check. They can use Care Connect straight away, like any other HCP." -> "Access from day one" / "A dietitian gets the same access as any other HCP when they sign up, and every new sign-up is checked (step 3)."
    - Step 4: "No match: the account and details are deleted. If the system is ever abused, new sign-ups switch to approval-first." -> "No match: the account and details are deleted. If sign-ups are ever abused, new dietitian accounts start paused, with no access until we approve them."
    - Source line: "approval-first switch ~1" -> "paused-account switch ~1".
+
+43. **[APPLIED v20]** **Slide 22 (Rec 5): no "medical team"** (Rob: Panwar has no medical team; "recommend / agree" wording messy).
+   - What dietitians get: "Content approved for them by Panwar's medical team (GLP-1 and Hydralyte are the obvious start)" -> "Content chosen for them by Panwar (GLP-1 and Hydralyte are the obvious start)".
+   - To confirm: "Which content dietitians can see: Panwar's medical team to recommend, Care to agree" -> "Which content dietitians can see".
+   - (Rob: "to confirm with Care" sounds AI) Heading "TO CONFIRM WITH CARE" -> "QUESTIONS FOR CARE"; bullets become questions: "Which content can dietitians see?" and "Do we want CPD for dietitians? It needs separate accreditation, as they log CPD with Dietitians Australia." (replaces the CPD bullet and the content bullet above).
