@@ -339,8 +339,8 @@ def slide_licences(prs, layout):
 def slide_rebuild_what(prs, layout):
     s = new_slide(prs, layout)
     title(s, size=20, t="RECOMMENDATION 1: Future-proofing Care Connect")
-    subtitle(s, "Our own purpose-built CPD platform and registration gate. We replace the third-party course and registration plugins and "
-                "tidy the code underneath. HCPs get a smoother, more reliable site; Care gets new CPD courses faster and at lower cost.", y=1.2, size=12)
+    subtitle(s, "We write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, "
+                "including Restrict Content Pro. HCPs get a smoother, more reliable site; Care gets new CPD courses faster and at lower cost.", y=1.2, size=12)
     label(s, 0.42, 1.85, 12.5, "WHAT CARE GETS FROM THE FY28 PROPOSAL")
     cols = [
         ("MORE CONTROL", "over the whole experience", TEAL, [
@@ -465,12 +465,9 @@ def slide_rebuild_costs(prs, layout):
         [("Look and feel ", {"bold": True}), ("locked to the plugin's templates", {})],
     ], size=10.5, gap=5)
     rect(s, 8.3, 4.05, 4.62, 1.65, fill=SOFT_GREEN, line=None, radius=0.05)
-    inhouse = text(s, 8.48, 4.05, 4.3, 1.65, [[("What in-house means: ", {"bold": True}),
-                                     ("we write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro.", {})],
-                                    [("The result: ", {"bold": True}),
-                                     ("$0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences.", {})]],
+    text(s, 8.48, 4.05, 4.3, 1.65, [[("In-house: ", {"bold": True}),
+                                    ("$0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences.", {})]],
          size=10.5, anchor=MSO_ANCHOR.MIDDLE)
-    inhouse.text_frame.paragraphs[1].space_before = Pt(8)
 
     rect(s, 0.42, 5.8, 12.5, 0.9, fill=NAVY, line=None, radius=0.1)
     text(s, 0.62, 5.8, 12.1, 0.9, "Pays back from day one in a better HCP experience, SCORM support and a cleaner, untangled codebase. "

@@ -141,3 +141,5 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
      - "What in-house means: we write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro."
      - "The result: $0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences." (saving figure pending Rob checking the Liquid Web portal: if Kadence Memberships is already in the US$350 bundle, the "Registration gate plugin ~US$300+" line goes and the saving drops)
    - Box has spare room; lead-in bold as now.
+
+37. **[APPLIED v16]** **Explain "in-house" where it is first pitched** (Rob: chicken before the egg). Slide 14 subtitle -> "We write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro. HCPs get a smoother, more reliable site; Care gets new CPD courses faster and at lower cost." Slide 15 green box reverted to the single "In-house: $0 licences..." paragraph (undoes 36).
