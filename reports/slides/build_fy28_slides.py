@@ -169,10 +169,9 @@ def slide_top_assets(prs, layout):
         ("Zaditen AC Chart", "~1,000", "unique users in its first month; top resource of FY27", ZAD_GREEN),
         ("Diabetes Sick Day Plan", "~122", "unique users: ~99 from eDMs + 23 browsing the site", HYD_ORANGE),
         ("Clinical Audit (CPD)", "184", "enrolled since 19 Mar; 20 certificates to 30 Sep", RECTO_PURPLE),
-        ("CPD vs content eDMs", "8.4% vs 0.5%", "sign-up conversion: audit eDM vs video eDMs", NAVY),
         ("Clinical Bites videos", "45%", "of arrivals pressed play (130 of 289)", PINK),
     ]
-    w = (12.5 - 4 * 0.15) / 5
+    w = (12.5 - (len(portal) - 1) * 0.15) / len(portal)
     for i, (cap, val, note, colr) in enumerate(portal):
         stat_card(s, 0.42 + i * (w + 0.15), 1.75, w, 1.55, cap, val, note, value_color=colr, value_size=22)
     label(s, 0.42, 3.5, 12.5, "OUTSIDE THE PORTAL  \u00b7  PARTNER-REPORTED")
@@ -466,9 +465,12 @@ def slide_rebuild_costs(prs, layout):
         [("Look and feel ", {"bold": True}), ("locked to the plugin's templates", {})],
     ], size=10.5, gap=5)
     rect(s, 8.3, 4.05, 4.62, 1.65, fill=SOFT_GREEN, line=None, radius=0.05)
-    text(s, 8.48, 4.05, 4.3, 1.65, [[("In-house: ", {"bold": True}),
-                                    ("$0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences.", {})]],
+    inhouse = text(s, 8.48, 4.05, 4.3, 1.65, [[("What in-house means: ", {"bold": True}),
+                                     ("we write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro.", {})],
+                                    [("The result: ", {"bold": True}),
+                                     ("$0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences.", {})]],
          size=10.5, anchor=MSO_ANCHOR.MIDDLE)
+    inhouse.text_frame.paragraphs[1].space_before = Pt(8)
 
     rect(s, 0.42, 5.8, 12.5, 0.9, fill=NAVY, line=None, radius=0.1)
     text(s, 0.62, 5.8, 12.1, 0.9, "Pays back from day one in a better HCP experience, SCORM support and a cleaner, untangled codebase. "

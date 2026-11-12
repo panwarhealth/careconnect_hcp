@@ -132,3 +132,12 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - Optional (awaiting Rob): FY27-to-date GA4 device pull, labelled as new GA4 figures.
 
 34. **[APPLIED v14]** Line-spacing pass (Rob: text bunched): airy() post-pass on every built slide = body 1.2 line spacing, table cells 1.1, +2pt between multi-paragraph items; title/source untouched. Slide 6 bullets 11pt to fit; slide 11 group spacing retuned.
+
+35. **[APPLIED v15]** **Slide 7 "What HCPs valued most": drop the "CPD vs content eDMs" card** (Rob: option 3). "On Care Connect" goes to 4 cards (Zaditen, Sick Day Plan, Clinical Audit, Clinical Bites), widths re-spread across 12.5". Keep the band line "CPD is the sign-up driver: audit eDMs convert at 8.4%..." as is. Slide 10 card unchanged. Supersedes the open notes in items 18/22 about moving or adding this stat.
+
+36. **[APPLIED v15]** **Slide 15 (Rec 1 costs) green "In-house" box: spell out what bringing CPD in-house means** (Rob: writing our own LMS module and removing LearnDash + third-party plugins). Slide 14 subtitle unchanged.
+   - Old: "In-house: $0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences."
+   - New, two paragraphs:
+     - "What in-house means: we write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro."
+     - "The result: $0 licences, SCORM built in, course pages designed to match Care Connect. Saves ~A$1,000-1,300 a year in licences." (saving figure pending Rob checking the Liquid Web portal: if Kadence Memberships is already in the US$350 bundle, the "Registration gate plugin ~US$300+" line goes and the saving drops)
+   - Box has spare room; lead-in bold as now.
