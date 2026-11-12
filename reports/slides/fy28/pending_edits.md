@@ -167,3 +167,11 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - Hours ~12 -> ~11 (form 2, skip AHPRA check 2, review page + delete email 3, role + section 1, approval-first switch 1, testing 2). Source line updated to match.
    - Budget row ~11 / ~$1.5K; TOTAL ~707 hrs / ~$101.2K. Roadmap bar "Sign-up + review · ~11 hrs".
    - Also v18: slide 14 title "what drives each one" -> "how we'll hit each one" (same reason as 39). TOTAL renders ~$101.1K (exact: 50 + 2 + 351 x $140).
+
+42. **[APPLIED v19]** **Slide 22 (Rec 5) fixes** (Rob: Panwar is compliance, medical writers sit with us; step 2 too aggressive; step 4 must mention paused status; drop the register terms line).
+   - What dietitians get: "Content Care's compliance team approves for them (GLP-1 and Hydralyte are the obvious start)" -> "Content approved for them by Panwar's medical team (GLP-1 and Hydralyte are the obvious start)".
+   - To confirm: "Which content dietitians may see: some product content may be limited to certain health professionals" -> "Which content dietitians can see: Panwar's medical team to recommend, Care to agree".
+   - To confirm: DELETE "The register is used only to verify, never for marketing (its terms of use)".
+   - Step 2: "Straight in" / "No AHPRA check. They can use Care Connect straight away, like any other HCP." -> "Access from day one" / "A dietitian gets the same access as any other HCP when they sign up, and every new sign-up is checked (step 3)."
+   - Step 4: "No match: the account and details are deleted. If the system is ever abused, new sign-ups switch to approval-first." -> "No match: the account and details are deleted. If sign-ups are ever abused, new dietitian accounts start paused, with no access until we approve them."
+   - Source line: "approval-first switch ~1" -> "paused-account switch ~1".

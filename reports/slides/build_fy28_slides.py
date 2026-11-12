@@ -582,9 +582,9 @@ def slide_dietitians(prs, layout):
                 "that Panwar staff check by hand against the Dietitians Australia register.", y=1.2, size=12)
     steps = [
         ("Tick the box", "On the registration form, \u201cI'm a dietitian\u201d swaps the AHPRA field for an APD Registration ID."),
-        ("Straight in", "No AHPRA check. They can use Care Connect straight away, like any other HCP."),
+        ("Access from day one", "A dietitian gets the same access as any other HCP when they sign up, and every new sign-up is checked (step 3)."),
         ("We check the register", "New dietitian sign-ups appear on an admin page. Panwar staff search the APD register by name and state and match the ID."),
-        ("Remove bad actors", "No match: the account and details are deleted. If the system is ever abused, new sign-ups switch to approval-first."),
+        ("Remove bad actors", "No match: the account and details are deleted. If sign-ups are ever abused, new dietitian accounts start paused, with no access until we approve them."),
     ]
     w = (12.5 - 3 * 0.15) / 4
     for i, (head, body) in enumerate(steps):
@@ -598,20 +598,19 @@ def slide_dietitians(prs, layout):
     rect(s, 0.42, 4.6, 4.95, 2.1, fill=SOFT_GREEN, line=None, radius=0.08)
     bullets(s, 0.6, 4.7, 4.65, 1.95, [
         "Their own section on Care Connect",
-        "Content Care's compliance team approves for them (GLP-1 and Hydralyte are the obvious start)",
+        "Content approved for them by Panwar's medical team (GLP-1 and Hydralyte are the obvious start)",
         "A ready audience for a Dietitian Connection partnership",
     ], size=11, gap=5)
     label(s, 5.52, 4.3, 5.0, "TO CONFIRM WITH CARE")
     rect(s, 5.52, 4.6, 4.95, 2.1, fill=SOFT_AMBER, line=None, radius=0.08)
     bullets(s, 5.7, 4.7, 4.65, 1.95, [
-        "Which content dietitians may see: some product content may be limited to certain health professionals",
+        "Which content dietitians can see: Panwar's medical team to recommend, Care to agree",
         "CPD: dietitians log CPD with Dietitians Australia, so courses need separate accreditation",
-        "The register is used only to verify, never for marketing (its terms of use)",
     ], size=11, gap=5)
     rect(s, 10.62, 4.6, 2.3, 2.1, fill=PINK, line=None, radius=0.08)
     text(s, 10.62, 4.85, 2.3, 0.8, "~11 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     text(s, 10.62, 5.6, 2.3, 0.8, ["JAS '27", "after Rec 1"], size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    source(s, "Hours are Panwar Health estimates: form ~2, skip AHPRA check ~2, review page + delete email ~3, role + section ~1, approval-first switch ~1, testing ~2. "
+    source(s, "Hours are Panwar Health estimates: form ~2, skip AHPRA check ~2, review page + delete email ~3, role + section ~1, paused-account switch ~1, testing ~2. "
               "Register: Dietitians Australia, Register of Accredited Practising Dietitians.")
 
 
