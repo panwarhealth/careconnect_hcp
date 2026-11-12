@@ -257,6 +257,7 @@ FY28_ITEMS = [
     ("Always-on CRM plan", "Recommendation 2", 100),
     ("Personalised landing page", "Recommendation 3", 90),
     ("Mobile UX audit + fixes", "Recommendation 4", 70),
+    ("Dietitian access", "Recommendation 5: dietitian sign-up, approval + own section", 12),
 ]
 
 
@@ -285,7 +286,7 @@ def slide_budget(prs, layout):
     rows.append(["TOTAL", "Within the $103K budget", f"~{356 + recs}", f"~${50 + 2 + recs * RATE / 1000:.1f}K"])
     n = len(rows)
     fills = {(n - 1, c): SOFT_BLUE for c in range(4)}
-    table(s, 0.42, 3.05, 12.5, [3.2, 6.5, 1.2, 1.6], rows, row_h=0.45, size=11, header_size=11,
+    table(s, 0.42, 3.0, 12.5, [3.2, 6.5, 1.2, 1.6], rows, row_h=0.41, size=11, header_size=11,
           align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.CENTER], bold_cols=(0,), fills=fills)
     source(s, "Hours are Panwar Health estimates; costs at ~$140/hr, to be confirmed. New CPD course content (recommended by Panwar staff) to be costed separately.")
 
@@ -488,17 +489,18 @@ def slide_timeline(prs, layout):
         ("BAU (ongoing)", 0, 4, GREY, "Content, eDMs, reporting, maintenance"),
         ("Bringing CPD in-house", 0, 1, PINK, "CPD platform + gate  ·  ~80 hrs"),
         ("Mobile UX audit + fixes", 0, 2, PURPLE, "Audit AMJ, fixes JAS  ·  ~70 hrs"),
+        ("Dietitian access", 1, 2, GREEN, "Sign-up + approval  ·  ~12 hrs"),
         ("Always-on CRM plan", 1, 4, TEAL, "Build JAS, plays live from OND  ·  ~100 hrs"),
         ("Personalised landing page", 2, 4, NAVY, "Needs 6+ months of analytics data  ·  ~90 hrs"),
         ("New CPD courses", 0, 4, ORANGE, "Scope from Panwar staff; published on the new platform"),
     ]
     y = 2.0
     for name, start, end, colr, note in rows:
-        text(s, 0.42, y, 2.85, 0.5, name, size=11.5, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-        rect(s, qx + start * qw + 0.04, y + 0.04, (end - start) * qw - 0.08, 0.42, fill=colr, line=None, radius=0.3)
-        text(s, qx + start * qw + 0.1, y + 0.04, (end - start) * qw - 0.2, 0.42, note, size=10.5, color=WHITE, bold=True,
+        text(s, 0.42, y, 2.85, 0.46, name, size=11.5, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+        rect(s, qx + start * qw + 0.04, y + 0.04, (end - start) * qw - 0.08, 0.38, fill=colr, line=None, radius=0.3)
+        text(s, qx + start * qw + 0.1, y + 0.04, (end - start) * qw - 0.2, 0.38, note, size=10.5, color=WHITE, bold=True,
              anchor=MSO_ANCHOR.MIDDLE)
-        y += 0.52
+        y += 0.46
     label(s, 0.42, y + 0.15, 6, "BRAND TIE-INS")
     tie = [
         ("FESS: grow", "CRM play 1 announces the new kids range content as it lands", FESS_BLUE),
@@ -551,6 +553,67 @@ def slide_still_to_come(prs, layout):
     source(s, "Plan as at 10 Nov 2026, from the JAS '26 OND priorities and current build status. Dates subject to Care approvals.")
 
 
+def slide_fy28_targets(prs, layout):
+    s = new_slide(prs, layout)
+    title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and what drives each one")
+    subtitle(s, "Care's FY28 brief keeps registrations at 349 and makes CPD, stickiness and return visits the new focus.", y=1.2)
+    rows = [
+        ["KPI", "FY27 so far", "FY28 target", "What drives it"],
+        ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Choosing the right publisher for the content; CRM emails (Rec 2)"],
+        ["Traffic to Care Connect", "AMJ +74%, JAS +198% YoY", "+5% YoY", "Personalised landing page (Rec 3); CRM emails (Rec 2)"],
+        ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; dietitians as a new audience (Rec 5)"],
+        ["CPD, stickiness + return visits", "New for FY28", "Tracked from Apr 2027", "CPD in-house (Rec 1); CRM plays (Rec 2); mobile fixes (Rec 4)"],
+    ]
+    table(s, 0.42, 1.95, 12.5, [3.0, 2.9, 1.9, 4.7], rows, row_h=0.62, size=12, header_size=12,
+          align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT], bold_cols=(0, 2))
+    rect(s, 0.42, 5.45, 12.5, 1.25, fill=SOFT_BLUE, line=None, radius=0.1)
+    text(s, 0.62, 5.45, 12.1, 1.25, [[("Every recommendation that follows maps to at least one of these targets. ", {"bold": True}),
+                                     ("Return visits and stickiness are measured with the per-user analytics set up in the "
+                                      "Analytics fundamental (live by 31 March 2027).", {})]],
+         size=12, anchor=MSO_ANCHOR.MIDDLE)
+    source(s, "Targets: Care Pharma HCP FY28 Brief (8 Nov 2026). FY27 figures: " + QBR_SOURCE[len("Source: "):])
+
+
+def slide_dietitians(prs, layout):
+    s = new_slide(prs, layout)
+    title(s, size=20, t="RECOMMENDATION 5: Opening Care Connect to dietitians")
+    subtitle(s, "Care's FY28 brief asks for dietitians on the portal. They have no AHPRA number, so we add a dietitian sign-up "
+                "that Panwar staff check by hand against the Dietitians Australia register.", y=1.2, size=12)
+    steps = [
+        ("Tick the box", "On the registration form, \u201cI'm a dietitian\u201d swaps the AHPRA field for an APD Registration ID."),
+        ("Account on hold", "No AHPRA check runs. The account is created as pending, with no gated content until approved."),
+        ("We check the register", "A new admin page lists pending dietitians. Panwar staff search the APD register by name and state and match the ID."),
+        ("Approve or decline", "Match: approved, with a welcome email. No match: the account and details are deleted, with a short email."),
+    ]
+    w = (12.5 - 3 * 0.15) / 4
+    for i, (head, body) in enumerate(steps):
+        x = 0.42 + i * (w + 0.15)
+        rect(s, x, 2.0, w, 2.1)
+        rect(s, x + 0.2, 2.2, 0.5, 0.5, fill=GREEN, line=None, radius=0.5)
+        text(s, x + 0.2, 2.2, 0.5, 0.5, str(i + 1), size=15, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, x + 0.82, 2.2, w - 0.95, 0.5, head, size=12.5, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, x + 0.2, 2.85, w - 0.35, 1.2, body, size=11)
+    label(s, 0.42, 4.3, 5.0, "WHAT DIETITIANS GET")
+    rect(s, 0.42, 4.6, 4.95, 2.1, fill=SOFT_GREEN, line=None, radius=0.08)
+    bullets(s, 0.6, 4.7, 4.65, 1.95, [
+        "Their own section on Care Connect",
+        "Content Care's compliance team approves for them (GLP-1 and Hydralyte are the obvious start)",
+        "A ready audience for a Dietitian Connection partnership",
+    ], size=11, gap=5)
+    label(s, 5.52, 4.3, 5.0, "TO CONFIRM WITH CARE")
+    rect(s, 5.52, 4.6, 4.95, 2.1, fill=SOFT_AMBER, line=None, radius=0.08)
+    bullets(s, 5.7, 4.7, 4.65, 1.95, [
+        "Which content dietitians may see: some product content may be limited to certain health professionals",
+        "CPD: dietitians log CPD with Dietitians Australia, so courses need separate accreditation",
+        "The register is used only to verify, never for marketing (its terms of use)",
+    ], size=11, gap=5)
+    rect(s, 10.62, 4.6, 2.3, 2.1, fill=PINK, line=None, radius=0.08)
+    text(s, 10.62, 4.85, 2.3, 0.8, "~12 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    text(s, 10.62, 5.6, 2.3, 0.8, ["JAS '27", "after Rec 1"], size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    source(s, "Hours are Panwar Health estimates: form ~2, pending state ~3, admin page + emails ~4, role + section ~1, testing ~2. "
+              "Register: Dietitians Australia, Register of Accredited Practising Dietitians.")
+
+
 def airy(slide, body=1.2, cell=1.1, extra_gap=2):
     """Open up line spacing on every text box and table cell that hasn't set its own."""
     def frames():
@@ -574,7 +637,7 @@ def main() -> None:
     prs, layout = open_template()
     builds = [slide_scorecard, slide_by_brand, slide_media_learnings, slide_top_assets, slide_fundamentals, slide_platform,
               slide_budget, slide_bau, slide_licences, slide_rebuild_what, slide_rebuild_costs, slide_rebuild_how, slide_timeline,
-              slide_still_to_come]
+              slide_still_to_come, slide_fy28_targets, slide_dietitians]
     for build in builds:
         build(prs, layout)
     for slide in prs.slides:

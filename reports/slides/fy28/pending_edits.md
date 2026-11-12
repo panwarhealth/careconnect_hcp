@@ -143,3 +143,9 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - Box has spare room; lead-in bold as now.
 
 37. **[APPLIED v16]** **Explain "in-house" where it is first pitched** (Rob: chicken before the egg). Slide 14 subtitle -> "We write our own LMS module for Care Connect and remove LearnDash and the other third-party course and registration plugins, including Restrict Content Pro. HCPs get a smoother, more reliable site; Care gets new CPD courses faster and at lower cost." Slide 15 green box reverted to the single "In-house: $0 licences..." paragraph (undoes 36).
+
+38. **[APPLIED v17]** **From Care's FY28 brief (CM/AJ notes, 8 Nov):**
+   - New slide 14 "FY28 TARGETS" (after the CAPH0068 Opportunity slide): CTR 5%, traffic +5% YoY, registrations 349, CPD/stickiness/return visits tracked from Apr 2027, each mapped to the recommendations.
+   - New slide 22 "RECOMMENDATION 5: Opening Care Connect to dietitians" (after Rec 4): tickbox swaps AHPRA for APD Registration ID; pending account; admin page, staff check the Dietitians Australia APD register by name + state and match the ID; approve = welcome email, decline = account + details deleted. ~12 hrs (form 2, pending 3, admin page + emails 4, role + section 1, testing 2), JAS '27 after Rec 1. To confirm with Care: content dietitians may see, CPD accreditation for dietitians, register used only to verify.
+   - Budget: Rec 5 row ~12 / ~$1.7K; TOTAL ~708 hrs / ~$101.3K. Roadmap: Dietitian access row in JAS '27.
+   - Not done (Rob to decide): conference pre/post emails line on the CRM slide.
