@@ -149,3 +149,21 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - New slide 22 "RECOMMENDATION 5: Opening Care Connect to dietitians" (after Rec 4): tickbox swaps AHPRA for APD Registration ID; pending account; admin page, staff check the Dietitians Australia APD register by name + state and match the ID; approve = welcome email, decline = account + details deleted. ~12 hrs (form 2, pending 3, admin page + emails 4, role + section 1, testing 2), JAS '27 after Rec 1. To confirm with Care: content dietitians may see, CPD accreditation for dietitians, register used only to verify.
    - Budget: Rec 5 row ~12 / ~$1.7K; TOTAL ~708 hrs / ~$101.3K. Roadmap: Dietitian access row in JAS '27.
    - Not done (Rob to decide): conference pre/post emails line on the CRM slide.
+
+39. **[APPLIED v18]** **Slide 14 FY28 targets: "What drives it" reads as something already running** (Rob). Rename column to "How we'll hit it in FY28" and reword rows as FY28 actions:
+   - CTR: "Match each eDM to the right publisher; CRM emails (Rec 2)"
+   - Traffic: "Personalised landing page (Rec 3); CRM emails (Rec 2)"
+   - Registrations: "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"
+   - CPD/stickiness/return visits: "CPD in-house (Rec 1); CRM plays (Rec 2); mobile fixes (Rec 4)"
+   - Rest of the slide unchanged.
+
+40. **[APPLIED v18]** **Slide 22 (Rec 5) subtitle: give the reason, not "the brief asks"** (Rob). New: "Dietitians are a new FY28 audience for Care and key to Hydralyte's GLP-1 and diabetes education. They have no AHPRA number, so we add a dietitian sign-up that Panwar staff check by hand against the Dietitians Australia register." (Brief: dietitians in expanded target audience; Hydralyte priority = own GLP-1; Dietitian Connection partner opportunity.)
+
+41. **[APPLIED v18]** **Slide 22 (Rec 5): no on-hold, let dietitians straight in, review after** (Rob). Steps become:
+   1. "Tick the box" (unchanged).
+   2. "Straight in": "No AHPRA check. They can use Care Connect straight away, like any other HCP."
+   3. "We check the register": "New dietitian sign-ups appear on an admin page. Panwar staff search the APD register by name and state and match the ID."
+   4. "Remove bad actors": "No match: the account and details are deleted. If the system is ever abused, new sign-ups switch to approval-first."
+   - Hours ~12 -> ~11 (form 2, skip AHPRA check 2, review page + delete email 3, role + section 1, approval-first switch 1, testing 2). Source line updated to match.
+   - Budget row ~11 / ~$1.5K; TOTAL ~707 hrs / ~$101.2K. Roadmap bar "Sign-up + review · ~11 hrs".
+   - Also v18: slide 14 title "what drives each one" -> "how we'll hit each one" (same reason as 39). TOTAL renders ~$101.1K (exact: 50 + 2 + 351 x $140).

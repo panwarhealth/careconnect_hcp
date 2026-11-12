@@ -257,7 +257,7 @@ FY28_ITEMS = [
     ("Always-on CRM plan", "Recommendation 2", 100),
     ("Personalised landing page", "Recommendation 3", 90),
     ("Mobile UX audit + fixes", "Recommendation 4", 70),
-    ("Dietitian access", "Recommendation 5: dietitian sign-up, approval + own section", 12),
+    ("Dietitian access", "Recommendation 5: dietitian sign-up, review + own section", 11),
 ]
 
 
@@ -489,7 +489,7 @@ def slide_timeline(prs, layout):
         ("BAU (ongoing)", 0, 4, GREY, "Content, eDMs, reporting, maintenance"),
         ("Bringing CPD in-house", 0, 1, PINK, "CPD platform + gate  ·  ~80 hrs"),
         ("Mobile UX audit + fixes", 0, 2, PURPLE, "Audit AMJ, fixes JAS  ·  ~70 hrs"),
-        ("Dietitian access", 1, 2, GREEN, "Sign-up + approval  ·  ~12 hrs"),
+        ("Dietitian access", 1, 2, GREEN, "Sign-up + review  ·  ~11 hrs"),
         ("Always-on CRM plan", 1, 4, TEAL, "Build JAS, plays live from OND  ·  ~100 hrs"),
         ("Personalised landing page", 2, 4, NAVY, "Needs 6+ months of analytics data  ·  ~90 hrs"),
         ("New CPD courses", 0, 4, ORANGE, "Scope from Panwar staff; published on the new platform"),
@@ -555,13 +555,13 @@ def slide_still_to_come(prs, layout):
 
 def slide_fy28_targets(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and what drives each one")
+    title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and how we'll hit each one")
     subtitle(s, "Care's FY28 brief keeps registrations at 349 and makes CPD, stickiness and return visits the new focus.", y=1.2)
     rows = [
-        ["KPI", "FY27 so far", "FY28 target", "What drives it"],
-        ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Choosing the right publisher for the content; CRM emails (Rec 2)"],
+        ["KPI", "FY27 so far", "FY28 target", "How we'll hit it in FY28"],
+        ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Match each eDM to the right publisher; CRM emails (Rec 2)"],
         ["Traffic to Care Connect", "AMJ +74%, JAS +198% YoY", "+5% YoY", "Personalised landing page (Rec 3); CRM emails (Rec 2)"],
-        ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; dietitians as a new audience (Rec 5)"],
+        ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"],
         ["CPD, stickiness + return visits", "New for FY28", "Tracked from Apr 2027", "CPD in-house (Rec 1); CRM plays (Rec 2); mobile fixes (Rec 4)"],
     ]
     table(s, 0.42, 1.95, 12.5, [3.0, 2.9, 1.9, 4.7], rows, row_h=0.62, size=12, header_size=12,
@@ -577,13 +577,14 @@ def slide_fy28_targets(prs, layout):
 def slide_dietitians(prs, layout):
     s = new_slide(prs, layout)
     title(s, size=20, t="RECOMMENDATION 5: Opening Care Connect to dietitians")
-    subtitle(s, "Care's FY28 brief asks for dietitians on the portal. They have no AHPRA number, so we add a dietitian sign-up "
+    subtitle(s, "Dietitians are a new FY28 audience for Care and key to Hydralyte's GLP-1 and diabetes education. "
+                "They have no AHPRA number, so we add a dietitian sign-up "
                 "that Panwar staff check by hand against the Dietitians Australia register.", y=1.2, size=12)
     steps = [
         ("Tick the box", "On the registration form, \u201cI'm a dietitian\u201d swaps the AHPRA field for an APD Registration ID."),
-        ("Account on hold", "No AHPRA check runs. The account is created as pending, with no gated content until approved."),
-        ("We check the register", "A new admin page lists pending dietitians. Panwar staff search the APD register by name and state and match the ID."),
-        ("Approve or decline", "Match: approved, with a welcome email. No match: the account and details are deleted, with a short email."),
+        ("Straight in", "No AHPRA check. They can use Care Connect straight away, like any other HCP."),
+        ("We check the register", "New dietitian sign-ups appear on an admin page. Panwar staff search the APD register by name and state and match the ID."),
+        ("Remove bad actors", "No match: the account and details are deleted. If the system is ever abused, new sign-ups switch to approval-first."),
     ]
     w = (12.5 - 3 * 0.15) / 4
     for i, (head, body) in enumerate(steps):
@@ -608,9 +609,9 @@ def slide_dietitians(prs, layout):
         "The register is used only to verify, never for marketing (its terms of use)",
     ], size=11, gap=5)
     rect(s, 10.62, 4.6, 2.3, 2.1, fill=PINK, line=None, radius=0.08)
-    text(s, 10.62, 4.85, 2.3, 0.8, "~12 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    text(s, 10.62, 4.85, 2.3, 0.8, "~11 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     text(s, 10.62, 5.6, 2.3, 0.8, ["JAS '27", "after Rec 1"], size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    source(s, "Hours are Panwar Health estimates: form ~2, pending state ~3, admin page + emails ~4, role + section ~1, testing ~2. "
+    source(s, "Hours are Panwar Health estimates: form ~2, skip AHPRA check ~2, review page + delete email ~3, role + section ~1, approval-first switch ~1, testing ~2. "
               "Register: Dietitians Australia, Register of Accredited Practising Dietitians.")
 
 
