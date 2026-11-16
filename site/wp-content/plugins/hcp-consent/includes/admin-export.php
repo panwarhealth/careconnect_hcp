@@ -55,7 +55,9 @@ function hcp_consent_export_page(): void {
 	$answers = hcp_consent_current_answers();
 	$yes     = count( array_filter( $answers, static fn( $a ) => HCP_CONSENT_OPTED_IN === $a['response'] ) );
 	$no      = count( $answers ) - $yes;
-	$users   = (int) count_users()['total_users'];
+	// Accounts, not count_users(): that counts capability rows, and some users have two.
+	global $wpdb;
+	$users = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
 
 	$link = static function ( string $file, string $label, string $class ) {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=hcp_consent_export&file=' . $file ), 'hcp_consent_export' );
