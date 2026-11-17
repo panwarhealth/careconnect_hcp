@@ -111,6 +111,8 @@ Staging URL: `https://hcp-staging-app.azurewebsites.net`. Admin login after seed
 
 AHPRA env vars come from local `.env` at spin-up (not hardcoded in scripts). MySQL admin password is generated randomly per spin-up and stored in `infra/.staging-secrets` (gitignored).
 
+Staging MySQL is **8.4** on purpose (prod is 8.0): Azure bills extended support on 8.0 from 1 Feb 2027 (~AUD $104/mo for our 1 vCore). WordPress queries behave the same on both.
+
 See `infra/README.md` for full details + gotchas (the nginx-on-Azure-PHP quirk and the rewrite-rules-cache thing are the two that bit us on first build).
 
 ### DB migrations (plugin-scoped)

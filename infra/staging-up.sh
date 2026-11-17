@@ -46,7 +46,7 @@ if ! az mysql flexible-server show -g "$STAGING_RG" -n "$STAGING_DB_SERVER" >/de
     --sku-name "$STAGING_DB_SKU" \
     --tier Burstable \
     --storage-size 20 \
-    --version 8.0.21 \
+    --version 8.4 \
     --public-access 0.0.0.0 \
     --yes \
     -o none
