@@ -12,6 +12,7 @@ db/init/*.sql
 db/init/*.sql.gz
 db/dumps/
 *.sql
+!db/local-sanitize.sql
 *.sql.gz
 
 # =======================================================================

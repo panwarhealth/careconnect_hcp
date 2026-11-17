@@ -169,7 +169,7 @@ On prod, access to gated content requires registering through a Formidable form 
    ```
    Users with `MED`/`NMW`/`PHA` logins + `tbstwp_rcp_memberships.status='active'` (level 22) have full LMS access.
 
-Both are local-only — the seeded DB has real user PII, but nothing leaves your machine. Don't screenshot/share course enrollments or user details without redacting.
+Both are local-only. The local DB is anonymised (see Fresh DB from prod), but form answers and AHPRA numbers are real. Don't screenshot/share course enrollments or user details without redacting.
 
 ### Resetting a test user's LearnDash progress (course 95553)
 
@@ -218,13 +218,24 @@ echo "Done.\n";
 
 After running, also **clear browser cookies for localhost** (or use incognito) — LearnDash caches "Great Job" alert state in cookies that survive a DB wipe and cause contradictory UI.
 
-### Fresh DB from prod
+### Fresh DB from prod (last done 2026-11-18)
 
-1. Export via phpMyAdmin (or `mysqldump` if you get SSH access) → save as `db/init/01-seed.sql`, overwriting the old one.
-2. `docker compose down -v && docker compose up -d`
-3. `docker compose run --rm wpcli wp search-replace 'https://hcp.carepharma.com.au' 'http://localhost:8080' --all-tables --skip-columns=guid`
-4. `docker compose run --rm wpcli wp plugin deactivate wp-rocket wordfence wp-mail-smtp-pro imagify object-sync-for-salesforce`
-5. `docker compose run --rm wpcli wp cache flush`
+Anonymised by `db/local-sanitize.sql`. Order matters: the web container stays stopped until the scrub has run, so no page load fires cron or mail against real addresses.
+
+1. Back up local: `docker compose exec -T db sh -c 'mysqldump --no-tablespaces --single-transaction -uroot -p"$MYSQL_ROOT_PASSWORD" hcp_care' > db/dumps/local-pre-reseed-$(date +%F-%H%M).sql`
+2. Export prod over SSH (secrets via `set -a; source infra/.prod-secrets; set +a; export SSHPASS="$PROD_PASS"`):
+   `sshpass -e ssh -p $PROD_PORT $PROD_USER@$PROD_HOST "cd /var/www/hcp-carepharma/httpdocs && wp db export - --single-transaction | gzip" > db/dumps/prod-$(date +%F-%H%M).sql.gz`
+   Do NOT add `--no-tablespaces` (prod's MariaDB client returns an empty dump).
+3. New uploads: `rsync -a --ignore-existing -e "sshpass -e ssh -p $PROD_PORT" $PROD_USER@$PROD_HOST:/var/www/hcp-carepharma/httpdocs/wp-content/uploads/ site/wp-content/uploads/` (dir-timestamp errors are harmless).
+4. `docker compose stop wordpress`, then drop/recreate `hcp_care` and import, stripping the MariaDB sandbox line MySQL 8 rejects:
+   `zcat db/dumps/prod-*.sql.gz | sed '1{/enable the sandbox mode/d}' | docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" hcp_care'`
+5. `docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" hcp_care' < db/local-sanitize.sql`
+6. With `docker compose run --rm --no-deps wpcli sh -c 'php -d memory_limit=512M "$(which wp)" <cmd>'`:
+   - `plugin deactivate wp-mail-smtp-pro wordfence imagify formidable-zapier formidable-mailchimp`
+   - `search-replace` both `https://hcp.carepharma.com.au` and `http://hcp.carepharma.com.au` → `http://localhost:8080` (`--all-tables --skip-columns=guid`)
+7. `docker compose start wordpress`, re-enable mod_headers (see Known gotchas).
+
+After the scrub: emails are `user{ID}@example.invalid`, names/phones/addresses/AHPRA records are blanked, AHPRA logins are kept, every admin password is `staging123`. The raw `prod-*.sql.gz` in `db/dumps/` still holds real PII (gitignored).
 
 ### Prod backup to Azure Blob (run after every deploy)
 
