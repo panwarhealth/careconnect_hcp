@@ -54,7 +54,7 @@ Dropped from the old container: Universal Analytics + ISP lookup (UA shut down 2
 
 ### Custom dimensions to register (event scope)
 
-`logged_in`, `profession`, `page_type`, `content_section`, `therapy_area`, `brand`. GA4 only fills a dimension from the day it is created, so register them before go-live. `percent_scrolled`: check first whether GA4's built-in "Percent scrolled" dimension already reports it for `article_scroll`; register a custom one only if it does not.
+`logged_in`, `profession`, `page_type`, `content_section`, `therapy_area`, `brand`: **registered 18 Nov 2026** (GA4 fills them from that day). `percent_scrolled` is not registered: GA4 has a built-in "Percent scrolled" dimension (`percentScrolled`); confirm in the preview that it reports `article_scroll` values, and register a custom one only if it does not.
 
 ## Microsoft Clarity (project `zfe87ouule`)
 
