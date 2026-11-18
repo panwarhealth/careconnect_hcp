@@ -90,7 +90,8 @@ function hcp_analytics_engagement_record( int $user_id, int $object_id, array $s
 	);
 }
 
-add_action( 'template_redirect', 'hcp_analytics_engagement_track', 1 );
+// Late, so access checks and redirects (which exit) run first.
+add_action( 'template_redirect', 'hcp_analytics_engagement_track', 99 );
 function hcp_analytics_engagement_track(): void {
 	$user_id = get_current_user_id();
 	if ( ! $user_id || ! is_singular( hcp_analytics_engagement_post_types() ) || ! hcp_analytics_is_active() || hcp_analytics_is_staff( $user_id ) ) {

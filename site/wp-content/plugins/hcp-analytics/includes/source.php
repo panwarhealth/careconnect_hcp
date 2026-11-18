@@ -3,9 +3,10 @@
  * Which campaign brought this visit.
  *
  * When a page is opened from a tagged link (eDM, QR code, partner site), its
- * utm_source / utm_medium / utm_campaign are kept in a cookie for the rest of
- * the browser session, so they still apply after the HCP logs in or signs up
- * further along. A later tagged link replaces them. New accounts keep the
+ * utm_source / utm_medium / utm_campaign are kept in a cookie while the visit
+ * lasts (30 minutes after the last page, the same rule as a GA4 session), so
+ * they still apply after the HCP logs in or signs up further along. A later
+ * tagged link replaces them. New accounts keep the
  * source they signed up from; engagement rows record the source of the visit.
  */
 
@@ -14,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 const HCP_ANALYTICS_SOURCE_COOKIE = 'hcp_visit_src';
 const HCP_ANALYTICS_SOURCE_KEYS   = array( 'utm_source', 'utm_medium', 'utm_campaign' );
 const HCP_ANALYTICS_SIGNUP_META   = 'hcp_signup_';
+const HCP_ANALYTICS_SOURCE_TTL    = 30 * MINUTE_IN_SECONDS;
 
 /**
  * @param array<string, mixed> $raw
@@ -53,13 +55,14 @@ function hcp_analytics_remember_source(): void {
 	if ( ! hcp_analytics_is_active() ) {
 		return;
 	}
-	$source = hcp_analytics_clean_source( $_GET );
+	$source = hcp_analytics_visit_source();
 	if ( ! hcp_analytics_has_source( $source ) ) {
 		return;
 	}
 
+	// Set or extend: each page the visit reaches restarts the 30 minutes.
 	$value = http_build_query( $source );
-	setcookie( HCP_ANALYTICS_SOURCE_COOKIE, $value, 0, COOKIEPATH ?: '/', COOKIE_DOMAIN, is_ssl(), true );
+	setcookie( HCP_ANALYTICS_SOURCE_COOKIE, $value, time() + HCP_ANALYTICS_SOURCE_TTL, COOKIEPATH ?: '/', COOKIE_DOMAIN, is_ssl(), true );
 	$_COOKIE[ HCP_ANALYTICS_SOURCE_COOKIE ] = $value;
 }
 

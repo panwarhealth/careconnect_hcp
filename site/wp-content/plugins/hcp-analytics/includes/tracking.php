@@ -8,13 +8,13 @@
  * present. The page view itself comes from the config call.
  *
  * Clarity gets the same context as tags. Pages that show personal details
- * (account and sample-order sections) are masked in full; form fields are
+ * (account, sample-order and CPD sections) are masked in full; form fields are
  * masked everywhere by Clarity's default.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const HCP_ANALYTICS_MASKED_SECTIONS = array( 'account', 'samples' );
+const HCP_ANALYTICS_MASKED_SECTIONS = array( 'account', 'samples', 'cpd' );
 
 add_action( 'wp_head', 'hcp_analytics_head', 1 );
 function hcp_analytics_head(): void {

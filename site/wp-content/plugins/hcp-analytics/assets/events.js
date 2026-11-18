@@ -5,10 +5,16 @@
  *   15 Second Page View      once per page, after 15 seconds
  *   login                    page load where the URL contains "welcome"
  *   Form_submissions         any form submit on a URL containing "register"
- *   conversion_event_signup  same, only when the submit is not cancelled
+ * Changed rule:
+ *   conversion_event_signup  a registration that succeeds (Formidable's signal
+ *                            just before it redirects to /welcome). GTM fired it
+ *                            on uncancelled submits, which Formidable's AJAX
+ *                            submit cannot reproduce, so the series restarts at
+ *                            go-live.
  * New:
- *   article_scroll           articles only, percent_scrolled 25 / 50 / 75 / 100,
- *                            once each (GA4's built-in scroll event stays at 90)
+ *   article_scroll           articles only, percent_scrolled 25 / 50 / 75 / 100 of
+ *                            the article body, once each (GA4's built-in scroll
+ *                            event stays at 90, measured on the whole page)
  * And, for logged-in HCPs only, PDF clicks are reported to the site's own
  * engagement record (not GA4), since PDFs open without a page view.
  * gtag and the page context are set up in <head> by the plugin.
@@ -41,12 +47,12 @@
 		document.addEventListener('submit', function (e) {
 			var form = e.target;
 			send('Form_submissions', { page: window.location.pathname, Form: form.id || form.getAttribute('name') || '' });
-			setTimeout(function () {
-				if (!e.defaultPrevented) {
-					send('conversion_event_signup');
-				}
-			}, 0);
 		});
+		if (window.jQuery) {
+			window.jQuery(document).on('frmBeforeFormRedirect frmFormComplete', function () {
+				send('conversion_event_signup');
+			});
+		}
 	}
 
 	if (cfg.pdfUrl && navigator.sendBeacon) {
@@ -65,10 +71,10 @@
 	if (cfg.article) {
 		var marks = [25, 50, 75, 100];
 		var sent = {};
+		var body = document.querySelector('.entry-content') || document.documentElement;
 		var onScroll = function () {
-			var doc = document.documentElement;
-			var max = doc.scrollHeight - window.innerHeight;
-			var pct = max > 0 ? (window.scrollY / max) * 100 : 100;
+			var rect = body.getBoundingClientRect();
+			var pct = rect.height > 0 ? ((window.innerHeight - rect.top) / rect.height) * 100 : 100;
 			for (var i = 0; i < marks.length; i++) {
 				if (pct >= marks[i] - 0.5 && !sent[marks[i]]) {
 					sent[marks[i]] = true;
