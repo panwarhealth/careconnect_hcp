@@ -16,7 +16,7 @@ One option controls everything: `wp option update hcp_analytics_mode off|preview
 | Mode | Who gets the new tracking | Use |
 |---|---|---|
 | `off` | Nobody (site behaves as before; other plugins still send their own events) | Default after install, rollback |
-| `preview` | Administrators, and any browser that opened a page with `?hcp_analytics_preview=1` (`=0` turns it off). GA4 events carry `debug_mode` so they show in DebugView. | Testing on production |
+| `preview` | Administrators, and any browser that opened a page with `?hcp_analytics_preview=1` (`=0` turns it off). GA4 events carry `debug_mode` so they show in DebugView. They still count in normal reports: while the old GTM snippet is on the page a previewer's page views count twice and a test registration counts as a sign-up, so note the test dates. | Testing on production |
 | `live` | Everyone | Normal running |
 
 ## GA4 (property 306115293, `G-ZM1QH0ZTGW`)
@@ -54,11 +54,11 @@ Dropped from the old container: Universal Analytics + ISP lookup (UA shut down 2
 
 ### Custom dimensions to register (event scope)
 
-`logged_in`, `profession`, `page_type`, `content_section`, `therapy_area`, `brand`, `percent_scrolled`. GA4 only fills a dimension from the day it is created, so register them before go-live.
+`logged_in`, `profession`, `page_type`, `content_section`, `therapy_area`, `brand`. GA4 only fills a dimension from the day it is created, so register them before go-live. `percent_scrolled`: check first whether GA4's built-in "Percent scrolled" dimension already reports it for `article_scroll`; register a custom one only if it does not.
 
 ## Microsoft Clarity (project `zfe87ouule`)
 
-Loaded with the same six context values as Clarity tags (filter recordings and heatmaps by them). Form fields are masked by Clarity's default (Balanced). Pages in the `account`, `samples` and `cpd` sections are masked in full (`data-clarity-mask` on `<html>`). Check in the Clarity dashboard that masking is **Balanced** or stricter.
+Loaded with the same six context values as Clarity tags (filter recordings and heatmaps by them). Form fields are masked by Clarity's default (Balanced). Pages in the `account`, `samples` and `cpd` sections are masked in full (`data-clarity-mask` on `<html>`). The header's "Welcome {first name}" greeting is masked on every page (`template-parts/header4.php`); any new element that prints a name or AHPRA number needs the same attribute. Check in the Clarity dashboard that masking is **Balanced** or stricter.
 
 ## Our database
 
@@ -130,5 +130,5 @@ Rollback: `wp option update hcp_analytics_mode off` and restore the `hefo` optio
 - Logged in as a test HCP from a tagged link: a row appears in `hcp_engagement` with the campaign; a PDF click adds a row against the resource.
 - A real test registration through `/register/` from a tagged link: `Form_submissions` then `conversion_event_signup` in DebugView, and the new account has `hcp_signup_utm_*` meta. Delete the test account afterwards.
 - Article scroll: `article_scroll` 100 fires at the end of the article text, before the footer.
-- Clarity shows the session, with profile and sample-order pages masked.
+- Clarity shows the session, with profile, sample-order and CPD pages masked and the header greeting masked on every page.
 - With preview off, the page source has none of the above and pop-up / video events still arrive.

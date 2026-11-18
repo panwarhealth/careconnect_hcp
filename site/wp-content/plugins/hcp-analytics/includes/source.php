@@ -24,7 +24,8 @@ const HCP_ANALYTICS_SOURCE_TTL    = 30 * MINUTE_IN_SECONDS;
 function hcp_analytics_clean_source( array $raw ): array {
 	$source = array();
 	foreach ( HCP_ANALYTICS_SOURCE_KEYS as $key ) {
-		$source[ $key ] = substr( sanitize_text_field( wp_unslash( (string) ( $raw[ $key ] ?? '' ) ) ), 0, 100 );
+		$value          = $raw[ $key ] ?? '';
+		$source[ $key ] = is_scalar( $value ) ? substr( sanitize_text_field( wp_unslash( (string) $value ) ), 0, 100 ) : '';
 	}
 
 	return $source;
@@ -68,7 +69,8 @@ function hcp_analytics_remember_source(): void {
 
 add_action( 'user_register', 'hcp_analytics_save_signup_source' );
 function hcp_analytics_save_signup_source( int $user_id ): void {
-	if ( ! hcp_analytics_is_active() || ( is_admin() && ! wp_doing_ajax() ) ) {
+	// Only accounts a visitor creates: not wp-admin, scripts or scheduled jobs.
+	if ( ! hcp_analytics_is_active() || ( is_admin() && ! wp_doing_ajax() ) || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_cron() ) {
 		return;
 	}
 	foreach ( hcp_analytics_visit_source() as $key => $value ) {

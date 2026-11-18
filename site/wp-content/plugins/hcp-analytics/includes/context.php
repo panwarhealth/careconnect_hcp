@@ -78,13 +78,28 @@ function hcp_analytics_page_kind(): array {
 	}
 
 	if ( is_post_type_archive() || is_tax() || is_category() || is_tag() || is_home() ) {
-		$type = get_query_var( 'post_type' ) ?: 'post';
-		$type = is_array( $type ) ? (string) reset( $type ) : (string) $type;
-
-		return array( 'page_type' => 'listing', 'content_section' => $by_type[ $type ][1] ?? 'other' );
+		return array( 'page_type' => 'listing', 'content_section' => $by_type[ hcp_analytics_listing_post_type() ][1] ?? 'other' );
 	}
 
 	return array( 'page_type' => 'other', 'content_section' => 'other' );
+}
+
+/**
+ * The content type a listing page lists: the archive's own type, or for a
+ * term page the single type its taxonomy belongs to ('' when it spans several).
+ */
+function hcp_analytics_listing_post_type(): string {
+	if ( is_tax() ) {
+		$term     = get_queried_object();
+		$taxonomy = $term instanceof WP_Term ? get_taxonomy( $term->taxonomy ) : false;
+		$types    = $taxonomy ? (array) $taxonomy->object_type : array();
+
+		return 1 === count( $types ) ? (string) reset( $types ) : '';
+	}
+
+	$type = get_query_var( 'post_type' ) ?: 'post';
+
+	return is_array( $type ) ? (string) reset( $type ) : (string) $type;
 }
 
 function hcp_analytics_section_for_path( string $path ): string {

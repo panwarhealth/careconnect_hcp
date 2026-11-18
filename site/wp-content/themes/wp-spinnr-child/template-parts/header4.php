@@ -52,7 +52,7 @@ switch(TBST_SPINNR_FRAMEWORK){
             <a class="site-title <?php echo get_theme_mod('header_link_class', 'text-dark');?>" href="<?php echo esc_url(home_url('/')); ?>"><?php esc_url(bloginfo('name')); ?></a>
         <?php endif; ?>
     </div>
-    <p class="ml-10 pt-4 text-primary"><?php	
+    <p class="ml-10 pt-4 text-primary" data-clarity-mask="true"><?php	
 			$current_user = wp_get_current_user();
 		if($current_user)
 			echo 'Welcome '.$current_user->user_firstname?>, <a href="/wp-login.php?action=logout" class="ml-md">Logout</a></p>
