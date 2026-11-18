@@ -197,8 +197,7 @@ def slide_fundamentals(prs, layout):
     cols = [
         ("01  COMPLIANCE", ORANGE, "COMPLETE", GREEN,
          ["Live 16 Nov: consent pop-up, preferences page and sign-up tick box",
-          "Update email sent to 1,634 HCPs (17 Nov)",
-          "Every answer logged with wording, date and version"]),
+          "Update email sent to 1,634 HCPs (17 Nov)"]),
         ("02  ANALYTICS", NAVY, "QUEUED", GREY,
          ["Per-user page tracking and journeys", "Microsoft Clarity heatmaps and session recordings",
           "Retention tracking (3, 7, 30 day)", "Starts after Resources; turns ranges into facts"]),
@@ -219,7 +218,7 @@ def slide_fundamentals(prs, layout):
         bullets(s, x + 0.15, 2.6, 2.75, 1.9, items, size=11, gap=6)
         x += 3.14
     label(s, 0.42, 4.75, 8, "WHAT EACH ONE UNLOCKS IN FY28")
-    unlocks = ["Consented database: we can email HCPs who said Yes", "Per-user data: the personalised page has signals to use",
+    unlocks = ["Consented database: We can now market to our database", "Per-user data: the personalised page has signals to use",
                "Faster fixes: HCPs hit fewer walls", "A findable library: better landing pages for every eDM"]
     x = 0.42
     for u in unlocks:
@@ -560,10 +559,10 @@ def slide_still_to_come(prs, layout):
 
 def slide_fy28_targets(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and how we'll hit each one")
+    title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and how we'll reach them")
     subtitle(s, "Care's FY28 brief keeps registrations at 349 and makes CPD, stickiness and return visits the new focus.", y=1.2)
     rows = [
-        ["KPI", "FY27 so far", "FY28 target", "How we'll hit it in FY28"],
+        ["KPI", "FY27 so far", "FY28 target", "How we'll reach it in FY28"],
         ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Match each eDM to the right publisher; CRM emails (Rec 2)"],
         ["Traffic to Care Connect", "AMJ +74%, JAS +198% YoY", "+5% YoY", "Personalised landing page (Rec 3); CRM emails (Rec 2)"],
         ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"],
@@ -621,7 +620,7 @@ def slide_dietitians(prs, layout):
 
 def slide_consent(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="COMPLIANCE: from consent we couldn't rely on to a compliant system")
+    title(s, size=20, t="COMPLIANCE: the journey to a compliant system")
     cw, gap = 3.75, 0.2
     mid_w = 12.5 - 2 * cw - 2 * gap
     xl, xm, xr = 0.42, 0.42 + cw + gap, 0.42 + cw + gap + mid_w + gap
@@ -639,9 +638,9 @@ def slide_consent(prs, layout):
 
     label(s, xm, top, mid_w, "WHAT WE DID")
     steps = [
-        ("Audit (Apr)", "Checked every account's consent"),
+        ("Audit (Apr)", "Reviewed current state of legal policies"),
         ("Legal rewrite (to 23 Sep)", "External lawyers redrafted the Terms of Use and Privacy Policy"),
-        ("Build", "Log-in pop-up, preferences page and a separate unticked sign-up box; every answer logged"),
+        ("Build", "Updated policies, consent capture eDO, consent capture Pop Up, Terms and Conditions check box on registration forms"),
         ("Care approval, then live", "Live for every HCP on 16 Nov"),
         ("Every HCP told (17 Nov)", "Terms and Privacy update email to the whole database"),
     ]
@@ -661,7 +660,7 @@ def slide_consent(prs, layout):
     text(s, xr + 0.2, top + 1.25, cw - 0.4, 0.6, ["Early trend from the first three days", "29% say No"], size=12, bold=True)
     bullets(s, xr + 0.2, top + 2.0, cw - 0.4, 3.0, [
         "Every answer is a recorded, compliant Yes or No, with the wording, date and version",
-        "We can email HCPs who said Yes",
+        "We can now email HCPs who said Yes",
         "Weekly tracking, reported at each quarterly review",
     ], size=11.5, gap=6)
     source(s, "Before: consent audit of 1,366 registered HCP accounts (30 Apr 2026). Now: Care Connect consent log, 16 to 18 Nov 2026; "
