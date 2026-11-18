@@ -168,7 +168,7 @@ def slide_top_assets(prs, layout):
     portal = [
         ("Zaditen AC Chart", "~1,000", "unique users in its first month; top resource of FY27", ZAD_GREEN),
         ("Diabetes Sick Day Plan", "~122", "unique users: ~99 from eDMs + 23 browsing the site", HYD_ORANGE),
-        ("Clinical Audit (CPD)", "184", "enrolled since 19 Mar; 20 certificates to 30 Sep", RECTO_PURPLE),
+        ("Clinical Audit (CPD)", "184", "enrolled since 19 Mar; 20 completed with certificates issued, to 30 Sep", RECTO_PURPLE),
         ("Clinical Bites videos", "45%", "of arrivals pressed play (130 of 289)", PINK),
     ]
     w = (12.5 - (len(portal) - 1) * 0.15) / len(portal)
@@ -193,11 +193,12 @@ def slide_top_assets(prs, layout):
 
 def slide_fundamentals(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="FUNDAMENTALS UPDATE: on track to have all four in place by 31 March 2027")
+    title(s, size=20, t="FUNDAMENTALS UPDATE: compliance complete, the other three on track for 31 March 2027")
     cols = [
-        ("01  COMPLIANCE", ORANGE, "IN CARE REVIEW", AMBER,
-         ["Final legal policies received (23 Sep)", "Consent pop-up, preferences page and new registration tick box built",
-          "On staging for Care approval (since 20 Oct)", "Next: go live, then T&C update email to the database"]),
+        ("01  COMPLIANCE", ORANGE, "COMPLETE", GREEN,
+         ["Live 16 Nov: consent pop-up, preferences page and sign-up tick box",
+          "Update email sent to 1,634 HCPs (17 Nov)",
+          "Every answer logged with wording, date and version"]),
         ("02  ANALYTICS", NAVY, "QUEUED", GREY,
          ["Per-user page tracking and journeys", "Microsoft Clarity heatmaps and session recordings",
           "Retention tracking (3, 7, 30 day)", "Starts after Resources; turns ranges into facts"]),
@@ -225,7 +226,7 @@ def slide_fundamentals(prs, layout):
         rect(s, x, 5.05, 3.02, 1.65, fill=SOFT_BLUE, line=None, radius=0.1)
         text(s, x + 0.2, 5.05, 2.65, 1.65, u, size=11, color=NAVY, bold=True, anchor=MSO_ANCHOR.MIDDLE)
         x += 3.14
-    source(s, "Status as at 10 Nov 2026.")
+    source(s, "Status as at 18 Nov 2026.")
 
 
 def slide_platform(prs, layout):
@@ -241,16 +242,22 @@ def slide_platform(prs, layout):
         x = 0.42 + (i % 2) * 6.32
         y = 1.45 + (i // 2) * 2.05
         stat_card(s, x, y, 6.18, 1.9, cap, val, note, value_color=colr, value_size=30)
-    rect(s, 0.42, 5.55, 12.5, 1.15, fill=SOFT_BLUE, line=None, radius=0.1)
-    text(s, 0.62, 5.8, 12.1, 0.3, "ALSO DELIVERED", size=11, bold=True, color=GREY, spacing=200)
-    text(s, 0.62, 6.12, 12.1, 0.45, [[("Theme taken in-house (Jul 2026): ", {"bold": True}),
-                                   ("Care Connect no longer depends on the previous supplier for its theme, and the ongoing theme licence fee is gone.", {})]],
-         size=12.5)
-    source(s, QBR_SOURCE + " Licence and video items as at Nov 2026.")
+    rect(s, 0.42, 5.45, 12.5, 1.25, fill=SOFT_BLUE, line=None, radius=0.1)
+    text(s, 0.62, 5.62, 12.1, 0.3, "LICENCE SAVINGS  \u00b7  BALLPARK", size=11, bold=True, color=GREY, spacing=200)
+    text(s, 0.62, 5.95, 12.1, 0.7, [[("~A$810 a year ", {"bold": True}),
+                                    ("in licences stopped or downgraded: the previous supplier's theme licence (A$330, theme now in-house), WP Rocket, "
+                                     "Formidable Business instead of Elite, and ACF Pro kept on its lifetime licence. ", {}),
+                                    ("Vimeo ($5,300 bill) no longer needed: ", {"bold": True}),
+                                    ("videos moved to our own storage.", {})]],
+         size=11.5)
+    source(s, QBR_SOURCE + " Licence and video items as at Nov 2026; savings at list prices, US$ at ~1.55.")
 
 
 # ── FY28 plan ───────────────────────────────────────────────────────────────
-RATE = 140  # $/hr implied by BAU ($50K / ~356 hrs); Rob OK'd 11 Nov 2026
+RATE = 130  # $/hr set by Claire (RW review, 18 Nov 2026): BAU 388 hrs = $50,440
+BAU_HRS = 388
+BAU_COST = 50.44  # $K
+LICENCES = 4  # $K a year, see slide_licences
 
 FY28_ITEMS = [
     ("Bringing CPD in-house", "Recommendation 1: CPD platform + registration gate", 80),
@@ -266,7 +273,8 @@ def slide_budget(prs, layout):
     title(s, size=20, t="FY28 BUDGET ON A PAGE: $103K ex GST, with half going to growth")
     subtitle(s, "FY28 = 1 April 2027 to 31 March 2028. Assumes the 4 fundamentals are complete by 31 March 2027.", y=1.2)
     # proportional bar
-    segs = [("BAU", "$50K", 50, NAVY), ("Licences", "~$2K", 2, GREY), ("FY28 growth plan", "~$51K", 51, TEAL)]
+    segs = [("BAU", "$50K", 50, NAVY), ("Licences", f"~${LICENCES}K", LICENCES, GREY),
+            ("FY28 growth plan", f"~${103 - 50 - LICENCES}K", 103 - 50 - LICENCES, TEAL)]
     x, total_w = 0.42, 12.5
     for name, amt, v, colr in segs:
         w = total_w * v / 103
@@ -275,36 +283,36 @@ def slide_budget(prs, layout):
             text(s, x, 1.85, w, 0.75, [[(name + "  ", {"bold": True}), (amt, {})]], size=14, color=WHITE,
                  align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
         x += w
-    text(s, 0.42, 2.65, 12.5, 0.3, "Licences (~$2K) sit between the two: see the licences slide.", size=10, color=GREY, italic=True)
+    text(s, 0.42, 2.65, 12.5, 0.3, f"Licences (~${LICENCES}K) sit between the two: see the licences slide.", size=10, color=GREY, italic=True)
 
     rows = [["Bucket", "What it covers", "Hours", "Cost"]]
-    rows.append(["BAU", "Content uploads, eDM management, UTM/QR, quarterly reporting, security + maintenance, co-ordination", "~356", "≤ $50K"])
-    rows.append(["Licences + subscriptions", "LearnDash, Formidable, Imagify, video hosting, staging, CRM email sending", "n/a", "~$2K"])
+    rows.append(["BAU", "Content uploads, eDM management, UTM/QR, quarterly reporting, security + maintenance, co-ordination", f"~{BAU_HRS}", "$50,440"])
+    rows.append(["Licences + subscriptions", "LearnDash, Formidable, Imagify, web authoring tools, video hosting, staging, CRM email sending", "n/a", f"~${LICENCES}K"])
     for name, kind, hrs in FY28_ITEMS:
         rows.append([name, kind, f"~{hrs}", f"~${hrs * RATE / 1000:.1f}K"])
     recs = sum(h for *_, h in FY28_ITEMS)
-    rows.append(["TOTAL", "Within the $103K budget", f"~{356 + recs}", f"~${50 + 2 + recs * RATE / 1000:.1f}K"])
+    rows.append(["TOTAL", "Within the $103K budget", f"~{BAU_HRS + recs}", f"~${BAU_COST + LICENCES + recs * RATE / 1000:.1f}K"])
     n = len(rows)
     fills = {(n - 1, c): SOFT_BLUE for c in range(4)}
     table(s, 0.42, 3.0, 12.5, [3.2, 6.5, 1.2, 1.6], rows, row_h=0.41, size=11, header_size=11,
           align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.CENTER], bold_cols=(0,), fills=fills)
-    source(s, "Hours are Panwar Health estimates; costs at ~$140/hr, to be confirmed. New CPD course content (recommended by Panwar staff) to be costed separately.")
+    source(s, "Hours are Panwar Health estimates; costs at ~$130/hr, to be confirmed. New CPD course content (recommended by Panwar staff) to be costed separately.")
 
 
 def slide_bau(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="BAU: everything that keeps Care Connect running, for under $50K")
-    subtitle(s, "FY27 set aside $60,960 for BAU. A year in, we know the real workload and can deliver it for less.", y=1.2)
+    title(s, size=20, t="BAU: everything that keeps Care Connect running")
+    subtitle(s, "FY27 set aside $90K for BAU. A year in, we know the real workload, have implemented efficiencies and can do this for substantially less.", y=1.2)
     rows = [
         ["Line item", "What's included", "Hours / yr"],
         ["Content uploads + page builds", "Articles, resources, landing pages, tracked PDF links, ungate windows", "80"],
-        ["eDM campaign management", "Builds, testing and sends; publisher HTML and link checks", "50"],
-        ["UTM links + QR codes", "Tagging every eDM, print and QR link to the convention", "12"],
+        ["eDM campaign management", "Builds, testing and sends; publisher HTML and link checks", "60"],
+        ["UTM links + QR codes", "Tagging every eDM, print and QR link to the convention", "16"],
         ["Quarterly reporting", "4 quarterly reviews: GA4, database, eDM reconciliation, bot filtering", "96"],
-        ["Security monitoring", "Error alerts, backups, access reviews, vulnerability response", "30"],
-        ["Platform maintenance", "Quarterly WordPress + plugin updates tested on staging; fixes", "48"],
+        ["Security monitoring", "Error alerts, backups, access reviews, vulnerability response", "40"],
+        ["Platform maintenance", "Quarterly WordPress + plugin updates tested on staging; fixes", "56"],
         ["Account + project co-ordination", "Status, briefs, run-throughs, reviews, approvals", "40"],
-        ["TOTAL", "", "~356"],
+        ["TOTAL", "", "388 hours $50,440"],
     ]
     n = len(rows)
     fills = {(n - 1, c): SOFT_BLUE for c in range(3)}
@@ -315,19 +323,20 @@ def slide_bau(prs, layout):
 
 def slide_licences(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="LICENCES + SUBSCRIPTIONS: now on Care-owned accounts, ~$2K a year")
+    title(s, size=20, t=f"LICENCES + SUBSCRIPTIONS: now on Care-owned accounts, ~${LICENCES}K a year")
     rows = [
         ["Licence / service", "What it does", "Annual cost", "Status"],
         ["LearnDash", "Courses, quizzes, CPD certificates", "US$350", "Paid to Oct 2027; not renewed after Recommendation 1"],
         ["Formidable Forms Business", "Registration, sample orders, surveys, audit", "US$399", "Care account (live 2 Nov)"],
         ["Imagify Growth", "Image compression (site speed)", "~US$60", "Care account (live 2 Nov)"],
+        ["Web authoring tools", "Code, build and content tools", "US$1,200", "Panwar account, charged to Care Connect"],
         ["Cloudflare R2", "Video hosting (replaced Vimeo)", "Usage, low", "Panwar account"],
         ["Azure staging", "Test site for every change before prod", "Usage, low", "Paused between jobs"],
         ["Email platform for CRM", "Automated emails (Recommendation 2)", "Usage, low", "Provided and run by Panwar"],
         ["Free / bundled", "GA4, Search Console, Clarity, Sentry (free tier); SMTP + Mailgun (Ayuda); ACF Pro (lifetime)", "$0", "No action"],
     ]
     fills = {}
-    table(s, 0.42, 1.45, 12.5, [2.6, 4.9, 1.6, 3.4], rows, row_h=0.52, size=11, header_size=11,
+    table(s, 0.42, 1.45, 12.5, [2.6, 4.9, 1.6, 3.4], rows, row_h=0.47, size=11, header_size=11,
           align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT], bold_cols=(0,), fills=fills)
     rect(s, 0.42, 5.85, 12.5, 0.85, fill=SOFT_BLUE, line=None, radius=0.15)
     text(s, 0.62, 5.85, 12.1, 0.85, [[("No longer paying for: ", {"bold": True}),
@@ -614,6 +623,42 @@ def slide_dietitians(prs, layout):
               "Register: Dietitians Australia, Register of Accredited Practising Dietitians.")
 
 
+def slide_consent(prs, layout):
+    s = new_slide(prs, layout)
+    title(s, size=20, t="COMPLIANCE LIVE: early results from the consent roll-out")
+    subtitle(s, "Every HCP is now asked for marketing consent when they log in. First two days, 16 to 18 November:", y=1.2)
+    cards = [
+        ("HCPs answered", "23", "in the first two days", NAVY),
+        ("Said Yes", "16", "70% of answers", GREEN),
+        ("Said No", "7", "30% of answers", PINK),
+        ("Emailed the update", "1,634", "Terms and Privacy email, 17 Nov", TEAL),
+    ]
+    w = (12.5 - 3 * 0.15) / 4
+    for i, (cap, val, note, colr) in enumerate(cards):
+        stat_card(s, 0.42 + i * (w + 0.15), 1.8, w, 1.55, cap, val, note, value_color=colr, value_size=30)
+    label(s, 0.42, 3.6, 6, "HOW THEY ANSWERED")
+    rect(s, 0.42, 3.9, 6.18, 1.6)
+    bullets(s, 0.6, 4.0, 5.85, 1.45, [
+        "21 on the pop-up when they logged in",
+        "2 on Edit Your Profile",
+        "No one has changed their answer",
+    ], size=12, gap=5)
+    label(s, 6.74, 3.6, 6, "WHAT IT MEANS FOR THE DATABASE")
+    rect(s, 6.74, 3.9, 6.18, 1.6)
+    bullets(s, 6.92, 4.0, 5.85, 1.45, [
+        "April audit: only 19 HCPs had valid marketing consent",
+        "New system: 16 Yes in two days, each logged with wording, date and version",
+        "Most HCPs answer when they next log in, so the numbers build over time",
+    ], size=12, gap=5)
+    rect(s, 0.42, 5.7, 12.5, 1.0, fill=SOFT_BLUE, line=None, radius=0.1)
+    text(s, 0.62, 5.7, 12.1, 1.0, [[("Next: ", {"bold": True}),
+                                   ("we track answers weekly and report them at each quarterly review. "
+                                    "The Yes list is who the CRM plays (Recommendation 2) can email.", {})]],
+         size=12.5, anchor=MSO_ANCHOR.MIDDLE)
+    source(s, "Source: Care Connect consent log, 18 Nov 2026 10:45am AEST; Panwar, Care and test accounts excluded. "
+              "April audit: consent review of 1,366 registered HCPs (30 Apr 2026).")
+
+
 def airy(slide, body=1.2, cell=1.1, extra_gap=2):
     """Open up line spacing on every text box and table cell that hasn't set its own."""
     def frames():
@@ -637,7 +682,7 @@ def main() -> None:
     prs, layout = open_template()
     builds = [slide_scorecard, slide_by_brand, slide_media_learnings, slide_top_assets, slide_fundamentals, slide_platform,
               slide_budget, slide_bau, slide_licences, slide_rebuild_what, slide_rebuild_costs, slide_rebuild_how, slide_timeline,
-              slide_still_to_come, slide_fy28_targets, slide_dietitians]
+              slide_still_to_come, slide_fy28_targets, slide_dietitians, slide_consent]
     for build in builds:
         build(prs, layout)
     for slide in prs.slides:

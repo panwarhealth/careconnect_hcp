@@ -180,3 +180,22 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
    - What dietitians get: "Content approved for them by Panwar's medical team (GLP-1 and Hydralyte are the obvious start)" -> "Content chosen for them by Panwar (GLP-1 and Hydralyte are the obvious start)".
    - To confirm: "Which content dietitians can see: Panwar's medical team to recommend, Care to agree" -> "Which content dietitians can see".
    - (Rob: "to confirm with Care" sounds AI) Heading "TO CONFIRM WITH CARE" -> "QUESTIONS FOR CARE"; bullets become questions: "Which content can dietitians see?" and "Do we want CPD for dietitians? It needs separate accreditation, as they log CPD with Dietitians Australia." (replaces the CPD bullet and the content bullet above).
+
+## Claire's feedback (FY28 Care Connect plan Draft - RW.pptx, 18 Nov) + consent update
+
+44. **[APPLIED v21]** **Carry Claire's own edits into the build (she typed them into RW):**
+   - RATE 140 -> 130 (budget source line "costs at ~$130/hr").
+   - BAU slide: title "BAU: everything that keeps Care Connect running" (drop "for under $50K"); subtitle "FY27 set aside $90K for BAU. A year in, we know the real workload, have implemented efficiencies and can do this for substantially less." (client copy, verbatim).
+   - BAU hours: eDM 50->60, UTM/QR 12->16, Security 30->40, Platform maintenance 48->56; TOTAL row "388 hours $50,440".
+   - Budget slide BAU row: "~388" hrs, "$50,440" (Claire left hrs at ~356; fix to match). Rec costs recalculated at $130: ~$10.4K / ~$13.0K / ~$11.7K / ~$9.1K / ~$1.4K. TOTAL ~739 hrs; cost = $50,440 + licences + recs.
+45. **[APPLIED v21]** **Slide 7 (Claire: "assume certificates means completions? state it"):** Clinical Audit card note "enrolled since 19 Mar; 20 certificates to 30 Sep" -> "enrolled since 19 Mar; 20 completed with certificates issued, to 30 Sep".
+46. **[APPLIED v21]** **Slide 8 Fundamentals: Compliance = COMPLETE** (Claire + Rob). Tag "STATUS AT 18 NOV 2026". Title -> "FUNDAMENTALS UPDATE: compliance complete, the other three on track for 31 March 2027". Compliance pill IN CARE REVIEW -> COMPLETE (green). Bullets -> "Live since 16 Nov: consent pop-up, preferences page and registration tick box" / "Terms and Privacy update email sent to 1,634 HCPs (17 Nov)" / "Every answer logged: wording, date and version" / "Early results on the next slide". Source "Status as at 18 Nov 2026."
+47. **[APPLIED v21]** **NEW slide after Fundamentals: consent early results** (Claire Trello 17 Nov: Jodi keen to see how it affects the database). Prod data 18 Nov 10:45 AEST, Panwar/Care/test accounts excluded:
+   - 23 HCPs answered in the first 2 days; 16 Yes (70%), 7 No (30%); 0 changed their mind.
+   - How: 21 via the log-in pop-up, 2 via Edit Your Profile.
+   - Context: April audit found only 19 HCPs with valid Spam Act consent; the new system recorded 16 Yes in 2 days.
+   - 1,634 HCPs emailed the update; 23 answered so far (~1.4%), most answers come when HCPs next log in.
+   - Next: weekly tracking; Yes list feeds the CRM plays (Rec 2); update at each quarterly review.
+48. **[APPLIED v21]** **Slide 9 Beyond the fundamentals (Claire: ballpark of licence savings):** add a savings line/card. Ballpark per year: theme licence via previous supplier A$330 (stopped); WP Rocket US$59 (inactive, not renewed); Formidable Business not Elite US$200 less (US$399 vs US$599 list); ACF Pro US$49 (2016 lifetime licence still updates); ~A$810/yr recurring. Plus Vimeo: $5,300 unpaid bill, videos moved to our own storage (usage, low). List prices from vendor/review sites, labelled "ballpark".
+49. **[APPLIED v21]** **Licences slide + budget licences row (Claire: include Claude, but call it "Web authoring tools"):** new row "Web authoring tools" / "Code, build and content tools" / cost TBC FROM ROB / "Panwar account". Budget licences row covers list + amount updated. No "Claude" or "AI" anywhere on the slide (Claire: some readers are sensitive to AI tools).
+   - v21 notes: Web authoring tools = Claude Max US$100/mo = US$1,200/yr (Rob 18 Nov). Licences now ~$4K/yr (bar: BAU $50K, licences ~$4K, growth ~$49K). TOTAL ~739 hrs / ~$100.1K. Compliance column trimmed to 3 bullets to fit. Consent slide = new slide 9 (tag EARLY RESULTS · 16 TO 18 NOV 2026); deck now 28 slides.
