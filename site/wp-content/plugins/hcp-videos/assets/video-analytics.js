@@ -6,7 +6,8 @@
  * video_autoplay_next / video_autoplay_cancel for series autoplay, and a
  * page_view when autoplay swaps the next video page in place. Media
  * events do not bubble, so one capture-phase listener on the document covers
- * players added at any time. gtag is only loaded on first play.
+ * players added at any time. gtag is reused when hcp-analytics has it on the
+ * page, otherwise loaded on first play.
  */
 (function () {
 	'use strict';
@@ -17,7 +18,7 @@
 	}
 
 	var sentByVideo = new WeakMap();
-	var gtagReady = false;
+	var gtagReady = !!cfg.gtagOnPage;
 
 	function ensureGtag() {
 		if (gtagReady) {

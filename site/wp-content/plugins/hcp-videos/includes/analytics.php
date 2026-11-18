@@ -9,15 +9,13 @@
  * embeds — video pages, [hcp_video] in articles, future content — are tracked
  * with no per-video wiring.
  *
- * The script is a few hundred bytes; gtag is only loaded by it on first play.
- * Delivery matches hcp-popups: gtag configured with send_page_view disabled,
- * events addressed with send_to, so pageviews are never inflated alongside
- * the GTM container.
+ * The script is a few hundred bytes. It reuses gtag when hcp-analytics has it
+ * on the page; otherwise it loads gtag on first play, configured with
+ * send_page_view disabled. Events are addressed with send_to, so page views
+ * are never inflated. The measurement ID comes from hcp-analytics.
  */
 
 defined( 'ABSPATH' ) || exit;
-
-const HCP_VIDEOS_GA4_MEASUREMENT_ID = 'G-ZM1QH0ZTGW';
 
 function hcp_videos_ga4_measurement_id(): string {
 	/**
@@ -25,7 +23,7 @@ function hcp_videos_ga4_measurement_id(): string {
 	 *
 	 * @param string $id Empty string disables tracking.
 	 */
-	return (string) apply_filters( 'hcp_videos_ga4_measurement_id', HCP_VIDEOS_GA4_MEASUREMENT_ID );
+	return (string) apply_filters( 'hcp_videos_ga4_measurement_id', (string) apply_filters( 'hcp_ga4_measurement_id', '' ) );
 }
 
 add_action( 'wp_enqueue_scripts', 'hcp_videos_enqueue_analytics', 20 );
@@ -46,5 +44,12 @@ function hcp_videos_enqueue_analytics(): void {
 		(string) filemtime( HCP_VIDEOS_DIR . 'assets/video-analytics.js' ),
 		true
 	);
-	wp_localize_script( 'hcp-videos-analytics', 'hcpVideoAnalytics', array( 'measurementId' => $id ) );
+	wp_localize_script(
+		'hcp-videos-analytics',
+		'hcpVideoAnalytics',
+		array(
+			'measurementId' => $id,
+			'gtagOnPage'    => (bool) apply_filters( 'hcp_ga4_gtag_on_page', false ),
+		)
+	);
 }

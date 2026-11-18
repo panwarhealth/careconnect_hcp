@@ -2,18 +2,13 @@
 /**
  * GA4 delivery.
  *
- * The site's GA4 arrives through a GTM container we do not control, so pop-up
- * events are sent to GA4 directly instead of via a dataLayer tag someone else
- * would have to configure. Same approach as the PDF redirect template.
- *
- * The loader is configured with send_page_view disabled and every event is
- * addressed with send_to, so this cannot inflate pageviews alongside whatever
- * the container is already doing.
+ * The measurement ID comes from hcp-analytics (hcp_ga4_measurement_id). When
+ * hcp-analytics already has gtag on the page, it is reused; otherwise gtag is
+ * loaded here with send_page_view disabled, and every event is addressed with
+ * send_to, so pop-ups can never add page views.
  */
 
 defined( 'ABSPATH' ) || exit;
-
-const HCP_POPUPS_GA4_MEASUREMENT_ID = 'G-ZM1QH0ZTGW';
 
 function hcp_popups_ga4_measurement_id(): string {
 	/**
@@ -21,17 +16,17 @@ function hcp_popups_ga4_measurement_id(): string {
 	 *
 	 * @param string $id
 	 */
-	return (string) apply_filters( 'hcp_popups_ga4_measurement_id', HCP_POPUPS_GA4_MEASUREMENT_ID );
+	return (string) apply_filters( 'hcp_popups_ga4_measurement_id', (string) apply_filters( 'hcp_ga4_measurement_id', '' ) );
 }
 
 /**
  * Loads gtag.js. Only called when a pop-up is actually being shown.
  *
- * @return string Script handle to depend on, or '' when GA4 is switched off.
+ * @return string Script handle to depend on, or '' when GA4 is off or gtag is already on the page.
  */
 function hcp_popups_enqueue_ga4(): string {
 	$id = hcp_popups_ga4_measurement_id();
-	if ( '' === $id ) {
+	if ( '' === $id || apply_filters( 'hcp_ga4_gtag_on_page', false ) ) {
 		return '';
 	}
 

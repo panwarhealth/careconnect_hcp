@@ -4,8 +4,9 @@
  *
  * The quiz itself runs inline in post_content and records nothing; this loads
  * a separate listener only on posts that contain a quiz, so the post's inline
- * script is left untouched. Delivery matches hcp-videos: gtag configured with
- * send_page_view disabled and events addressed with send_to.
+ * script is left untouched. Delivery matches hcp-videos: gtag reused when
+ * hcp-analytics has it on the page, otherwise loaded with send_page_view
+ * disabled; events addressed with send_to.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,7 +22,7 @@ function hcp_quiz_enqueue_analytics(): void {
 		return;
 	}
 
-	$id = function_exists( 'hcp_videos_ga4_measurement_id' ) ? hcp_videos_ga4_measurement_id() : 'G-ZM1QH0ZTGW';
+	$id = (string) apply_filters( 'hcp_ga4_measurement_id', '' );
 	if ( '' === $id ) {
 		return;
 	}
@@ -39,6 +40,7 @@ function hcp_quiz_enqueue_analytics(): void {
 		'hcpQuizAnalytics',
 		array(
 			'measurementId' => $id,
+			'gtagOnPage'    => (bool) apply_filters( 'hcp_ga4_gtag_on_page', false ),
 			'quiz'          => $post->post_name,
 		)
 	);

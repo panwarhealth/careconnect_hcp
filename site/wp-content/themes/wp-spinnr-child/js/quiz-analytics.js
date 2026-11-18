@@ -16,7 +16,7 @@
 		return;
 	}
 
-	var ready = false;
+	var ready = !!cfg.gtagOnPage;
 	function send(name, params) {
 		if (!ready) {
 			window.dataLayer = window.dataLayer || [];

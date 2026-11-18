@@ -2,8 +2,8 @@
 /**
  * Template Name: PDF Redirect
  *
- * Fires GA4 via wp_head() then immediately redirects to the URL stored in
- * _pdf_redirect_url postmeta. Use for tracked asset links (eDM, QR codes).
+ * Sends a GA4 page view, then redirects to the URL stored in _pdf_redirect_url
+ * postmeta. Use for tracked asset links (eDM, QR codes).
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -12,6 +12,11 @@ if ( ! $redirect_url ) {
 	wp_redirect( home_url( '/' ) );
 	exit;
 }
+
+// GA4 ID from hcp-analytics; with no ID the page just redirects. Page context
+// (logged in, profession, section) is added once the new tracking is active.
+$ga4_id      = (string) apply_filters( 'hcp_ga4_measurement_id', '' );
+$ga4_context = function_exists( 'hcp_analytics_is_active' ) && hcp_analytics_is_active() ? hcp_analytics_context() : array();
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -19,12 +24,18 @@ if ( ! $redirect_url ) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Redirecting&hellip;</title>
-<script src="https://www.googletagmanager.com/gtag/js?id=G-ZM1QH0ZTGW"></script>
+<?php if ( '' === $ga4_id ) : ?>
+<script>window.location.replace( <?php echo wp_json_encode( $redirect_url ); ?> );</script>
+<?php else : ?>
+<script src="<?php echo esc_url( 'https://www.googletagmanager.com/gtag/js?id=' . rawurlencode( $ga4_id ) ); ?>"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'G-ZM1QH0ZTGW', { send_page_view: false });
+<?php if ( $ga4_context ) : ?>
+gtag('set', <?php echo wp_json_encode( $ga4_context ); ?>);
+<?php endif; ?>
+gtag('config', <?php echo wp_json_encode( $ga4_id ); ?>, { send_page_view: false });
 
 var didRedirect = false;
 function doRedirect() {
@@ -34,9 +45,10 @@ function doRedirect() {
     }
 }
 
-gtag('event', 'page_view', { send_to: 'G-ZM1QH0ZTGW', event_callback: doRedirect });
+gtag('event', 'page_view', { send_to: <?php echo wp_json_encode( $ga4_id ); ?>, event_callback: doRedirect });
 setTimeout( doRedirect, 2000 ); // fallback if GA4 is blocked or fails
 </script>
+<?php endif; ?>
 </head>
 <body>
 <noscript><meta http-equiv="refresh" content="0;url=<?php echo esc_attr( $redirect_url ); ?>"></noscript>
