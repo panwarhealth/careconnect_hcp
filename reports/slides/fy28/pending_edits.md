@@ -199,3 +199,28 @@ Base: draft v7 (11 Nov 2026). **Edits 1-3 APPLIED in draft v8 (24 slides).** New
 48. **[APPLIED v21]** **Slide 9 Beyond the fundamentals (Claire: ballpark of licence savings):** add a savings line/card. Ballpark per year: theme licence via previous supplier A$330 (stopped); WP Rocket US$59 (inactive, not renewed); Formidable Business not Elite US$200 less (US$399 vs US$599 list); ACF Pro US$49 (2016 lifetime licence still updates); ~A$810/yr recurring. Plus Vimeo: $5,300 unpaid bill, videos moved to our own storage (usage, low). List prices from vendor/review sites, labelled "ballpark".
 49. **[APPLIED v21]** **Licences slide + budget licences row (Claire: include Claude, but call it "Web authoring tools"):** new row "Web authoring tools" / "Code, build and content tools" / cost TBC FROM ROB / "Panwar account". Budget licences row covers list + amount updated. No "Claude" or "AI" anywhere on the slide (Claire: some readers are sensitive to AI tools).
    - v21 notes: Web authoring tools = Claude Max US$100/mo = US$1,200/yr (Rob 18 Nov). Licences now ~$4K/yr (bar: BAU $50K, licences ~$4K, growth ~$49K). TOTAL ~739 hrs / ~$100.1K. Compliance column trimmed to 3 bullets to fit. Consent slide = new slide 9 (tag EARLY RESULTS · 16 TO 18 NOV 2026); deck now 28 slides.
+
+50. **[APPLIED v22]** **Slide 8 Fundamentals, Resources column** (Rob: resources clean-up went live). "Care reviewing items to retire" -> "Clean-up live 18 Nov: 11 out-of-date resources removed" (main 5d08455, Jodi review). Status stays IN DESIGN (hubs still in design); other bullets unchanged. Check the column still fits.
+
+51. **[APPLIED v22]** **No "plays" wording** (Rob: "CRM plays" sounds shit; it came from CAPH0068). Built slides:
+   - Slide 8 unlocks: "Consented database: the CRM plays can send" -> "Consented database: we can email HCPs who said Yes".
+   - Slide 9 next: "The Yes list is who the CRM plays (Recommendation 2) can email." -> "The Yes list is who the automated emails (Recommendation 2) can go to."
+   - Slide 15 targets: "CRM plays (Rec 2)" -> "CRM emails (Rec 2)".
+   - Slide 24 roadmap bar: "Build JAS, plays live from OND" -> "Build JAS, emails live from OND".
+   - Slide 24 FESS tie-in: "CRM play 1 announces the new kids range content as it lands" -> "An automated email announces the new kids range content as it lands".
+   - Slide 24 Rectogesic tie-in: "Onboarding and dormancy plays point new and lapsed GPs to the audit" -> "Welcome and win-back emails point new and lapsed GPs to the audit".
+   - OPEN: slide 18 (lifted CAPH0068 Rec 2) has "PLAY" labels in Care's design; swap to "EMAIL" via manifest only if Rob says.
+
+52. **[APPLIED v22]** **Slide 9 redesign: the compliance journey, not headcounts** (Rob: explain the process from a broken, not legally viable setup to the compliant one; no numbers of people answered, give the % trend).
+   - Title: "COMPLIANCE: from consent we couldn't rely on to a compliant system". Tag "APR TO NOV 2026".
+   - BEFORE (Apr 2026 audit, % of 1,366 accounts): ~1% valid Spam Act consent (19); 84% never asked (1,150, old forms had no consent box); 7% bundled into T&Cs (99), not valid under ACMA's July 2024 expectations; marketing emails paused. Show % only.
+   - WHAT WE DID (5-step timeline): 1 Audit (Apr) every account's consent checked; 2 Legal rewrite (to 23 Sep) external lawyers redrafted Terms of Use + Privacy Policy; 3 Build: log-in consent pop-up, preferences page, separate unticked sign-up box, every answer logged with wording/date/version; 4 Care approval, live 16 Nov; 5 Every HCP told (17 Nov) Terms + Privacy update email.
+   - NOW: "Early trend: 70% Yes, 30% No" (first two days; re-pull before 26 Nov); every answer a recorded, compliant Yes or No; next: weekly tracking, reported at each quarterly review.
+   - Remove all headcounts (23/16/7/1,634) from the slide. Source: consent audit 30 Apr 2026; Care Connect consent log (date of pull); staff/test accounts excluded.
+   - Supersedes the 51 wording for slide 9's "Next" line (no "plays" either way).
+
+53. **[APPLIED v22]** **Slide 10 licence savings band: one combined saving, told as a story** (Rob: too wordy; Vimeo $5,300 is a YEARLY bill, combine with the ~A$810; "that's what we're saving them now").
+   - Heading: "SAVING CARE ~A$6,100 A YEAR" (no "ballpark" in the heading).
+   - Text: "Licences and video hosting Care no longer pays for, now that the theme, plugins and videos are managed by us."
+   - Footnote keeps "savings at list prices" note. Drop the plugin-by-plugin list. Re-centre band text vertically.
+   - v22 notes: consent re-pulled 18 Nov ~1:30pm AEDT: 71% Yes / 29% No (first three days). Slide 18 PLAY labels left as Care wrote them (still open).

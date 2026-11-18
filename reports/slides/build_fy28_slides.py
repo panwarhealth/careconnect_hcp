@@ -208,7 +208,7 @@ def slide_fundamentals(prs, layout):
           "Alerts reach us before HCPs report them"]),
         ("04  RESOURCES", TEAL, "IN DESIGN", AMBER,
          ["Full audit complete", "Resource Hubs by therapy area: landing design agreed",
-          "Care reviewing items to retire", "Next: inside-a-hub page, search + filter, build"]),
+          "Clean-up live 18 Nov: 11 out-of-date resources removed", "Next: inside-a-hub page, search + filter, build"]),
     ]
     x = 0.42
     for head, colr, status, scol, items in cols:
@@ -219,7 +219,7 @@ def slide_fundamentals(prs, layout):
         bullets(s, x + 0.15, 2.6, 2.75, 1.9, items, size=11, gap=6)
         x += 3.14
     label(s, 0.42, 4.75, 8, "WHAT EACH ONE UNLOCKS IN FY28")
-    unlocks = ["Consented database: the CRM plays can send", "Per-user data: the personalised page has signals to use",
+    unlocks = ["Consented database: we can email HCPs who said Yes", "Per-user data: the personalised page has signals to use",
                "Faster fixes: HCPs hit fewer walls", "A findable library: better landing pages for every eDM"]
     x = 0.42
     for u in unlocks:
@@ -243,13 +243,9 @@ def slide_platform(prs, layout):
         y = 1.45 + (i // 2) * 2.05
         stat_card(s, x, y, 6.18, 1.9, cap, val, note, value_color=colr, value_size=30)
     rect(s, 0.42, 5.45, 12.5, 1.25, fill=SOFT_BLUE, line=None, radius=0.1)
-    text(s, 0.62, 5.62, 12.1, 0.3, "LICENCE SAVINGS  \u00b7  BALLPARK", size=11, bold=True, color=GREY, spacing=200)
-    text(s, 0.62, 5.95, 12.1, 0.7, [[("~A$810 a year ", {"bold": True}),
-                                    ("in licences stopped or downgraded: the previous supplier's theme licence (A$330, theme now in-house), WP Rocket, "
-                                     "Formidable Business instead of Elite, and ACF Pro kept on its lifetime licence. ", {}),
-                                    ("Vimeo ($5,300 bill) no longer needed: ", {"bold": True}),
-                                    ("videos moved to our own storage.", {})]],
-         size=11.5)
+    text(s, 0.62, 5.68, 12.1, 0.4, "SAVING CARE ~A$6,100 A YEAR", size=16, bold=True, color=NAVY)
+    text(s, 0.62, 6.1, 12.1, 0.4, "Licences and video hosting Care no longer pays for, now that the theme, plugins and videos are managed by us.",
+         size=12.5)
     source(s, QBR_SOURCE + " Licence and video items as at Nov 2026; savings at list prices, US$ at ~1.55.")
 
 
@@ -499,7 +495,7 @@ def slide_timeline(prs, layout):
         ("Bringing CPD in-house", 0, 1, PINK, "CPD platform + gate  ·  ~80 hrs"),
         ("Mobile UX audit + fixes", 0, 2, PURPLE, "Audit AMJ, fixes JAS  ·  ~70 hrs"),
         ("Dietitian access", 1, 2, GREEN, "Sign-up + review  ·  ~11 hrs"),
-        ("Always-on CRM plan", 1, 4, TEAL, "Build JAS, plays live from OND  ·  ~100 hrs"),
+        ("Always-on CRM plan", 1, 4, TEAL, "Build JAS, emails live from OND  ·  ~100 hrs"),
         ("Personalised landing page", 2, 4, NAVY, "Needs 6+ months of analytics data  ·  ~90 hrs"),
         ("New CPD courses", 0, 4, ORANGE, "Scope from Panwar staff; published on the new platform"),
     ]
@@ -512,9 +508,9 @@ def slide_timeline(prs, layout):
         y += 0.46
     label(s, 0.42, y + 0.15, 6, "BRAND TIE-INS")
     tie = [
-        ("FESS: grow", "CRM play 1 announces the new kids range content as it lands", FESS_BLUE),
+        ("FESS: grow", "An automated email announces the new kids range content as it lands", FESS_BLUE),
         ("Hydralyte: defend", "GLP-1 and diabetes resources surfaced to GPs on the personalised page", HYD_ORANGE),
-        ("Rectogesic: promote the audit", "Onboarding and dormancy plays point new and lapsed GPs to the audit", RECTO_PURPLE),
+        ("Rectogesic: promote the audit", "Welcome and win-back emails point new and lapsed GPs to the audit", RECTO_PURPLE),
     ]
     x = 0.42
     for head, body, colr in tie:
@@ -571,7 +567,7 @@ def slide_fy28_targets(prs, layout):
         ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Match each eDM to the right publisher; CRM emails (Rec 2)"],
         ["Traffic to Care Connect", "AMJ +74%, JAS +198% YoY", "+5% YoY", "Personalised landing page (Rec 3); CRM emails (Rec 2)"],
         ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"],
-        ["CPD, stickiness + return visits", "New for FY28", "Tracked from Apr 2027", "CPD in-house (Rec 1); CRM plays (Rec 2); mobile fixes (Rec 4)"],
+        ["CPD, stickiness + return visits", "New for FY28", "Tracked from Apr 2027", "CPD in-house (Rec 1); CRM emails (Rec 2); mobile fixes (Rec 4)"],
     ]
     table(s, 0.42, 1.95, 12.5, [3.0, 2.9, 1.9, 4.7], rows, row_h=0.62, size=12, header_size=12,
           align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT], bold_cols=(0, 2))
@@ -625,39 +621,51 @@ def slide_dietitians(prs, layout):
 
 def slide_consent(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="COMPLIANCE LIVE: early results from the consent roll-out")
-    subtitle(s, "Every HCP is now asked for marketing consent when they log in. First two days, 16 to 18 November:", y=1.2)
-    cards = [
-        ("HCPs answered", "23", "in the first two days", NAVY),
-        ("Said Yes", "16", "70% of answers", GREEN),
-        ("Said No", "7", "30% of answers", PINK),
-        ("Emailed the update", "1,634", "Terms and Privacy email, 17 Nov", TEAL),
-    ]
-    w = (12.5 - 3 * 0.15) / 4
-    for i, (cap, val, note, colr) in enumerate(cards):
-        stat_card(s, 0.42 + i * (w + 0.15), 1.8, w, 1.55, cap, val, note, value_color=colr, value_size=30)
-    label(s, 0.42, 3.6, 6, "HOW THEY ANSWERED")
-    rect(s, 0.42, 3.9, 6.18, 1.6)
-    bullets(s, 0.6, 4.0, 5.85, 1.45, [
-        "21 on the pop-up when they logged in",
-        "2 on Edit Your Profile",
-        "No one has changed their answer",
-    ], size=12, gap=5)
-    label(s, 6.74, 3.6, 6, "WHAT IT MEANS FOR THE DATABASE")
-    rect(s, 6.74, 3.9, 6.18, 1.6)
-    bullets(s, 6.92, 4.0, 5.85, 1.45, [
-        "April audit: only 19 HCPs had valid marketing consent",
-        "New system: 16 Yes in two days, each logged with wording, date and version",
-        "Most HCPs answer when they next log in, so the numbers build over time",
-    ], size=12, gap=5)
-    rect(s, 0.42, 5.7, 12.5, 1.0, fill=SOFT_BLUE, line=None, radius=0.1)
-    text(s, 0.62, 5.7, 12.1, 1.0, [[("Next: ", {"bold": True}),
-                                   ("we track answers weekly and report them at each quarterly review. "
-                                    "The Yes list is who the CRM plays (Recommendation 2) can email.", {})]],
-         size=12.5, anchor=MSO_ANCHOR.MIDDLE)
-    source(s, "Source: Care Connect consent log, 18 Nov 2026 10:45am AEST; Panwar, Care and test accounts excluded. "
-              "April audit: consent review of 1,366 registered HCPs (30 Apr 2026).")
+    title(s, size=20, t="COMPLIANCE: from consent we couldn't rely on to a compliant system")
+    cw, gap = 3.75, 0.2
+    mid_w = 12.5 - 2 * cw - 2 * gap
+    xl, xm, xr = 0.42, 0.42 + cw + gap, 0.42 + cw + gap + mid_w + gap
+    top, h = 1.45, 5.25
 
+    label(s, xl, top, cw, "BEFORE  \u00b7  APRIL 2026 AUDIT")
+    rect(s, xl, top + 0.32, cw, h - 0.32, fill=SOFT_AMBER, line=None, radius=0.06)
+    text(s, xl + 0.2, top + 0.5, cw - 0.4, 0.75, "~1%", size=36, bold=True, color=AMBER)
+    text(s, xl + 0.2, top + 1.25, cw - 0.4, 0.6, "of HCP accounts had marketing consent we could rely on", size=12, bold=True)
+    bullets(s, xl + 0.2, top + 2.0, cw - 0.4, 3.0, [
+        "84% were never asked: the old sign-up forms had no consent box",
+        "7% had consent bundled into the T&Cs, which doesn't count under ACMA's 2024 rules",
+        "Marketing emails were paused",
+    ], size=11.5, gap=6)
+
+    label(s, xm, top, mid_w, "WHAT WE DID")
+    steps = [
+        ("Audit (Apr)", "Checked every account's consent"),
+        ("Legal rewrite (to 23 Sep)", "External lawyers redrafted the Terms of Use and Privacy Policy"),
+        ("Build", "Log-in pop-up, preferences page and a separate unticked sign-up box; every answer logged"),
+        ("Care approval, then live", "Live for every HCP on 16 Nov"),
+        ("Every HCP told (17 Nov)", "Terms and Privacy update email to the whole database"),
+    ]
+    row_h = (h - 0.32) / len(steps)
+    for k, (head, body) in enumerate(steps):
+        y = top + 0.32 + k * row_h
+        rect(s, xm, y + 0.04, mid_w, row_h - 0.08)
+        rect(s, xm + 0.15, y + (row_h - 0.5) / 2, 0.5, 0.5, fill=TEAL, line=None, radius=0.5)
+        text(s, xm + 0.15, y + (row_h - 0.5) / 2, 0.5, 0.5, str(k + 1), size=14, color=WHITE, bold=True,
+             align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, xm + 0.8, y + 0.04, mid_w - 0.95, row_h - 0.08, [[(head + ": ", {"bold": True}), (body, {})]],
+             size=11.5, anchor=MSO_ANCHOR.MIDDLE)
+
+    label(s, xr, top, cw, "NOW  \u00b7  LIVE SINCE 16 NOV")
+    rect(s, xr, top + 0.32, cw, h - 0.32, fill=SOFT_GREEN, line=None, radius=0.06)
+    text(s, xr + 0.2, top + 0.5, cw - 0.4, 0.75, "71% Yes", size=36, bold=True, color=GREEN)
+    text(s, xr + 0.2, top + 1.25, cw - 0.4, 0.6, ["Early trend from the first three days", "29% say No"], size=12, bold=True)
+    bullets(s, xr + 0.2, top + 2.0, cw - 0.4, 3.0, [
+        "Every answer is a recorded, compliant Yes or No, with the wording, date and version",
+        "We can email HCPs who said Yes",
+        "Weekly tracking, reported at each quarterly review",
+    ], size=11.5, gap=6)
+    source(s, "Before: consent audit of 1,366 registered HCP accounts (30 Apr 2026). Now: Care Connect consent log, 16 to 18 Nov 2026; "
+              "Panwar, Care and test accounts excluded.")
 
 def airy(slide, body=1.2, cell=1.1, extra_gap=2):
     """Open up line spacing on every text box and table cell that hasn't set its own."""
