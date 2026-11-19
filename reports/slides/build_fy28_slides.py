@@ -136,7 +136,8 @@ def slide_by_brand(prs, layout):
         x += 3.14
     rect(s, 0.42, 6.2, 12.5, 0.5, fill=SOFT_BLUE, line=None, radius=0.2)
     text(s, 0.42, 6.2, 12.5, 0.5, [[("ENABLER: CARE CONNECT OPTIMISATION  ", {"bold": True, "color": NAVY}),
-                                      ("SEO go-live, sample-order fix, video hosting, licences and theme in-house  \u00b7  4 fundamentals on track for 31 March 2027", {})]],
+                                      ("SEO go-live, sample-order fix, video hosting, licences and theme in-house", {})],
+                                     [("3 of 4 fundamentals complete, Resources on track for 31 March 2027", {})]],
          size=10.5, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     source(s, QBR_SOURCE)
 
@@ -193,14 +194,14 @@ def slide_top_assets(prs, layout):
 
 def slide_fundamentals(prs, layout):
     s = new_slide(prs, layout)
-    title(s, size=20, t="FUNDAMENTALS UPDATE: compliance complete, the other three on track for 31 March 2027")
+    title(s, size=20, t="FUNDAMENTALS UPDATE: three down, one to go")
     cols = [
         ("01  COMPLIANCE", ORANGE, "COMPLETE", GREEN,
          ["Live 16 Nov: consent pop-up, preferences page and sign-up tick box",
           "Update email sent to 1,634 HCPs (17 Nov)"]),
-        ("02  ANALYTICS", NAVY, "QUEUED", GREY,
+        ("02  ANALYTICS", NAVY, "COMPLETE", GREEN,
          ["Per-user page tracking and journeys", "Microsoft Clarity heatmaps and session recordings",
-          "Retention tracking (3, 7, 30 day)", "Starts after Resources; turns ranges into facts"]),
+          "Retention tracking (3, 7, 30 day)", "Live 18 Nov: deployed and tested"]),
         ("03  FAILURE LOGGING", NAVY, "COMPLETE", GREEN,
          ["Live since 30 Jun across site, server and email delivery",
           "Caught and fixed: login failures, search errors, sample-order script error, registration page error",
@@ -313,7 +314,7 @@ def slide_bau(prs, layout):
     fills = {(n - 1, c): SOFT_BLUE for c in range(3)}
     table(s, 0.42, 1.85, 12.5, [3.3, 7.6, 1.6], rows, row_h=0.53, size=11.5, header_size=11.5,
           align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER], bold_cols=(0,), fills=fills)
-    source(s, "Hours are Panwar Health estimates; cost to be finalised. PHP version upgrades are handled by Ayuda Hosting.")
+    source(s, "Hours are Panwar Health Ballparks; cost to be finalised. PHP version upgrades are handled by Ayuda Hosting.")
 
 
 def slide_licences(prs, layout):
@@ -461,7 +462,7 @@ def slide_rebuild_costs(prs, layout):
                                    "tangled with registration and site code, so every new course needs a developer to rewire and retest it.",
          size=10, italic=True, color=INK)
 
-    label(s, 8.3, 1.45, 4.62, "WHAT WE KEEP PAYING FOR TODAY")
+    label(s, 8.3, 1.45, 4.62, "WHAT CARE ARE PAYING FOR TODAY")
     rect(s, 8.3, 1.75, 4.62, 2.15, fill=SOFT_AMBER, line=None, radius=0.05)
     bullets(s, 8.48, 1.92, 4.3, 1.9, [
         [("LearnDash licence: ", {"bold": True}), ("US$350 a year", {})],
@@ -535,8 +536,7 @@ def slide_still_to_come(prs, layout):
                                            "Allergy and Zaditen campaigns continue"]),
         ]),
         ("JFM '27  ·  JAN TO MAR", [
-            ("CARE CONNECT", NAVY, ["Analytics fundamental: per-user journeys, Clarity, retention",
-                                    "All 4 fundamentals complete by 31 Mar"]),
+            ("CARE CONNECT", NAVY, ["All 4 fundamentals complete by 31 Mar"]),
             ("HYDRALYTE", HYD_ORANGE, ["GLP-1 leave behind for APP (with Dr Angela Kwong)"]),
             ("THERATEARS", ZAD_GREEN, ["Launch support (timing TBC)"]),
             ("REPORTING", GREY, ["OND quarterly review", "JFM review + FY27 full-year wrap-up"]),
@@ -560,12 +560,12 @@ def slide_still_to_come(prs, layout):
 def slide_fy28_targets(prs, layout):
     s = new_slide(prs, layout)
     title(s, size=20, t="FY28 TARGETS: the brief's KPIs, and how we'll reach them")
-    subtitle(s, "Care's FY28 brief keeps registrations at 349 and makes CPD, stickiness and return visits the new focus.", y=1.2)
+    subtitle(s, "Care's FY28 brief suggests aiming for 400 new registrations, with CPD, stickiness and return visits as the new focus.", y=1.2)
     rows = [
         ["KPI", "FY27 so far", "FY28 target", "How we'll reach it in FY28"],
-        ["eDM click-through rate", "6.6% (publisher-reported)", "5%", "Match each eDM to the right publisher; CRM emails (Rec 2)"],
+        ["eDM click-through rate", "6.6% (publisher-reported)", "7%", "Match each eDM to the right publisher; CRM emails (Rec 2)"],
         ["Traffic to Care Connect", "AMJ +74%, JAS +198% YoY", "+5% YoY", "Personalised landing page (Rec 3); CRM emails (Rec 2)"],
-        ["New registrations", "249 to 30 Sep (target 349)", "349", "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"],
+        ["New registrations", "249 to 30 Sep (target 349)", "400", "CPD in-house (Rec 1); audit eDMs; open sign-up to dietitians (Rec 5)"],
         ["CPD, stickiness + return visits", "New for FY28", "Tracked from Apr 2027", "CPD in-house (Rec 1); CRM emails (Rec 2); mobile fixes (Rec 4)"],
     ]
     table(s, 0.42, 1.95, 12.5, [3.0, 2.9, 1.9, 4.7], rows, row_h=0.62, size=12, header_size=12,
@@ -573,7 +573,7 @@ def slide_fy28_targets(prs, layout):
     rect(s, 0.42, 5.45, 12.5, 1.25, fill=SOFT_BLUE, line=None, radius=0.1)
     text(s, 0.62, 5.45, 12.1, 1.25, [[("Every recommendation that follows maps to at least one of these targets. ", {"bold": True}),
                                      ("Return visits and stickiness are measured with the per-user analytics set up in the "
-                                      "Analytics fundamental (live by 31 March 2027).", {})]],
+                                      "Analytics fundamental (live since 18 Nov 2026).", {})]],
          size=12, anchor=MSO_ANCHOR.MIDDLE)
     source(s, "Targets: Care Pharma HCP FY28 Brief (8 Nov 2026). FY27 figures: " + QBR_SOURCE[len("Source: "):])
 
