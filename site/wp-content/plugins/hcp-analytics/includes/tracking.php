@@ -2,9 +2,10 @@
 /**
  * Puts GA4 and Microsoft Clarity on the page.
  *
- * GA4 is loaded once, first thing in <head>, with the page context set for
- * every event (gtag 'set'), so page views and every other plugin's events
- * (pop-ups, videos, quiz) carry it. Those plugins reuse this gtag when it is
+ * GA4 is loaded once, first thing in <head>, with the page context as config
+ * parameters, which GA4 sends with every event on the page, so page views and
+ * every other plugin's events (pop-ups, videos, quiz) carry it. (gtag 'set'
+ * does not reach GA4 events.) Those plugins reuse this gtag when it is
  * present. The page view itself comes from the config call.
  *
  * Clarity gets the same context as tags. Pages that show personal details
@@ -24,7 +25,7 @@ function hcp_analytics_head(): void {
 
 	$id      = hcp_analytics_measurement_id();
 	$context = hcp_analytics_context();
-	$config  = hcp_analytics_is_preview() ? array( 'debug_mode' => true ) : new stdClass();
+	$config  = hcp_analytics_is_preview() ? $context + array( 'debug_mode' => true ) : $context;
 	$masked  = in_array( $context['content_section'], HCP_ANALYTICS_MASKED_SECTIONS, true );
 
 	printf( '<script async src="%s"></script>' . "\n", esc_url( 'https://www.googletagmanager.com/gtag/js?id=' . rawurlencode( $id ) ) );
@@ -32,7 +33,6 @@ function hcp_analytics_head(): void {
 		. 'window.dataLayer = window.dataLayer || [];' . "\n"
 		. 'window.gtag = window.gtag || function(){dataLayer.push(arguments);};' . "\n"
 		. "gtag('js', new Date());\n"
-		. "gtag('set', " . wp_json_encode( $context ) . ");\n"
 		. "gtag('config', " . wp_json_encode( $id ) . ', ' . wp_json_encode( $config ) . ");\n"
 		. ( $masked ? "document.documentElement.setAttribute('data-clarity-mask', 'true');\n" : '' )
 		. hcp_analytics_clarity_js( $context )

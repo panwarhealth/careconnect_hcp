@@ -32,10 +32,7 @@ $ga4_context = function_exists( 'hcp_analytics_is_active' ) && hcp_analytics_is_
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-<?php if ( $ga4_context ) : ?>
-gtag('set', <?php echo wp_json_encode( $ga4_context ); ?>);
-<?php endif; ?>
-gtag('config', <?php echo wp_json_encode( $ga4_id ); ?>, { send_page_view: false });
+gtag('config', <?php echo wp_json_encode( $ga4_id ); ?>, <?php echo wp_json_encode( array( 'send_page_view' => false ) + $ga4_context ); ?>);
 
 var didRedirect = false;
 function doRedirect() {
