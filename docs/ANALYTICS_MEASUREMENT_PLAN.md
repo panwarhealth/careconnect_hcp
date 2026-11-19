@@ -74,11 +74,25 @@ A tagged link's `utm_source`, `utm_medium`, `utm_campaign` are kept in the `hcp_
 
 New accounts get user meta `hcp_signup_utm_source`, `hcp_signup_utm_medium`, `hcp_signup_utm_campaign` (empty strings = signed up with no campaign; no meta = signed up before tracking went live).
 
+### What converted them (journey before sign-up)
+
+While a visitor is not logged in, the `hcp_journey` cookie (30 days) keeps their first visit, landing page, first campaign and last 10 pages viewed (repeat views and 404s skipped). At sign-up it is saved to the account and the cookie cleared:
+
+| User meta | Meaning |
+|---|---|
+| `hcp_signup_first_visit` | first page view on this device, site time |
+| `hcp_signup_landing_page` | path of that first page |
+| `hcp_signup_first_utm_source` / `_medium` / `_campaign` | first campaign in the journey (the sign-up source above is the campaign of the sign-up visit itself) |
+| `hcp_signup_pages` | JSON list of the last 10 page paths before sign-up |
+
+Per device: a visitor who browsed on a phone and signed up on a laptop shows only the laptop journey. No journey meta = no cookie (cleared, blocked, or signed up before 19 Nov 2026).
+
 ## Report questions and where the answer is
 
 | Question | Source |
 |---|---|
 | Sign-ups by eDM / campaign | `usermeta hcp_signup_utm_*` joined to `users.user_registered` |
+| What converts visitors: landing page, first campaign, pages before sign-up | `usermeta hcp_signup_landing_page`, `hcp_signup_first_utm_*`, `hcp_signup_pages` |
 | Which HCPs engaged with which eDM, and what they viewed | `hcp_engagement` where `utm_campaign = ...` |
 | What did HCPs from an eDM do next (audit, samples, resources) | `hcp_engagement` rows for those users after `first_seen` |
 | An HCP's interests (therapy areas, brands) | `hcp_analytics_engagement_profile( $user_id )` |
@@ -96,6 +110,11 @@ SELECT COALESCE(NULLIF(c.meta_value, ''), '(no campaign)') AS campaign, COUNT(*)
 FROM tbstwp_users u
 JOIN tbstwp_usermeta c ON c.user_id = u.ID AND c.meta_key = 'hcp_signup_utm_campaign'
 GROUP BY campaign ORDER BY signups DESC;
+
+-- Landing pages of new sign-ups
+SELECT l.meta_value AS landing_page, COUNT(*) AS signups
+FROM tbstwp_usermeta l WHERE l.meta_key = 'hcp_signup_landing_page'
+GROUP BY landing_page ORDER BY signups DESC;
 
 -- HCPs who engaged from one eDM, and what they opened
 SELECT e.user_id, p.post_type, p.post_title, e.views, e.first_seen

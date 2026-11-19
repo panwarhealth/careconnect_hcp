@@ -67,10 +67,17 @@ function hcp_analytics_remember_source(): void {
 	$_COOKIE[ HCP_ANALYTICS_SOURCE_COOKIE ] = $value;
 }
 
+/**
+ * Whether the account being created comes from a visitor signing up, not from
+ * wp-admin, a script or a scheduled job.
+ */
+function hcp_analytics_is_visitor_signup(): bool {
+	return hcp_analytics_is_active() && ! ( is_admin() && ! wp_doing_ajax() ) && ! ( defined( 'WP_CLI' ) && WP_CLI ) && ! wp_doing_cron();
+}
+
 add_action( 'user_register', 'hcp_analytics_save_signup_source' );
 function hcp_analytics_save_signup_source( int $user_id ): void {
-	// Only accounts a visitor creates: not wp-admin, scripts or scheduled jobs.
-	if ( ! hcp_analytics_is_active() || ( is_admin() && ! wp_doing_ajax() ) || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_cron() ) {
+	if ( ! hcp_analytics_is_visitor_signup() ) {
 		return;
 	}
 	foreach ( hcp_analytics_visit_source() as $key => $value ) {

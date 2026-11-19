@@ -16,6 +16,7 @@ define( 'HCP_ANALYTICS_DIR', plugin_dir_path( __FILE__ ) );
 require_once HCP_ANALYTICS_DIR . 'includes/config.php';
 require_once HCP_ANALYTICS_DIR . 'includes/context.php';
 require_once HCP_ANALYTICS_DIR . 'includes/source.php';
+require_once HCP_ANALYTICS_DIR . 'includes/journey.php';
 require_once HCP_ANALYTICS_DIR . 'includes/engagement.php';
 require_once HCP_ANALYTICS_DIR . 'includes/tracking.php';
 

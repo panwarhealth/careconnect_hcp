@@ -3127,7 +3127,7 @@ function check_aphra_regis(){
     }
 }
 
-add_action("wp", "check_aphra_regis");
+add_action("wp_head", "check_aphra_regis");
 
 add_filter('frm_validate_field_entry', function($errors, $field, $value){
 
