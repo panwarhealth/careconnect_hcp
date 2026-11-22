@@ -197,3 +197,6 @@ infra/.prod-secrets
 
 # Infra — Care Pharmaceuticals corporate site SSH/DB credentials (never commit)
 infra/.carepharma-corp-secrets
+
+# Test-account emails + AHPRA numbers excluded from reports (personal data)
+reports/.test-accounts

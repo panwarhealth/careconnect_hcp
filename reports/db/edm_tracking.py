@@ -15,7 +15,8 @@ docs/ANALYTICS_MEASUREMENT_PLAN.md "Our database":
 
 Engagement rows count from the day a page was first seen under a campaign
 (views are cumulative per row and can't be split across quarters).
-All dates are Sydney time. Staff accounts are excluded.
+All dates are Sydney time. Staff accounts and our test accounts
+(reports/.test-accounts) are excluded.
 """
 from __future__ import annotations
 
@@ -25,7 +26,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import io, periods, prod_db
+from lib import io, periods, prod_db, test_accounts
 
 TRACKING_LIVE = "2026-11-18"
 UNTRACKED = "__untracked__"  # no sign-up meta: account created before tracking
@@ -72,6 +73,7 @@ def signups(p: periods.Period) -> list[dict]:
         WHERE {reg_local} >= '{p.start}' AND {reg_local} < DATE_ADD('{p.end}', INTERVAL 1 DAY)
           AND u.user_email NOT REGEXP '{STAFF_EMAIL}'
           AND {_staff_filter('u.ID')}
+          AND {test_accounts.sql_exclude('u.ID')}
         ORDER BY u.ID;
     """)
 
@@ -86,6 +88,7 @@ def engagement(p: periods.Period) -> list[dict]:
         LEFT JOIN tbstwp_usermeta a ON a.user_id = e.user_id AND a.meta_key = 'ahpra_id'
         WHERE e.first_seen >= '{p.start}' AND e.first_seen < DATE_ADD('{p.end}', INTERVAL 1 DAY)
           AND {_staff_filter('e.user_id')}
+          AND {test_accounts.sql_exclude('e.user_id')}
         ORDER BY e.utm_campaign, e.user_id, e.first_seen;
     """)
 
