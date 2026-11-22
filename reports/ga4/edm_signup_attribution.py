@@ -199,6 +199,7 @@ def write_text(out: Path, content: str, filename: str) -> None:
 # Main
 # ---------------------------------------------------------------------------
 def main() -> None:
+    ga4.warn_signup_event(START, END)
     out = io.out_dir("ga4")
     ga = ga4.client()
 

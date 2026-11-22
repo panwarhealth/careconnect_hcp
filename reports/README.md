@@ -82,12 +82,32 @@ python db/deep_dive.py
 # Mailchimp campaigns in the window
 python mailchimp/campaigns.py --period $Q
 
+# Sign-ups + HCP engagement by eDM, exact, from PROD (from 18 Nov 2026)
+python db/edm_tracking.py    --period $Q
+
 # Weekly signups vs users trend (defaults to the 2-year window)
 python ga4/weekly_signups.py
 ```
 
 Output lands in `out/{ga4,db,mailchimp,third_party_edms}/` and, on WSL, is
 copied to Windows Downloads.
+
+## Since the analytics go-live (18 Nov 2026)
+
+The `hcp-analytics` plugin replaced Tag Manager. See `docs/ANALYTICS_MEASUREMENT_PLAN.md`.
+
+- **Sign-ups by eDM are exact** from 18 Nov 2026: `db/edm_tracking.py` reads the campaign saved on
+  each new account, plus landing page and first campaign. Sign-ups before then show as
+  `(not tracked)`; estimate those with the eDM reconciliation method as before.
+- **HCP engagement by eDM** (which HCPs, what they opened) comes from the same script.
+- **GA4 `conversion_event_signup` changed method on 18 Nov 2026** and fired twice per sign-up
+  19-22 Nov (fixed 23 Nov). Never compare its counts across 18 Nov. The GA4 sign-up scripts print a
+  warning (`lib.ga4.warn_signup_event`).
+- **GA4 custom dimensions** (`logged_in`, `profession`, `page_type`, `content_section`) fill from
+  ~11am 19 Nov 2026. `therapy_area` and `brand` read "none" on articles and videos until those are
+  tagged. Article scroll depth = `article_scroll` by built-in `percentScrolled`.
+- **`lib/prod_db.py`** points at the Nov 2026 server. **`lib/db.py` reads the local DB**, which
+  is only as fresh as the last refresh: refresh it before `weekly_signups.py` / `deep_dive.py`.
 
 ## Script catalogue
 
@@ -120,6 +140,7 @@ re-point dates carefully before reusing (see the `# TODO: parameterize` note in-
 
 ### db/
 - `deep_dive.py` — signups, forms, LearnDash, RCP, demographics, activity (full-history; needs docker `db` up).
+- `edm_tracking.py` — sign-ups by eDM (exact), landing page + first campaign, HCP engagement by eDM; PROD over SSH (`--period`, from 18 Nov 2026).
 - `queries/*.sql` — standalone SQL snippets (run via `docker compose exec -T db mysql ...` or paste into a client).
 
 ### mailchimp/

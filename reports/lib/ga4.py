@@ -106,3 +106,23 @@ def dicts_of(resp, dim_names: list[str], metric_names: list[str]) -> list[dict]:
     """Flatten a response into dicts keyed by the given column names."""
     cols = dim_names + metric_names
     return [dict(zip(cols, r)) for r in rows_of(resp)]
+
+
+# conversion_event_signup changed at the 18 Nov 2026 analytics go-live: before,
+# a Tag Manager rule on form submit; after, a successful registration. It also
+# fired twice per sign-up from 19 to 22 Nov 2026 (fixed 23 Nov).
+SIGNUP_EVENT_CHANGED = "2026-11-18"
+SIGNUP_EVENT_DOUBLED = ("2026-11-19", "2026-11-22")
+
+
+def warn_signup_event(start: str, end: str) -> None:
+    """Print a warning when a window's conversion_event_signup counts need care."""
+    if start < SIGNUP_EVENT_CHANGED <= end:
+        print(f"WARNING: conversion_event_signup changed method on {SIGNUP_EVENT_CHANGED}; "
+              "don't compare counts across that date.")
+    lo, hi = SIGNUP_EVENT_DOUBLED
+    if start <= hi and end >= lo:
+        print(f"WARNING: conversion_event_signup fired twice per sign-up {lo} to {hi}; "
+              "use totalUsers, not eventCount, for those days.")
+    if end >= SIGNUP_EVENT_CHANGED:
+        print("NOTE: for sign-ups from 18 Nov 2026 use the exact DB source: reports/db/edm_tracking.py")
