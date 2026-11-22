@@ -49,7 +49,13 @@
 			send('Form_submissions', { page: window.location.pathname, Form: form.id || form.getAttribute('name') || '' });
 		});
 		if (window.jQuery) {
+			// Formidable fires both events on one successful registration.
+			var signupSent = false;
 			window.jQuery(document).on('frmBeforeFormRedirect frmFormComplete', function () {
+				if (signupSent) {
+					return;
+				}
+				signupSent = true;
 				send('conversion_event_signup');
 			});
 		}
