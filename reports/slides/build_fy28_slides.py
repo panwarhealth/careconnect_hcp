@@ -690,22 +690,27 @@ def slide_rec1_simple(prs, layout):
     title(s, size=22, t="RECOMMENDATION 1: Replacing the patched CPD plugins with a scalable platform")
     subtitle(s, "CPD brings in more sign-ups than anything else, so we're building our own platform for it, run by Panwar.", y=1.25, size=14)
     cards = [
-        ("SCALES", "New courses in ~5 hours, not ~30", TEAL),
-        ("ONE SIGN-UP", "A CPD sign-up is a Care Connect sign-up", NAVY),
-        ("DATA PROTECTED", "CPD records sit with Panwar; Care sees de\u2011identified reports", PURPLE),
-        ("NO LICENCES", "LearnDash dropped from Oct 2027", GREEN),
+        ("SCALES", "~5 hrs", "to put a new course on the site, down from ~30", TEAL),
+        ("ONE SIGN-UP", "1", "registration covers CPD and Care Connect", NAVY),
+        ("DATA PROTECTED", "0", "participant records held by Care; reports come de\u2011identified", PURPLE),
+        ("NO LICENCES", "$0", "course plugin licences once LearnDash ends (Oct 2027)", GREEN),
     ]
     w = (12.5 - 3 * 0.25) / 4
     x = 0.42
-    for head, line, colr in cards:
-        rect(s, x, 2.1, w, 2.35)
-        rect(s, x, 2.1, w, 0.12, fill=colr, line=None)
-        text(s, x + 0.25, 2.5, w - 0.5, 0.6, head, size=18, color=colr, bold=True, spacing=60)
-        text(s, x + 0.25, 3.2, w - 0.5, 1.1, line, size=15, color=INK)
+    for head, big, line, colr in cards:
+        rect(s, x, 2.05, w, 3.25)
+        rect(s, x, 2.05, w, 0.12, fill=colr, line=None)
+        text(s, x + 0.25, 2.4, w - 0.5, 0.4, head, size=13, color=colr, bold=True, spacing=100)
+        text(s, x + 0.25, 2.85, w - 0.5, 1.2, big, size=54, color=colr, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, x + 0.25, 4.15, w - 0.5, 1.0, line, size=13, color=INK)
         x += w + 0.25
-    rect(s, 10.47, 4.75, 2.45, 1.05, fill=PINK, line=None, radius=0.08)
-    text(s, 10.47, 4.77, 2.45, 0.6, "~80 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    text(s, 10.47, 5.3, 2.45, 0.4, "AMJ '27", size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    rect(s, 0.42, 5.6, 9.85, 1.0, fill=SOFT_BLUE, line=None, radius=0.08)
+    text(s, 0.67, 5.6, 9.4, 1.0, [[("Why now: ", {"bold": True, "color": NAVY}),
+                                   ("every new course on the current setup adds more workarounds and risk.", {})]],
+         size=13, anchor=MSO_ANCHOR.MIDDLE)
+    rect(s, 10.47, 5.6, 2.45, 1.0, fill=PINK, line=None, radius=0.08)
+    text(s, 10.47, 5.6, 2.45, 0.6, "~80 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    text(s, 10.47, 6.1, 2.45, 0.4, "AMJ '27", size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     source(s, "Hours are Panwar Health estimates; cost to be finalised.")
 
 
