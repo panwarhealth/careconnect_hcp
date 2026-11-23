@@ -106,9 +106,10 @@ def option_c(prs, layout):
         ("WHAT WE DO", NAVY, "Build our own CPD platform",
          ["Purpose-built, and run by Panwar as the CPD provider", "CPD records and scoring move to Panwar's systems",
           "HCPs still do everything on Care Connect"]),
-        ("WHAT CARE GETS", GREEN, "CPD that scales and complies",
-         ["New courses in ~5 hours", "One sign-up for CPD and Care Connect",
-          "Compliant by design: the sponsor never holds participant data"]),
+        ("WHAT CARE GETS", GREEN, "More CPD, more registrations",
+         ["More CPD courses, live sooner", "Richer courses, built in Panwar's SCORM course editor",
+          "Compliant by design: the sponsor never holds participant data",
+          "More HCP registrations: every CPD sign-up joins Care Connect"]),
     ]
     w, gap, x = 3.75, 0.62, 0.42
     for i, (head, colr, big, items) in enumerate(steps):
@@ -119,8 +120,8 @@ def option_c(prs, layout):
         ty = 3.4
         for item in items:
             rect(s, x + 0.3, ty + 0.09, 0.12, 0.12, fill=colr, line=None, radius=0.5)
-            text(s, x + 0.56, ty, w - 0.86, 0.62, item, size=12.5, color=INK)
-            ty += 0.72
+            text(s, x + 0.56, ty, w - 0.86, 0.5, item, size=12.5, color=INK)
+            ty += 2.16 / len(items)
         if i < 2:
             arrow(s, x + w + 0.08, 3.3, gap - 0.16, 0.55, PINK)
         x += w + gap
