@@ -101,13 +101,17 @@ def option_c(prs, layout):
     title(s, size=22, t=TITLE)
     steps = [
         ("THE PROBLEM", GREY, "CPD runs on patched plugins",
-         ["Three third-party plugins wired together", "Every new course takes ~30 developer hours",
-          "CPD participant records sit on Care's own site"]),
+         ["Set up quickly to get one course live", "Not designed to run more than one course",
+          "Three plugins patched together",
+          "Two have changed owners, so licence fees are likely to rise"]),
         ("WHAT WE DO", NAVY, "Build our own CPD platform",
-         ["Purpose-built, and run by Panwar as the CPD provider", "CPD records and scoring move to Panwar's systems",
-          "HCPs still do everything on Care Connect"]),
+         ["Replace the plugins with an LMS purpose-built for Care Connect",
+          "Catalogue-driven: set up for many courses from day one",
+          "Sensitive logic and records move to Panwar's infrastructure",
+          "Add a SCORM player for Panwar\u2011built courses"]),
         ("WHAT CARE GETS", GREEN, "More CPD, more registrations",
-         ["More CPD courses, live sooner", "Can deliver richer, more engaging SCORM courses",
+         ["A catalogue of CPD courses on Panwar's latest LMS technology",
+          "Richer, more engaging SCORM courses",
           "Compliant by design: the sponsor never holds participant data",
           "More HCP registrations: every CPD sign-up joins Care Connect"]),
     ]
