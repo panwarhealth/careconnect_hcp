@@ -115,6 +115,32 @@ def option_d(prs, layout):
     source(s, SOURCE)
 
 
+def option_d2(prs, layout):
+    """Bars with sign-up numbers: three rows."""
+    s = new_slide(prs, layout)
+    title(s, size=20, t=TITLE)
+    mid, full = 6.67, 5.3
+    text(s, mid - full, 1.45, full, 0.35, "TOOLS AND CPD", size=13, color=GREEN, bold=True, spacing=150)
+    text(s, mid + 0.15, 1.45, full, 0.35, "VIDEO AND QUIZ", size=13, color=GREY, bold=True, spacing=150)
+    rows = [
+        ("UNIQUE USERS", "~1,000", "Zaditen AC Chart, first month", 1.0, "48", "Glucose quiz, six weeks", 0.048),
+        ("SIGN-UPS FROM THE eDMs", "31", "Clinical Audit (CPD) eDM, TMR", 1.0, "~5", "FESS video eDMs, TMR + MT", 5 / 31),
+        ("eDM CLICKS THAT BECAME SIGN-UPS", "8.4%", "Clinical Audit (CPD) eDM", 1.0, "0.5%", "FESS video eDMs", 0.5 / 8.4),
+    ]
+    y = 1.95
+    for head, lbig, lname, lw, rbig, rname, rw in rows:
+        text(s, 0.42, y, 12.5, 0.3, head, size=11, color=GREY, bold=True, spacing=150, align=CENTER)
+        rect(s, mid - full * lw, y + 0.38, full * lw, 0.75, fill=GREEN, line=None, rounded=False)
+        rect(s, mid, y + 0.38, max(full * rw, 0.08), 0.75, fill=LIGHTBAR, line=None, rounded=False)
+        text(s, mid - full * lw + 0.3, y + 0.38, 3.5, 0.75, lbig, size=28, color=WHITE, bold=True, anchor=MID)
+        text(s, mid + full * rw + 0.25, y + 0.38, 2.5, 0.75, rbig, size=28, color=GREY, bold=True, anchor=MID)
+        text(s, mid - full, y + 1.18, full - 0.15, 0.3, lname, size=12.5, color=INK)
+        text(s, mid + 0.15, y + 1.18, full, 0.3, rname, size=12.5, color=INK)
+        rect(s, mid - 0.01, y + 0.3, 0.02, 0.9, fill=INK, line=None, rounded=False)
+        y += 1.6
+    source(s, SOURCE + " Sign-ups: TMR Clinical Audit eDM 1 Jul; FESS Clinical Bites eDMs 16 and 17 Sep (estimate above the quiet-week baseline).")
+
+
 def option_e(prs, layout):
     """Two by two: reach against sign-ups."""
     s = new_slide(prs, layout)
@@ -141,7 +167,7 @@ def option_e(prs, layout):
 
 def main() -> None:
     prs, layout = open_template()
-    builds = [option_b, option_a, option_c, option_d]
+    builds = [option_b, option_a, option_c, option_d, option_d2]
     if len(sys.argv) > 2:
         builds = [b for b in builds if b.__name__ in sys.argv[2:]]
     for build in builds:
