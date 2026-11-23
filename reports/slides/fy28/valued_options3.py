@@ -141,6 +141,40 @@ def option_d2(prs, layout):
     source(s, SOURCE + " Sign-ups: TMR Clinical Audit eDM 1 Jul; FESS Clinical Bites eDMs 16 and 17 Sep (estimate above the quiet-week baseline).")
 
 
+def option_simple(prs, layout):
+    """Two plain ranked bar lists: what HCPs used, what got them to sign up."""
+    s = new_slide(prs, layout)
+    title(s, size=20, t=TITLE)
+    charts = [
+        (0.42, "TOOLS GET USED", "HCPs who used it", TEAL, [
+            ("Zaditen AC Chart", 1000, "~1,000", True),
+            ("Clinical Bites videos", 289, "289", False),
+            ("Clinical Audit (CPD)", 184, "184", False),
+            ("Diabetes Sick Day Plan", 122, "~122", True),
+            ("Glucose quiz", 48, "48", False),
+        ]),
+        (6.82, "CPD GETS SIGN-UPS", "Sign-ups from each eDM campaign", PURPLE, [
+            ("Clinical Audit (CPD)", 31, "31", True),
+            ("Hydralyte videos", 18, "~18", False),
+            ("FESS videos", 5, "~5", False),
+            ("Zaditen AC Chart", 2, "~2", False),
+        ]),
+    ]
+    for x, head, sub, colr, bars in charts:
+        text(s, x, 1.45, 6.1, 0.5, head, size=24, color=colr, bold=True)
+        text(s, x, 1.95, 6.1, 0.3, sub, size=12, color=GREY)
+        top = max(v for _, v, _, _ in bars)
+        y = 2.5
+        for name, v, lab, win in bars:
+            text(s, x, y, 2.4, 0.6, name, size=13, color=INK, bold=win, anchor=MID)
+            w = 3.0 * v / top
+            rect(s, x + 2.5, y + 0.1, max(w, 0.06), 0.4, fill=colr if win else LIGHTBAR, line=None, rounded=False)
+            text(s, x + 2.5 + max(w, 0.06) + 0.12, y, 0.9, 0.6, lab, size=14, color=colr if win else GREY, bold=True, anchor=MID)
+            y += 0.78
+    source(s, QBR_SOURCE + " Left: unique users (AC Chart first month; videos and quiz Jul to Sep; Clinical Audit = enrolments since 19 Mar). "
+                           "Right: estimated sign-ups in the two weeks after each Jul to Sep eDM campaign, above a normal week.")
+
+
 def option_e(prs, layout):
     """Two by two: reach against sign-ups."""
     s = new_slide(prs, layout)
@@ -167,7 +201,7 @@ def option_e(prs, layout):
 
 def main() -> None:
     prs, layout = open_template()
-    builds = [option_b, option_a, option_c, option_d, option_d2]
+    builds = [option_b, option_a, option_c, option_d, option_d2, option_simple]
     if len(sys.argv) > 2:
         builds = [b for b in builds if b.__name__ in sys.argv[2:]]
     for build in builds:
