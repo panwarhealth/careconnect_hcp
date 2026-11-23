@@ -685,11 +685,37 @@ def airy(slide, body=1.2, cell=1.1, extra_gap=2):
                 para.space_after = Pt(para.space_after.pt + extra_gap)
 
 
+def slide_rec1_simple(prs, layout):
+    s = new_slide(prs, layout)
+    title(s, size=22, t="RECOMMENDATION 1: Replacing the patched CPD plugins with a scalable platform")
+    subtitle(s, "CPD brings in more sign-ups than anything else, so we're building our own platform for it, run by Panwar.", y=1.25, size=14)
+    cards = [
+        ("SCALES", "New courses in ~5 hours, not ~30", TEAL),
+        ("ONE SIGN-UP", "A CPD sign-up is a Care Connect sign-up", NAVY),
+        ("DATA PROTECTED", "CPD records sit with Panwar; Care sees de\u2011identified reports", PURPLE),
+        ("NO LICENCES", "LearnDash dropped from Oct 2027", GREEN),
+    ]
+    w = (12.5 - 3 * 0.25) / 4
+    x = 0.42
+    for head, line, colr in cards:
+        rect(s, x, 2.1, w, 2.35)
+        rect(s, x, 2.1, w, 0.12, fill=colr, line=None)
+        text(s, x + 0.25, 2.5, w - 0.5, 0.6, head, size=18, color=colr, bold=True, spacing=60)
+        text(s, x + 0.25, 3.2, w - 0.5, 1.1, line, size=15, color=INK)
+        x += w + 0.25
+    rect(s, 10.47, 4.75, 2.45, 1.05, fill=PINK, line=None, radius=0.08)
+    text(s, 10.47, 4.77, 2.45, 0.6, "~80 HRS", size=24, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    text(s, 10.47, 5.3, 2.45, 0.4, "AMJ '27", size=12, color=WHITE, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    source(s, "Hours are Panwar Health estimates; cost to be finalised.")
+
+
 def main() -> None:
     prs, layout = open_template()
     builds = [slide_scorecard, slide_by_brand, slide_media_learnings, slide_top_assets, slide_fundamentals, slide_platform,
               slide_budget, slide_bau, slide_licences, slide_rebuild_what, slide_rebuild_costs, slide_rebuild_how, slide_timeline,
-              slide_still_to_come, slide_fy28_targets, slide_dietitians, slide_consent]
+              slide_still_to_come, slide_fy28_targets, slide_dietitians, slide_consent, slide_rec1_simple]
+    if len(sys.argv) > 2:  # build only the named slides, e.g. slide_rec1_simple
+        builds = [b for b in builds if b.__name__ in sys.argv[2:]]
     for build in builds:
         build(prs, layout)
     for slide in prs.slides:
