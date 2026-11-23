@@ -14,7 +14,7 @@ from pptx.util import Inches
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_jas26_slides import (  # noqa: E402
     CARD, GREY, INK, LINE, MUTED, NAVY, PINK, PURPLE, TEAL, WHITE,
-    new_slide, open_template, rect, source, text, title,
+    AMBER, label, new_slide, open_template, rect, source, text, title,
 )
 from build_fy28_slides import GREEN, SOFT_BLUE  # noqa: E402
 
@@ -196,6 +196,32 @@ def option_e(prs, layout):
     source(s, SOURCE)
 
 
+def costs_simple(prs, layout):
+    """Simplified version of the Rec 1 costs slide: one comparison, one payback line."""
+    s = new_slide(prs, layout)
+    title(s, size=22, t="BRINGING CPD IN-HOUSE: a new course takes ~5 developer hours, not ~30")
+    label(s, 0.42, 1.45, 12.5, "DEVELOPER HOURS TO PUT ONE NEW CPD COURSE ON THE SITE")
+    for x, head, big, colr in ((0.42, "TODAY", "~26-32 hrs", AMBER), (7.3, "IN-HOUSE", "~4-5 hrs", GREEN)):
+        rect(s, x, 1.8, 5.62, 2.0)
+        text(s, x + 0.4, 1.98, 4.8, 0.3, head, size=12, color=GREY, bold=True, spacing=150)
+        text(s, x + 0.4, 2.3, 4.8, 1.3, big, size=54, color=colr, bold=True, anchor=MID)
+    arrow(s, 6.22, 2.45, 0.9, 0.7, PINK)
+
+    label(s, 0.42, 4.08, 12.5, "DEVELOPER HOURS SAVED EACH YEAR")
+    w, x = (12.5 - 0.6) / 3, 0.42
+    for courses, saved in (("2", "~50 hrs"), ("3", "~75 hrs"), ("4", "~100 hrs")):
+        rect(s, x, 4.4, w, 1.2)
+        text(s, x + 0.4, 4.4, 1.9, 1.2, saved, size=28, color=NAVY, bold=True, anchor=MID)
+        text(s, x + 2.3, 4.4, w - 2.5, 1.2, f"with {courses} new courses a year", size=12.5, color=INK, anchor=MID)
+        x += w + 0.3
+
+    rect(s, 0.42, 5.8, 12.5, 0.9, fill=NAVY, line=None, radius=0.1)
+    text(s, 0.7, 5.8, 11.9, 0.9, [[("At 3 to 4 new courses a year, the ~80 hour build pays for itself in about a year. ", {"bold": True}),
+                                   ("Developer hours only: writing, reviewing and accrediting course content is separate.", {})]],
+         size=12.5, color=WHITE, anchor=MID)
+    source(s, "Hours are Panwar Health estimates of website build time, based on the 2026 Clinical Audit build (CAPH0150).")
+
+
 from pptx.dml.color import RGBColor  # noqa: E402
 
 RGB_SOFT = RGBColor(0xB9, 0xC6, 0xDE)
@@ -203,7 +229,7 @@ RGB_SOFT = RGBColor(0xB9, 0xC6, 0xDE)
 
 def main() -> None:
     prs, layout = open_template()
-    builds = [option_a, option_b, option_c, option_d, option_e]
+    builds = [option_a, option_b, option_c, option_d, option_e, costs_simple]
     if len(sys.argv) > 2:  # only the named options, e.g. option_c
         builds = [b for b in builds if b.__name__ in sys.argv[2:]]
     for build in builds:
