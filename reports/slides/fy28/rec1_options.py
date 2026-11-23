@@ -101,11 +101,14 @@ def option_c(prs, layout):
     title(s, size=22, t=TITLE)
     steps = [
         ("THE PROBLEM", GREY, "CPD runs on patched plugins",
-         ["Three third-party plugins wired together", "Every new course takes ~30 developer hours", "Each course adds more workarounds"]),
+         ["Three third-party plugins wired together", "Every new course takes ~30 developer hours",
+          "CPD participant records sit on Care's own site"]),
         ("WHAT WE DO", NAVY, "Build our own CPD platform",
-         ["Purpose-built for Care Connect, run by Panwar", "The Clinical Audit moves across, record by record", "HCPs see no disruption"]),
-        ("WHAT CARE GETS", GREEN, "CPD that can grow",
-         ["New courses in ~5 hours", "One sign-up for CPD and Care Connect", "No course plugin licences from Oct 2027"]),
+         ["Purpose-built, and run by Panwar as the CPD provider", "CPD records and scoring move to Panwar's systems",
+          "HCPs still do everything on Care Connect"]),
+        ("WHAT CARE GETS", GREEN, "CPD that scales and complies",
+         ["New courses in ~5 hours", "One sign-up for CPD and Care Connect",
+          "Compliant by design: the sponsor never holds participant data"]),
     ]
     w, gap, x = 3.75, 0.62, 0.42
     for i, (head, colr, big, items) in enumerate(steps):
@@ -115,14 +118,15 @@ def option_c(prs, layout):
         text(s, x + 0.3, 2.35, w - 0.6, 0.95, big, size=20, color=colr if colr != GREY else INK, bold=True)
         ty = 3.4
         for item in items:
-            text(s, x + 0.3, ty, w - 0.6, 0.6, item, size=12.5, color=INK)
-            ty += 0.68
+            rect(s, x + 0.3, ty + 0.09, 0.12, 0.12, fill=colr, line=None, radius=0.5)
+            text(s, x + 0.56, ty, w - 0.86, 0.62, item, size=12.5, color=INK)
+            ty += 0.72
         if i < 2:
             arrow(s, x + w + 0.08, 3.3, gap - 0.16, 0.55, PINK)
         x += w + gap
     rect(s, 0.42, 5.85, 9.85, 0.85, fill=SOFT_BLUE, line=None, radius=0.08)
-    text(s, 0.67, 5.85, 9.4, 0.85, [[("Data protected: ", {"bold": True, "color": NAVY}),
-                                    ("CPD records sit with Panwar as the CPD provider; Care gets de\u2011identified reports.", {})]], size=13, anchor=MID)
+    text(s, 0.67, 5.85, 9.4, 0.85, [[("Also: ", {"bold": True, "color": NAVY}),
+                                    ("no course plugin licences from Oct 2027, and Care gets de\u2011identified CPD reports on request.", {})]], size=13, anchor=MID)
     hours_box(s, 10.47, 5.85, h=0.85)
     source(s, SOURCE)
 
@@ -194,7 +198,10 @@ RGB_SOFT = RGBColor(0xB9, 0xC6, 0xDE)
 
 def main() -> None:
     prs, layout = open_template()
-    for build in (option_a, option_b, option_c, option_d, option_e):
+    builds = [option_a, option_b, option_c, option_d, option_e]
+    if len(sys.argv) > 2:  # only the named options, e.g. option_c
+        builds = [b for b in builds if b.__name__ in sys.argv[2:]]
+    for build in builds:
         build(prs, layout)
     prs.save(sys.argv[1])
     print(f"wrote {sys.argv[1]} ({len(prs.slides)} slides)")
