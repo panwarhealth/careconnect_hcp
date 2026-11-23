@@ -40,7 +40,7 @@ def option_a(prs, layout):
         text(s, x + 0.45, 2.95, 5.2, 1.2, big, size=58, color=colr, bold=True, anchor=MID)
         text(s, x + 0.45, 4.25, 5.2, 0.7, line, size=14, color=INK)
     rect(s, 0.42, 5.4, 12.5, 1.3, fill=LIGHTBAR, line=None, radius=0.06)
-    text(s, 0.87, 5.55, 3.0, 0.3, "WHAT DID NEITHER?", size=12, color=INK, bold=True, spacing=150)
+    text(s, 0.87, 5.55, 3.0, 0.3, "WHAT DID LESS?", size=12, color=INK, bold=True, spacing=150)
     text(s, 0.87, 5.9, 11.6, 0.6, [[("Video: ", {"bold": True}), ("0.5% of clicks on the FESS video eDMs became sign-ups.   ", {}),
                                    ("Quiz: ", {"bold": True}), ("48 unique users in six weeks.", {})]], size=14, color=INK)
     source(s, SOURCE)
@@ -53,7 +53,7 @@ def option_b(prs, layout):
     rect(s, 0.42, 1.5, 4.6, 5.2, fill=SOFT_GREEN, line=None, radius=0.05)
     text(s, 0.82, 1.9, 3.8, 0.3, "FY27 TO DATE", size=12, color=GREY, bold=True, spacing=150)
     text(s, 0.82, 2.4, 3.8, 1.7, ["Tools", "and CPD"], size=44, color=GREEN, bold=True, anchor=MID)
-    text(s, 0.82, 4.4, 3.8, 2.0, "Tools brought HCPs to the site. CPD turned them into sign-ups.", size=16, color=INK, bold=True)
+    text(s, 0.82, 4.4, 3.8, 2.0, "Tools brought HCPs to the site. CPD brought the sign-ups.", size=16, color=INK, bold=True)
     rows = [
         ("BROUGHT HCPs IN", NAVY, "Zaditen AC Chart: ~1,000 unique users in its first month, the top resource of FY27."),
         ("MADE THEM SIGN UP", NAVY, "Clinical Audit: 184 enrolled, and 8.4% of clicks on its eDM became sign-ups."),
@@ -141,7 +141,7 @@ def option_e(prs, layout):
 
 def main() -> None:
     prs, layout = open_template()
-    builds = [option_a, option_b, option_c, option_d, option_e]
+    builds = [option_b, option_a, option_c, option_d]
     if len(sys.argv) > 2:
         builds = [b for b in builds if b.__name__ in sys.argv[2:]]
     for build in builds:
