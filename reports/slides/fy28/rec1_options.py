@@ -107,7 +107,7 @@ def option_c(prs, layout):
          ["Purpose-built, and run by Panwar as the CPD provider", "CPD records and scoring move to Panwar's systems",
           "HCPs still do everything on Care Connect"]),
         ("WHAT CARE GETS", GREEN, "More CPD, more registrations",
-         ["More CPD courses, live sooner", "Richer courses, built in Panwar's SCORM course editor",
+         ["More CPD courses, live sooner", "Can deliver richer, more engaging SCORM courses",
           "Compliant by design: the sponsor never holds participant data",
           "More HCP registrations: every CPD sign-up joins Care Connect"]),
     ]
