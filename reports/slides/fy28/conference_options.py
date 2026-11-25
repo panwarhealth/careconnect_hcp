@@ -100,14 +100,14 @@ def option_b(prs, layout):
 def option_c(prs, layout):
     """Three columns: at the stand, the QR code, what happens next."""
     s = new_slide(prs, layout)
-    title(s, size=22, t=TITLE)
+    title(s, size=22, t="CONFERENCES: from conversation to Care Connect sign-up")
     cols = [
-        ("AT THE STAND", TEAL, "Swap contacts",
-         ["HCPs tap phones with our iPhone", "Or our host types in their name and email", "We create their account after the event"]),
+        ("AT THE STAND", TEAL, "Exchange contacts",
+         ["HCPs tap phones with our iPhone", "Or our host enters their name and email", "We create their account after the event"]),
         ("ON THE BANNER AND FLYERS", PURPLE, "Scan the QR code",
-         ["For HCPs who'd rather not stop", "A sign-up page explains the benefits", "AHPRA number checked as they register"]),
-        ("WHAT HAPPENS NEXT", GREEN, "A guided first login",
-         ["Welcome email with a link to log in", "Accept the Terms, then marketing consent",
+         ["For HCPs who prefer to keep moving", "A sign-up page lists the benefits", "AHPRA number checked as they register"]),
+        ("WHAT HAPPENS NEXT", GREEN, "Guided first login",
+         ["Welcome email with login link", "Accept the Terms, then marketing consent",
           "Keep or change their password", "Finish on a Welcome to Care Connect page"]),
     ]
     w, gap, x = 3.75, 0.62, 0.42
