@@ -1,7 +1,10 @@
 """One-time OAuth flow: produces .secrets/ga4-token.json with a refresh token.
 
 Usage:
-    python reports/ga4_auth.py
+    python reports/ga4_auth.py            # read-only token used by the report scripts
+    python reports/ga4_auth.py --admin    # edit token for property settings, saved separately
+
+The admin token lives in its own file so report scripts can never change the property.
 """
 import sys
 from pathlib import Path
@@ -10,8 +13,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 ROOT = Path(__file__).resolve().parent.parent
 CLIENT_JSON = ROOT / ".secrets" / "ga4-oauth-client.json"
-TOKEN_JSON = ROOT / ".secrets" / "ga4-token.json"
-SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
+ADMIN = "--admin" in sys.argv
+TOKEN_JSON = ROOT / ".secrets" / ("ga4-admin-token.json" if ADMIN else "ga4-token.json")
+SCOPES = ["https://www.googleapis.com/auth/analytics.edit" if ADMIN else "https://www.googleapis.com/auth/analytics.readonly"]
 PORT = 8766
 
 

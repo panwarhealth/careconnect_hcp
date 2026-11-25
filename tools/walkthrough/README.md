@@ -69,3 +69,6 @@ do not run against staging or prod.
   activity evaluation, thank-you, certificate. The test user needs legacy audit progress for the
   chooser to show both cards (Rob-Panwar has it in the seeded DB). Step 1B counts are in
   `NUMBERS`; boxes not listed are left blank on purpose to exercise the fill-with-zero on Next.
+- `caph0148/`: travel & diabetes case study. `checks.mjs` plays it at four screen sizes (PASS/FAIL
+  only); `build.sh` makes the review PDF in the client's v1 layout: five full-length pages (the
+  completed page, then the page behind each pop-up), merged at v1's page width by `merge.py`.
