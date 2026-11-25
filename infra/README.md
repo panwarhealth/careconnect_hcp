@@ -18,6 +18,22 @@ Spin up / tear down the ephemeral Azure staging environment for hcp.carepharma.c
 ./infra/staging-seed.sh    # re-seed DB from local Docker (or a dump path you pass)
 ```
 
+## Where staging's code comes from (since Nov 2026, untested until the next spin-up)
+
+`staging-up.sh` builds staging from **prod's code** by default (`staging-prod-code.sh` pulls prod's webroot over SSH, without uploads). Local `site/` lags prod (core, licensed plugins, branches deployed before merging), and building from it is what broke staging on 25 Nov 2026. `./infra/staging-up.sh --local` keeps the old behaviour for testing a branch end to end. Needs `infra/.prod-secrets`.
+
+Step 10 runs `staging-fixup.sh` automatically (re-runnable on its own):
+- fixes `localhost:8080` URLs left in serialized options, post content and postmeta
+- re-activates the Formidable Pro licence (`LIC_FORMIDABLE_KEY` from `.prod-secrets`; the local sanitize blanks it, which silently turns Pro off and breaks forms and the MCA step nav)
+- runs Formidable/ACF DB upgrades and rebuilds Formidable's generated stylesheet
+- compares core + every plugin version with prod and fails on anything not on its expected-differences list
+
+Other staging-only protections:
+- `staging-no-autoupdate.php` goes into `mu-plugins`. Without it, staging (which has internet; prod doesn't) auto-updates core on the first page loads and can get stuck behind `.maintenance`.
+- `staging-prod-code.sh` strips LearnDash's `LWSW_KEY.php` and checks for paths that differ only by letter case. Azure Files merges those, which mixed old and new Code Snippets files and took the site down; affected wordpress.org plugins are swapped for their clean official zip.
+
+After the first spin-up with this, log into wp-admin once so the remaining plugin upgrade routines (Rank Math etc.) run, then hand over.
+
 ## What spins up
 
 | Resource | SKU | Approx cost running |

@@ -17,16 +17,21 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/staging-env.sh"
 
+# Code comes from prod by default so staging is a faithful copy of it.
+# --local deploys this repo's site/ instead (e.g. to test a branch end to end).
+CODE_SOURCE="prod"
+[ "${1:-}" = "--local" ] && CODE_SOURCE="local"
+
 require_tools
 require_login
 
-echo "[1/9] Ensure MySQL resource provider registered..."
+echo "[1/10] Ensure MySQL resource provider registered..."
 STATE=$(az provider show --namespace Microsoft.DBforMySQL --query registrationState -o tsv)
 if [ "$STATE" != "Registered" ]; then
   az provider register --namespace Microsoft.DBforMySQL --wait
 fi
 
-echo "[2/9] Generate MySQL admin password and persist..."
+echo "[2/10] Generate MySQL admin password and persist..."
 if [ ! -f "$SECRETS_FILE" ]; then
   MYSQL_PASS="$(openssl rand -base64 16 | tr -d '/+=' | head -c 20)Az1!"
   echo "MYSQL_PASS=${MYSQL_PASS}" > "$SECRETS_FILE"
@@ -35,7 +40,7 @@ fi
 # shellcheck source=/dev/null
 source "$SECRETS_FILE"
 
-echo "[3/9] Create MySQL Flexible Server (B1ms, 20GB)..."
+echo "[3/10] Create MySQL Flexible Server (B1ms, 20GB)..."
 if ! az mysql flexible-server show -g "$STAGING_RG" -n "$STAGING_DB_SERVER" >/dev/null 2>&1; then
   az mysql flexible-server create \
     --resource-group "$STAGING_RG" \
@@ -55,20 +60,20 @@ else
   az mysql flexible-server start -g "$STAGING_RG" -n "$STAGING_DB_SERVER" -o none 2>/dev/null || true
 fi
 
-echo "[4/9] Create DB + allow Azure services + current IP..."
+echo "[4/10] Create DB + allow Azure services + current IP..."
 az mysql flexible-server db create -g "$STAGING_RG" -s "$STAGING_DB_SERVER" -d "$STAGING_DB_NAME" -o none 2>/dev/null || true
 az mysql flexible-server parameter set -g "$STAGING_RG" -s "$STAGING_DB_SERVER" --name require_secure_transport --value OFF -o none 2>/dev/null || true
 az mysql flexible-server firewall-rule create -g "$STAGING_RG" -n "$STAGING_DB_SERVER" --rule-name AllowAzureServices --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0 -o none 2>/dev/null || true
 MY_IP=$(curl -s ifconfig.me)
 az mysql flexible-server firewall-rule create -g "$STAGING_RG" -n "$STAGING_DB_SERVER" --rule-name "AllowCurrentIP" --start-ip-address "$MY_IP" --end-ip-address "$MY_IP" -o none 2>/dev/null || true
 
-echo "[5/9] Create App Service Plan + Web App..."
+echo "[5/10] Create App Service Plan + Web App..."
 az appservice plan show -g "$STAGING_RG" -n "$STAGING_APP_PLAN" >/dev/null 2>&1 || \
   az appservice plan create -g "$STAGING_RG" -n "$STAGING_APP_PLAN" -l "$STAGING_LOCATION" --sku "$STAGING_APP_SKU" --is-linux -o none
 az webapp show -g "$STAGING_RG" -n "$STAGING_APP_NAME" >/dev/null 2>&1 || \
   az webapp create -g "$STAGING_RG" --plan "$STAGING_APP_PLAN" -n "$STAGING_APP_NAME" --runtime "PHP|8.3" -o none
 
-echo "[6/9] Configure App Service env vars..."
+echo "[6/10] Configure App Service env vars..."
 ENV_FILE="${SCRIPT_DIR}/../.env"
 [ -f "$ENV_FILE" ] || { echo "ERROR: $ENV_FILE not found — needed for AHPRA_PIEWS_* values"; exit 1; }
 AHPRA_USER=$(grep -E '^AHPRA_PIEWS_USER='     "$ENV_FILE" | cut -d= -f2-)
@@ -103,12 +108,18 @@ az webapp config set -g "$STAGING_RG" -n "$STAGING_APP_NAME" --startup-file "/ho
 echo "  ... waiting 45s for App Service to stabilise after env var changes..."
 sleep 45
 
-echo "[7/9] Build + deploy site zip (nginx-config-aware)..."
+echo "[7/10] Build + deploy site zip from ${CODE_SOURCE} code (nginx-config-aware)..."
 ZIP_TMP="$(mktemp -u /tmp/staging-deploy-XXXX).zip"
-SITE_DIR="$(cd "${SCRIPT_DIR}/../site" && pwd)"
-cp "${SCRIPT_DIR}/staging-default.conf" "${SITE_DIR}/default"
-cp "${SCRIPT_DIR}/staging-startup.sh" "${SITE_DIR}/startup.sh"
-chmod +x "${SITE_DIR}/startup.sh"
+if [ "$CODE_SOURCE" = "prod" ]; then
+  SITE_DIR="$(mktemp -d /tmp/staging-prod-code-XXXX)"
+  "${SCRIPT_DIR}/staging-prod-code.sh" "$SITE_DIR"
+else
+  SITE_DIR="$(cd "${SCRIPT_DIR}/../site" && pwd)"
+  cp "${SCRIPT_DIR}/staging-default.conf" "${SITE_DIR}/default"
+  cp "${SCRIPT_DIR}/staging-startup.sh" "${SITE_DIR}/startup.sh"
+  chmod +x "${SITE_DIR}/startup.sh"
+  cp "${SCRIPT_DIR}/staging-no-autoupdate.php" "${SITE_DIR}/wp-content/mu-plugins/staging-no-autoupdate.php"
+fi
 (cd "$SITE_DIR" && zip -qr "$ZIP_TMP" . \
   -x "wp-content/uploads/*" \
   -x "wp-content/cache/*" \
@@ -122,7 +133,11 @@ chmod +x "${SITE_DIR}/startup.sh"
   -x "wp-content/plugins/advanced-custom-fields/*" \
   -x "wp-content/plugins/wp-optimize/*" \
   -x "*.git*" -x "*.DS_Store")
-rm -f "${SITE_DIR}/default" "${SITE_DIR}/startup.sh"
+if [ "$CODE_SOURCE" = "prod" ]; then
+  rm -rf "${SITE_DIR:?}"
+else
+  rm -f "${SITE_DIR}/default" "${SITE_DIR}/startup.sh" "${SITE_DIR}/wp-content/mu-plugins/staging-no-autoupdate.php"
+fi
 az webapp deploy -g "$STAGING_RG" -n "$STAGING_APP_NAME" --src-path "$ZIP_TMP" --type zip --async true -o none
 echo "  ... waiting for app to respond (async deploy)..."
 for i in $(seq 1 24); do
@@ -133,12 +148,17 @@ for i in $(seq 1 24); do
 done
 rm -f "$ZIP_TMP"
 
-echo "[8/9] Seed database from local dump + sanitize..."
+echo "[8/10] Seed database from local dump + sanitize..."
 "${SCRIPT_DIR}/staging-seed.sh"
 
-echo "[9/9] Warm the app (first hit primes nginx config)..."
+echo "[9/10] Warm the app (first hit primes nginx config)..."
 sleep 15
 curl -sL -o /dev/null -w "  Homepage: HTTP %{http_code}\n" "${STAGING_URL}/"
+
+echo "[10/10] Post-seed fix-ups + parity check against prod..."
+FIXUP_OK=1
+"${SCRIPT_DIR}/staging-fixup.sh" || FIXUP_OK=0
+[ "$FIXUP_OK" = 1 ] || echo "⚠️  Fix-up or parity check reported problems above. Resolve them before handing staging over."
 
 cat <<EOF
 
