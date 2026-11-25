@@ -106,8 +106,9 @@ def option_c(prs, layout):
          ["HCPs tap phones with our iPhone", "Or our host types in their name and email", "We create their account after the event"]),
         ("ON THE BANNER AND FLYERS", PURPLE, "Scan the QR code",
          ["For HCPs who'd rather not stop", "A sign-up page explains the benefits", "AHPRA number checked as they register"]),
-        ("WHAT HAPPENS NEXT", GREEN, "One path for everyone",
-         ["Accept the Terms (can't be skipped)", "Marketing consent: Yes or No", "Welcome to Care Connect page"]),
+        ("WHAT HAPPENS NEXT", GREEN, "A guided first login",
+         ["Welcome email with a link to log in", "Accept the Terms, then marketing consent",
+          "Keep or change their password", "Finish on a Welcome to Care Connect page"]),
     ]
     w, gap, x = 3.75, 0.62, 0.42
     for i, (head, colr, big, items) in enumerate(cols):
@@ -115,11 +116,11 @@ def option_c(prs, layout):
         rect(s, x, 1.5, w, 0.6, fill=colr, line=None, radius=0.08)
         text(s, x + 0.3, 1.5, w - 0.6, 0.6, head, size=11.5, color=WHITE, bold=True, spacing=120, anchor=MID)
         text(s, x + 0.3, 2.35, w - 0.6, 0.6, big, size=20, color=colr, bold=True)
-        ty = 3.2
+        ty = 3.1
         for item in items:
             rect(s, x + 0.3, ty + 0.09, 0.12, 0.12, fill=colr, line=None, radius=0.5)
-            text(s, x + 0.56, ty, w - 0.86, 0.62, item, size=13, color=INK)
-            ty += 0.75
+            text(s, x + 0.56, ty, w - 0.86, 0.55, item, size=13, color=INK)
+            ty += 2.25 / len(items)
         if i == 0:
             text(s, x + w, 3.25, gap, 0.5, "or", size=16, color=GREY, bold=True, align=CENTER, anchor=MID)
         if i == 1:
