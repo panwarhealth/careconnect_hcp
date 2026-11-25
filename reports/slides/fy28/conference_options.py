@@ -126,8 +126,8 @@ def option_c(prs, layout):
             arrow(s, x + w + 0.08, 3.3, gap - 0.16, 0.55, PINK)
         x += w + gap
     rect(s, 0.42, 5.85, 9.85, 0.85, fill=SOFT_BLUE, line=None, radius=0.08)
-    text(s, 0.67, 5.85, 9.4, 0.85, [[("Every sign-up is tagged by conference, ", {"bold": True, "color": NAVY}),
-                                    ("so we can report what each event brought in.", {})]], size=13, anchor=MID)
+    text(s, 0.67, 5.85, 9.4, 0.85, [[("Starting target: ", {"bold": True, "color": NAVY}),
+                                    ("20 new HCP sign-ups per conference.", {})]], size=15, anchor=MID)
     hours_box(s, 10.47, 5.85)
     source(s, SOURCE)
 
